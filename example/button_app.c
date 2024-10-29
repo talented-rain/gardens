@@ -50,6 +50,7 @@ static void *button_app_entry(void *args)
     struct mail_msg sgrt_msg[1] = {};
     kssize_t retval;
 
+    real_thread_set_name(__FUNCTION__);
     mailbox_init(sprt_mb, mrt_current->tid, "button-app-mailbox");
 
     do {

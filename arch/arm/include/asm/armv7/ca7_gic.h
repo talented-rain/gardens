@@ -131,7 +131,7 @@ typedef struct ca7_gic_cpu
 
 /* The functions */
 TARGET_EXT srt_ca7_gic_t *fwk_get_gic_data(kuint32_t gic_nr);
-TARGET_EXT kint32_t fwk_gic_to_gpc_irq(kint32_t hwirq);
+TARGET_EXT kint32_t fwk_gic_to_actual_irq(kint32_t hwirq);
 TARGET_EXT kint32_t fwk_gpc_to_gic_irq(kint32_t virq);
 
 /*!

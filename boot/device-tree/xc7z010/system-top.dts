@@ -14,62 +14,62 @@
 #include "system-conf.dtsi"
 
 / {	
-	reserved-memory {
-	    #address-cells = <1>;
-	    #size-cells = <1>;
-	    ranges;
-	
-	    reserved: rproc@0x10000000 {
-	        no-map;
-	        reg = <0x10000000 0x10000000>;
-	    };
-	};
-	
-	ledgpio {
-	    compatible = "xlnx, z7-lite, ledgpio";
-	    led1-gpios = <&gpio0 0 GPIO_ACTIVE_LOW>;
-	    intc_id = <0>;
-	    gpio_id = <0>;
-	    
-	    status = "okay";
-	};
-	
-	extkey {
-	    compatible = "xlnx, z7-lite, extkey";
-	    key0-gpios = <&gpio0 9 GPIO_ACTIVE_LOW>;
-	    interrupt-parent = <&gpio0>;
-	    interrupt = <9 IRQ_TYPE_EDGE_BOTH>;
-	    
-	    status = "okay";
-	};
-	
-	video_timings {
-	    timing_1920x1080: timing-1080p {
-	        clock-freq = <148500000>;
-	        height = <1920>;
-	        width = <1080>;
-	        
-	        h-back-porch = <148>;
-	        h-sync-width = <44>;
-	        h-front-porch = <88>;
-	        v-back-porch = <36>;
-	        v-sync-width = <5>;
-	        v-front-porch = <4>;
-	        
-	        h-sync-active = <0>;
-	        v-sync-active = <0>;
-	        de-active = <1>;
-	        pixelclk-active = <1>;
-	    };
-	};
-	
-	usb_phy0: usb_phy@0 {
-	    compatible = "usb-device";
-	    #phy-cells = <0>;
-	    reg = <0xe0002000 0x1000>;
-	    view-port = <0x170>;
-	    drv-vbus;
-	};
+    reserved-memory {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        ranges;
+    
+        reserved: rproc@0x10000000 {
+            no-map;
+            reg = <0x10000000 0x10000000>;
+        };
+    };
+    
+    video_timings {
+        timing_1920x1080: timing-1080p {
+            clock-freq = <148500000>;
+            height = <1920>;
+            width = <1080>;
+            
+            h-back-porch = <148>;
+            h-sync-width = <44>;
+            h-front-porch = <88>;
+            v-back-porch = <36>;
+            v-sync-width = <5>;
+            v-front-porch = <4>;
+            
+            h-sync-active = <0>;
+            v-sync-active = <0>;
+            de-active = <1>;
+            pixelclk-active = <1>;
+        };
+    };
+    
+    usb_phy0: usb_phy@0 {
+        compatible = "usb-device";
+        #phy-cells = <0>;
+        reg = <0xe0002000 0x1000>;
+        view-port = <0x170>;
+        drv-vbus;
+    };
+
+    ledgpio {
+        compatible = "xlnx,z7-lite,ledgpio";
+        pinctrl-0 = <&pinctrl_led1_gpio>;
+        led-gpios = <&gpio0 0 GPIO_ACTIVE_LOW>;
+        
+        status = "okay";
+    };
+    
+    extkey {
+        compatible = "xlnx,z7-lite,extkey";
+        pinctrl-0 = <&pinctrl_extkey>;
+        key-gpios = <&gpio0 9 GPIO_ACTIVE_LOW>;
+        interrupt-parent = <&gpio0>;
+        interrupt = <9 IRQ_TYPE_EDGE_BOTH>;
+        
+        status = "okay";
+    };
 };
 
 &usb0 {
@@ -88,3 +88,33 @@
     };
 };
 
+&pinctrl0 {
+    pinctrl_led1_gpio: led1_gpio_pingrp {
+        mux {
+            groups = "gpio0_0_grp";
+            function = "led1_gpio";
+        };
+
+        conf {
+            groups = "gpio0_0_grp";
+            bias-high-impedance;
+            slew-rate = <0>;
+            io-standard = <1>;
+        };
+    };
+
+    pinctrl_extkey: extkey_pingrp {
+        mux {
+            groups = "gpio0_9_grp";
+            function = "extkey";
+        };
+
+        conf {
+            groups = "gpio0_9_grp";
+            bias-high-impedance;
+            bias-pull-up;
+            slew-rate = <0>;
+            io-standard = <1>;
+        };
+    };
+};

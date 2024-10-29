@@ -121,6 +121,8 @@ do {   \
 /*!< The functions */
 TARGET_EXT void io_putc(const kubyte_t ch);
 TARGET_EXT void io_putstr(const kubyte_t *msgs, kusize_t size);
+TARGET_EXT kubyte_t io_getc(kubyte_t *ch);
+TARGET_EXT kssize_t io_getstr(kubyte_t *msgs, kusize_t size);
 TARGET_EXT void printk(const kchar_t *ptr_fmt, ...);
 
 #define print_err(fmt, ...)                             printk(PRINT_LEVEL_ERR fmt, ##__VA_ARGS__)

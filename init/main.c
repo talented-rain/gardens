@@ -39,16 +39,15 @@
  */
 void start_kernel(void)
 {
-    print_info("start kernel ...... \n");
-
     /*!< disable interrupt */
     mrt_disable_cpu_irq();
 
     /*!< initial memory pool */
     fwk_mempool_initial();
+    print_info("\nstart kernel ...... \n");
 
     /*!< build device-tree */
-    setup_machine_fdt((void *)CONFIG_DEVICE_TREE_BASE);
+    setup_machine_fdt(mrt_nullptr);
 
     /*!< board initcall */
     if (run_machine_initcall())

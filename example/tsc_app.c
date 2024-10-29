@@ -47,6 +47,8 @@ static void *tsc_app_entry(void *args)
     struct fwk_input_event sgrt_event[4] = {};
     kssize_t retval;
 
+    real_thread_set_name(__FUNCTION__);
+    
     do 
     {
         fd = virt_open("/dev/input/event1", O_RDONLY);

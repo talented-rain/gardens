@@ -29,6 +29,12 @@ static kuint32_t g_kworker_stack[KWORKER_THREAD_STACK_SIZE];
 static DECLARE_WORKQUEUE(sgrt_kworker_wqh);
 
 /*!< API functions */
+/*!
+ * @brief	add sprt_wq to sgrt_kworker_wqh
+ * @param  	sprt_wq: new work
+ * @retval 	none
+ * @note   	none
+ */
 void schedule_work(struct workqueue *sprt_wq)
 {
     queue_work(&sgrt_kworker_wqh, sprt_wq);
@@ -44,6 +50,9 @@ static void *kworker_entry(void *args)
 {
     struct workqueue *sprt_wq;
     struct workqueue *sprt_temp;
+
+    real_thread_set_name(__FUNCTION__);
+    print_info("%s is enter, which tid is: %d\n", __FUNCTION__, mrt_current->tid);
 
     for (;;)
     {

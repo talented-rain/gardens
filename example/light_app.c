@@ -49,10 +49,13 @@ static void *light_app_entry(void *args)
     struct mail sgrt_mail = {};
     kint32_t retval;
 
+    real_thread_set_name(__FUNCTION__);
     mailbox_init(&sgrt_light_app_mailbox, mrt_current->tid, "light-app-mailbox");
 
     for (;;)
     {       
+//      print_info("%s is running, which tid is: %d\n", __FUNCTION__, mrt_current->tid);
+        
         fd = virt_open("/dev/ledgpio", O_RDWR);
         if (fd < 0)
             goto END1;

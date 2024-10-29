@@ -189,6 +189,61 @@ typedef struct
 } XGpioPs;
 
 /*!< ---------------------------------------------------------------------
+                                ScuTimer                                   
+ ---------------------------------------------------------------------- */
+/*!< @name Register Map
+ * Offsets of registers from the start of the device
+ * @{
+ */
+
+#define XSCUTIMER_LOAD_OFFSET               0x00U           /*!< Timer Load Register */
+#define XSCUTIMER_COUNTER_OFFSET            0x04U           /*!< Timer Counter Register */
+#define XSCUTIMER_CONTROL_OFFSET            0x08U           /*!< Timer Control Register */
+#define XSCUTIMER_ISR_OFFSET                0x0CU           /*!< Timer Interrupt Status Register */
+
+/*!< @name Timer Control register
+ * This register bits control the prescaler, Intr enable,
+ * auto-reload and timer enable.
+ * @{
+ */
+#define XSCUTIMER_CONTROL_PRESCALER_MASK    0x0000FF00U     /*!< Prescaler */
+#define XSCUTIMER_CONTROL_PRESCALER_SHIFT   8U  
+#define XSCUTIMER_CONTROL_IRQ_ENABLE_MASK   0x00000004U     /*!< Intr enable */
+#define XSCUTIMER_CONTROL_AUTO_RELOAD_MASK  0x00000002U     /*!< Auto-reload */
+#define XSCUTIMER_CONTROL_ENABLE_MASK       0x00000001U     /*!< Timer enable */
+
+/*!< @name Interrupt Status register
+ * This register indicates the Timer counter register has reached zero.
+ * @{
+ */
+
+#define XSCUTIMER_ISR_EVENT_FLAG_MASK       0x00000001U     /**< Event flag */
+
+/*!<
+ * This typedef contains configuration information for the device.
+ */
+typedef struct 
+{
+	kuint16_t DeviceId;	                                    /*!< Unique ID of device */
+	kuint32_t BaseAddr;	                                    /*!< Base address of the device */
+
+} XScuTimer_Config;
+
+/*!<
+ * The XScuTimer driver instance data. The user is required to allocate a
+ * variable of this type for every timer device in the system.
+ * A pointer to a variable of this type is then passed to the driver API
+ * functions.
+ */
+typedef struct 
+{
+	XScuTimer_Config Config;                                /*!< Hardware Configuration */
+	kbool_t IsReady;		                                /*!< Device is initialized and ready */
+	kbool_t IsStarted;		                                /*!< Device timer is running */
+
+} XScuTimer;
+
+/*!< ---------------------------------------------------------------------
                                 UartPs                                   
  ---------------------------------------------------------------------- */
 #define XUARTPS_CR_OFFSET		            0x0000U         /*!< Control Register [8:0] */
@@ -913,6 +968,20 @@ TARGET_EXT kint32_t XGpioPs_SetOutputEnablePin(XGpioPs *sprt_gpio, kuint32_t Pin
 TARGET_EXT kint32_t XGpioPs_ReadPin(XGpioPs *sprt_gpio, kuint32_t Pin);
 TARGET_EXT kint32_t XGpioPs_WritePin(XGpioPs *sprt_gpio, kuint32_t Pin, kuint32_t Data);
 
+/*!< Timer */
+TARGET_EXT XScuTimer_Config *XScuTimer_LookupConfig(kuint16_t DeviceId);
+TARGET_EXT kint32_t XScuTimer_CfgInitialize(XScuTimer *sprt_scutimer, XScuTimer_Config *sprt_config, kuint32_t BaseAddr);
+TARGET_EXT void XScuTimer_Start(XScuTimer *sprt_scutimer);
+TARGET_EXT void XScuTimer_Stop(XScuTimer *sprt_scutimer);
+TARGET_EXT void XScuTimer_LoadTimer(XScuTimer *sprt_scutimer, kuint32_t value);
+TARGET_EXT void XScuTimer_RestartTimer(XScuTimer *sprt_scutimer);
+TARGET_EXT void XScuTimer_EnableAutoReload(XScuTimer *sprt_scutimer);
+TARGET_EXT void XScuTimer_DisableAutoReload(XScuTimer *sprt_scutimer);
+TARGET_EXT void XScuTimer_EnableInterrupt(XScuTimer *sprt_scutimer);
+TARGET_EXT void XScuTimer_DisableInterrupt(XScuTimer *sprt_scutimer);
+TARGET_EXT kuint32_t XScuTimer_GetInterruptStatus(XScuTimer *sprt_scutimer);
+TARGET_EXT void XScuTimer_ClearInterruptStatus(XScuTimer *sprt_scutimer);
+
 /*!< Uart */
 TARGET_EXT XUartPs_Config *XUartPs_LookupConfig(kuint16_t DeviceId);
 TARGET_EXT void XUartPs_EnableUart(XUartPs *sprt_uart);
@@ -920,6 +989,8 @@ TARGET_EXT void XUartPs_DisableUart(XUartPs *sprt_uart);
 TARGET_EXT kint32_t XUartPs_SetBaudRate(XUartPs *sprt_uart, kuint32_t BaudRate);
 TARGET_EXT kint32_t XUartPs_CfgInitialize(XUartPs *sprt_uart, XUartPs_Config *sprt_cfg, kuint32_t address);
 TARGET_EXT kbool_t XUartPs_IsSendFull(kuint32_t address);
+TARGET_EXT kbool_t XUartPs_IsSendEmpty(kuint32_t BaseAddress);
+TARGET_EXT kbool_t XUartPs_IsRecvFull(kuint32_t BaseAddress);
 TARGET_EXT kbool_t XUartPs_IsRecvEmpty(kuint32_t address);
 TARGET_EXT kint32_t XUartPs_SendBuffer(XUartPs *sprt_uart);
 TARGET_EXT kint32_t XUartPs_ReceiveBuffer(XUartPs *sprt_uart);

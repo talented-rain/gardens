@@ -52,6 +52,7 @@ all: $(TARGET_IMGE) force
 $(TARGET_IMGE) : $(TARGET_EXEC) force
 	$(OBJCOPY) -O binary -S $(TARGET_EXEC) $@
 	$(OBJDUMP) -D -m $(ARCH) $(TARGET_EXEC) > $(TARGET_NASM)
+	$(OBJDUMP) -D -m $(ARCH) -S -l $(TARGET_EXEC) > $(TARGET_LASM)
 
 $(TARGET_EXEC) : $(head-objs) force
 	$(CC) -T$(LINK_SCRIPT) $(BUILD_CFLAGS) $(OUTPUT_FLAGS) -o $@ $(head-objs) $(OBJECT_EXEC) $(LIBS_PATH) $(LIBS)
@@ -70,7 +71,7 @@ clean:
 
 distclean:
 	rm -rf $(head-objs) $(depd-objs)
-	rm -rf $(TARGET_EXEC) $(TARGET_IMGE) $(TARGET_NASM)
+	rm -rf $(TARGET_EXEC) $(TARGET_IMGE) $(TARGET_NASM) $(TARGET_LASM)
 
 debug:
 	@echo '==========>' $(head-objs)

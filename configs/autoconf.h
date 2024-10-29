@@ -5,7 +5,6 @@
 #define CONFIG_COMPILER "arm-linux-gnueabihf-"
 #define CONFIG_COMPILER_PATH "/usr/local/arm/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf"
 #define CONFIG_ARCH_ARMV7 1
-#define CONFIG_MACH_XC7Z010_MICROPHASE 1
 #define CONFIG_LITTILE_ENDIAN 1
 #define CONFIG_XTAL_FREQ_CLK (24000000)
 #define CONFIG_RTC_FREQ_CLK (32768)
@@ -42,7 +41,6 @@
 #define CONFIG_USB 1
 #define CONFIG_CPU_ZYNQ 1
 #define CONFIG_CLOCK_ZYNQ 1
-#define CONFIG_BUTTON_APP 1
-#define CONFIG_DISPLAY_APP 1
-#define CONFIG_ENV_MONITOR_APP 1
+#define CONFIG_SDK_LED_ZYNQ 1
 #define CONFIG_LIGHT_APP 1
+#define CONFIG_CONSOLE_APP 1

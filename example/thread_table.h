@@ -55,4 +55,10 @@ TARGET_EXT kint32_t env_monitor_init(void);
 static inline kint32_t env_monitor_init(void) { return 0; }
 #endif
 
+#ifdef CONFIG_CONSOLE_APP
+TARGET_EXT kint32_t console_app_init(void);
+#else
+static inline kint32_t console_app_init(void) { return 0; }
+#endif
+
 #endif /* __THREAD_TABLE_H_ */

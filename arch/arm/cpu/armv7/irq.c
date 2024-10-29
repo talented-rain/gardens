@@ -35,9 +35,13 @@ static srt_ca7_gic_t sgrt_gic_global_data[CA7_MAX_GIC_NR] = {0};
 const struct fwk_of_device_id sgrt_fwk_irq_intcs_table[] =
 {
     { .compatible = "arm,cortex-a7-gic", .data = fwk_gic_of_init },
+    { .compatible = "arm,cortex-a9-gic", .data = fwk_gic_of_init },
+
     { .compatible = "fsl,imx6ul-gpc", .data = fwk_gpc_of_init },
     { .compatible = mrt_nullptr, .data = mrt_nullptr },
 };
+
+static kbool_t g_isIntcGICDirect = true;
 
 /*!< API function */
 /*!
@@ -56,7 +60,18 @@ void __plat_init initIRQ(void)
 
 #endif
 
-    printk("initial irq finished\n");
+    print_info("initial irq finished\n");
+}
+
+/*!
+ * @brief   return gic data
+ * @param   gic_nr
+ * @retval  none
+ * @note    none
+ */
+srt_ca7_gic_t *fwk_get_gic_data(kuint32_t gic_nr)
+{
+    return (gic_nr >= CA7_MAX_GIC_NR) ? mrt_nullptr : &sgrt_gic_global_data[gic_nr];
 }
 
 /*!
@@ -76,8 +91,10 @@ static kint32_t gic_irq_domain_xlate(struct fwk_irq_domain *sprt_domain, struct 
 	if (intsize < 3)
 		return -ER_UNVALID;
 
+	*out_hwirq = intspec[1];
+
 	/* skip over PPI, which is 0 ~ 15 */
-	*out_hwirq = intspec[1] + 16;
+//	*out_hwirq += 16;
 
 	/* GIC_SGI: 1; GIC_SPI: 0 ===> skip over SGI */
 	if (!intspec[0])
@@ -89,11 +106,137 @@ static kint32_t gic_irq_domain_xlate(struct fwk_irq_domain *sprt_domain, struct 
 	return ER_NORMAL;
 }
 
+/*!
+ * @brief   enable IRQ
+ * @param   sprt_data
+ * @retval  none
+ * @note    none
+ */
+static void gic_irq_chip_enable(struct fwk_irq_data *sprt_data)
+{
+    srt_ca7_gic_t *sprt_gic = fwk_get_gic_data(0);
+    srt_ca7_gic_des_t *sprt_dest;
+
+    if (!sprt_data || (sprt_data->hwirq < 0))
+        return;
+
+    sprt_dest = mrt_get_gic_destributor(sprt_gic);
+    mrt_setbit_towords(sprt_data->hwirq + sprt_data->sprt_domain->hwirq, 
+                    &sprt_dest->D_ISENABLER);
+}
+
+/*!
+ * @brief   disable IRQ
+ * @param   sprt_data
+ * @retval  none
+ * @note    none
+ */
+static void gic_irq_chip_disable(struct fwk_irq_data *sprt_data)
+{
+    srt_ca7_gic_t *sprt_gic = fwk_get_gic_data(0);
+    srt_ca7_gic_des_t *sprt_dest;
+
+    if (!sprt_data || (sprt_data->hwirq < 0))
+        return;
+
+    sprt_dest = mrt_get_gic_destributor(sprt_gic);
+    mrt_setbit_towords(sprt_data->hwirq + sprt_data->sprt_domain->hwirq, 
+                    &sprt_dest->D_ICENABLER);
+}
+
+/*!
+ * @brief   get IRQ status
+ * @param   sprt_data
+ * @retval  none
+ * @note    none
+ */
+static kbool_t gic_irq_chip_ack(struct fwk_irq_data *sprt_data)
+{
+    srt_ca7_gic_t *sprt_gic = fwk_get_gic_data(0);
+    srt_ca7_gic_cpu_t *sprt_cpu;
+    kuint32_t hwirq;
+
+    if (!sprt_data || (sprt_data->hwirq < 0))
+        return false;
+
+    sprt_cpu = mrt_get_gic_interface(sprt_gic);
+    hwirq = mrt_mask(sprt_cpu->C_IAR, 0x1fffU);
+
+    return !!(hwirq & mrt_bit(sprt_data->hwirq + sprt_data->sprt_domain->hwirq));
+}
+
+/*!
+ * @brief   check if IRQ is enabled
+ * @param   sprt_data
+ * @retval  none
+ * @note    none
+ */
+static kbool_t gic_irq_chip_is_enabled(struct fwk_irq_data *sprt_data)
+{
+    srt_ca7_gic_t *sprt_gic = fwk_get_gic_data(0);
+    srt_ca7_gic_des_t *sprt_dest;
+
+    if (!sprt_data || (sprt_data->hwirq < 0))
+        return false;
+
+    sprt_dest = mrt_get_gic_destributor(sprt_gic);
+    return !!mrt_getbit_fromwords(sprt_data->hwirq + sprt_data->sprt_domain->hwirq, 
+                                &sprt_dest->D_ISENABLER);
+}
+
+/*!
+ * @brief   allocate irq_domain for gic
+ * @param   sprt_domain
+ * @retval  error code
+ * @note    none
+ */
+kint32_t gic_irq_domain_alloc(struct fwk_irq_domain *sprt_domain, kuint32_t virq, kuint32_t nr_irqs, void *arg)
+{
+    struct fwk_irq_generic *sprt_gc;
+
+    if (!sprt_domain)
+        return -ER_NODEV;
+
+	sprt_gc = kzalloc(sizeof(*sprt_gc), GFP_KERNEL);
+	if (!isValid(sprt_gc))
+        return -ER_NOMEM;
+
+    sprt_gc->sgrt_chip.irq_enable = gic_irq_chip_enable;
+    sprt_gc->sgrt_chip.irq_disable = gic_irq_chip_disable;
+    sprt_gc->sgrt_chip.irq_ack = gic_irq_chip_ack;
+    sprt_gc->sgrt_chip.irq_is_enabled = gic_irq_chip_is_enabled;
+
+    fwk_irq_setup_generic_chip(virq, nr_irqs, sprt_gc, mrt_nullptr);
+
+    return ER_NORMAL;
+}
+
+/*!
+ * @brief   free irq_domain of gpc
+ * @param   sprt_domain
+ * @retval  none
+ * @note    none
+ */
+void gic_irq_domain_free(struct fwk_irq_domain *sprt_domain, kuint32_t virq, kuint32_t nr_irqs)
+{
+    struct fwk_irq_generic *sprt_gc;
+    struct fwk_irq_data *sprt_data;
+
+    sprt_data = fwk_irq_get_data(virq);
+    if (!isValid(sprt_data))
+        return;
+    
+    sprt_gc = fwk_irq_get_generic_data(sprt_data);
+    fwk_irq_shutdown_generic_chip(virq, nr_irqs);
+
+    kfree(sprt_gc);
+}
+
 static const struct fwk_irq_domain_ops sgrt_gic_domain_hierarchy_ops = 
 {
 	.xlate = gic_irq_domain_xlate,
-	.alloc = mrt_nullptr,
-	.free = mrt_nullptr,
+	.alloc = gic_irq_domain_alloc,
+	.free = gic_irq_domain_free,
 };
 
 /*!
@@ -184,6 +327,7 @@ static void fwk_gic_init_bases(kuint32_t gic_nr, kuint32_t irq_start,
     
     sprt_domain = fwk_irq_domain_add_hierarchy(mrt_nullptr, sprt_node, 
                             sprt_gic->gic_irqs, &sgrt_gic_domain_hierarchy_ops, sprt_gic);
+    sprt_domain->hwirq = 16;
     sprt_gic->sprt_domain = sprt_domain;
 }
 
@@ -214,29 +358,27 @@ kint32_t fwk_gic_of_init(struct fwk_device_node *sprt_node, struct fwk_device_no
 }
 
 /*!
- * @brief   return gic data
- * @param   gic_nr
- * @retval  none
- * @note    none
- */
-srt_ca7_gic_t *fwk_get_gic_data(kuint32_t gic_nr)
-{
-    return (gic_nr >= CA7_MAX_GIC_NR) ? mrt_nullptr : &sgrt_gic_global_data[gic_nr];
-}
-
-/*!
  * @brief   convert GIC to GPC
  * @param   hwirq
  * @retval  none
  * @note    none
  */
-kint32_t fwk_gic_to_gpc_irq(kint32_t hwirq)
+kint32_t fwk_gic_to_actual_irq(kint32_t hwirq)
 {
-    hwirq -= 32;
+    kchar_t *intc_name = "interrupt-controller";
+    kuint32_t irq_base = 16;
+
+    if (!g_isIntcGICDirect)
+    {
+        irq_base = 32;
+        intc_name = "gpc";
+    }
+
+    hwirq -= irq_base;
     if (hwirq < 0)
         return hwirq;
 
-    return fwk_irq_get_by_domain_name("gpc", hwirq);
+    return fwk_irq_get_by_domain_name(intc_name, hwirq);
 }
 
 /*!
@@ -270,144 +412,22 @@ static kint32_t gpc_irq_domain_xlate(struct fwk_irq_domain *sprt_domain, struct 
 		return -ER_UNVALID;
 	if (intsize != 3)
 		return -ER_UNVALID;
+
+    /*!< not allow GIC_SGI */
     if (intspec[0] != 0)
         return -ER_UNVALID;
 
-	/* skip over PPI, which is 0 ~ 15 */
 	*out_hwirq = intspec[1];
     *out_type = intspec[2];
 
 	return ER_NORMAL;
 }
 
-/*!
- * @brief   enable IRQ
- * @param   sprt_data
- * @retval  none
- * @note    none
- */
-static void gpc_irq_chip_enable(struct fwk_irq_data *sprt_data)
-{
-    srt_ca7_gic_t *sprt_gic = fwk_get_gic_data(0);
-    srt_ca7_gic_des_t *sprt_dest;
-
-    if (!sprt_data || (sprt_data->hwirq < 0))
-        return;
-
-    sprt_dest = mrt_get_gic_destributor(sprt_gic);
-    mrt_setbit_towords(sprt_data->hwirq + 32, &sprt_dest->D_ISENABLER);
-}
-
-/*!
- * @brief   disable IRQ
- * @param   sprt_data
- * @retval  none
- * @note    none
- */
-static void gpc_irq_chip_disable(struct fwk_irq_data *sprt_data)
-{
-    srt_ca7_gic_t *sprt_gic = fwk_get_gic_data(0);
-    srt_ca7_gic_des_t *sprt_dest;
-
-    if (!sprt_data || (sprt_data->hwirq < 0))
-        return;
-
-    sprt_dest = mrt_get_gic_destributor(sprt_gic);
-    mrt_setbit_towords(sprt_data->hwirq + 32, &sprt_dest->D_ICENABLER);
-}
-
-/*!
- * @brief   get IRQ status
- * @param   sprt_data
- * @retval  none
- * @note    none
- */
-static kbool_t gpc_irq_chip_ack(struct fwk_irq_data *sprt_data)
-{
-    srt_ca7_gic_t *sprt_gic = fwk_get_gic_data(0);
-    srt_ca7_gic_cpu_t *sprt_cpu;
-    kuint32_t hwirq;
-
-    if (!sprt_data || (sprt_data->hwirq < 0))
-        return false;
-
-    sprt_cpu = mrt_get_gic_interface(sprt_gic);
-    hwirq = mrt_mask(sprt_cpu->C_IAR, 0x1fffU);
-
-    return !!(hwirq & mrt_bit(sprt_data->hwirq));
-}
-
-/*!
- * @brief   check if IRQ is enabled
- * @param   sprt_data
- * @retval  none
- * @note    none
- */
-static kbool_t gpc_irq_chip_is_enabled(struct fwk_irq_data *sprt_data)
-{
-    srt_ca7_gic_t *sprt_gic = fwk_get_gic_data(0);
-    srt_ca7_gic_des_t *sprt_dest;
-
-    if (!sprt_data || (sprt_data->hwirq < 0))
-        return false;
-
-    sprt_dest = mrt_get_gic_destributor(sprt_gic);
-    return !!mrt_getbit_fromwords(sprt_data->hwirq + 32, &sprt_dest->D_ISENABLER);
-}
-
-/*!
- * @brief   allocate irq_domain for gpc
- * @param   sprt_domain
- * @retval  error code
- * @note    none
- */
-kint32_t gpc_irq_domain_alloc(struct fwk_irq_domain *sprt_domain, kuint32_t virq, kuint32_t nr_irqs, void *arg)
-{
-    struct fwk_irq_generic *sprt_gc;
-
-    if (!sprt_domain)
-        return -ER_NODEV;
-
-	sprt_gc = kzalloc(sizeof(*sprt_gc), GFP_KERNEL);
-	if (!isValid(sprt_gc))
-        return -ER_NOMEM;
-
-    sprt_gc->sgrt_chip.irq_enable = gpc_irq_chip_enable;
-    sprt_gc->sgrt_chip.irq_disable = gpc_irq_chip_disable;
-    sprt_gc->sgrt_chip.irq_ack = gpc_irq_chip_ack;
-    sprt_gc->sgrt_chip.irq_is_enabled = gpc_irq_chip_is_enabled;
-
-    fwk_irq_setup_generic_chip(virq, nr_irqs, sprt_gc, mrt_nullptr);
-
-    return ER_NORMAL;
-}
-
-/*!
- * @brief   free irq_domain of gpc
- * @param   sprt_domain
- * @retval  none
- * @note    none
- */
-void gpc_irq_domain_free(struct fwk_irq_domain *sprt_domain, kuint32_t virq, kuint32_t nr_irqs)
-{
-    struct fwk_irq_generic *sprt_gc;
-    struct fwk_irq_data *sprt_data;
-
-    sprt_data = fwk_irq_get_data(virq);
-    if (!isValid(sprt_data))
-        return;
-    
-    sprt_gc = fwk_irq_get_generic_data(sprt_data);
-    fwk_irq_shutdown_generic_chip(virq, nr_irqs);
-
-    kfree(sprt_gc);
-}
-
 static const struct fwk_irq_domain_ops sgrt_gpc_domain_hierarchy_ops = 
 {
 	.xlate = gpc_irq_domain_xlate,
-	.alloc = gpc_irq_domain_alloc,
-	.free = gpc_irq_domain_free,
+	.alloc = gic_irq_domain_alloc,
+	.free = gic_irq_domain_free,
 };
 
 /*!
@@ -424,6 +444,7 @@ kint32_t fwk_gpc_of_init(struct fwk_device_node *sprt_node, struct fwk_device_no
     if (!isValid(sprt_parent) || !isValid(sprt_node))
         return -ER_UNVALID;
 
+    /*! get gic */
     sprt_par = fwk_of_irq_host(sprt_parent);
     if (!isValid(sprt_par))
         return -ER_UNVALID;
@@ -431,6 +452,9 @@ kint32_t fwk_gpc_of_init(struct fwk_device_node *sprt_node, struct fwk_device_no
     sprt_domain = fwk_irq_domain_add_hierarchy(sprt_par, sprt_node, CA7_MAX_GPC_NR, &sgrt_gpc_domain_hierarchy_ops, mrt_nullptr);
     if (!isValid(sprt_domain))
         return -ER_FAILD;
+
+    sprt_domain->hwirq = 32;
+    g_isIntcGICDirect = false;
 
     return ER_NORMAL;
 }

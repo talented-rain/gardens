@@ -16,8 +16,6 @@ CONFIG_COMPILER = "arm-linux-gnueabihf-"
 CONFIG_COMPILER_PATH = "/usr/local/arm/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf"
 
 CONFIG_ARCH_ARMV7 = y
-CONFIG_MACH_IMX6ULL_TOPPET = y
-
 CONFIG_LITTILE_ENDIAN = y
 # ---------------------------------------------------------------
 

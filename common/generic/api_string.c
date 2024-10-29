@@ -155,7 +155,7 @@ kuint32_t do_string_n_copy_safe(void *ptr_dst, const void *ptr_src, kuint32_t si
  * @retval  none
  * @note    compare string
  */
-kbool_t do_string_compare(const void *ptr_dst, const void *ptr_src)
+kbool_t do_string_compare(void *ptr_dst, const void *ptr_src)
 {
 	kuint8_t *ptr_ch;
 	kuint8_t *ptr_buf;
@@ -179,7 +179,7 @@ kbool_t do_string_compare(const void *ptr_dst, const void *ptr_src)
  * @retval  none
  * @note    compare n char
  */
-kbool_t do_string_n_compare(const void *ptr_dst, const void *ptr_src, kuint32_t size)
+kbool_t do_string_n_compare(void *ptr_dst, const void *ptr_src, kuint32_t size)
 {
 	kuint8_t *ptr_ch;
 	kuint8_t *ptr_buf;
@@ -676,7 +676,7 @@ __weak kusize_t kstrlcpy(kchar_t *__dest, const kchar_t *__src, kusize_t __n)
  * @retval  none
  * @note    compare s1 and s2
  */
-__weak kint32_t kstrcmp(const kchar_t *__s1, const kchar_t *__s2)
+__weak kint32_t kstrcmp(kchar_t *__s1, const kchar_t *__s2)
 {
 	return do_string_compare(__s1, __s2);
 }
@@ -687,7 +687,7 @@ __weak kint32_t kstrcmp(const kchar_t *__s1, const kchar_t *__s2)
  * @retval  none
  * @note    compare s1 and s2
  */
-__weak kint32_t kstrncmp(const kchar_t *__s1, const kchar_t *__s2, kusize_t __n)
+__weak kint32_t kstrncmp(kchar_t *__s1, const kchar_t *__s2, kusize_t __n)
 {
 	return do_string_n_compare(__s1, __s2, __n);
 }

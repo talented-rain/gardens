@@ -142,8 +142,8 @@ static void *display_app_entry(void *args)
     kuint32_t *fbuffer = mrt_nullptr;
     struct fwk_disp_info sgrt_disp;
 
+    real_thread_set_name(__FUNCTION__);
     mutex_init(&sgrt_display_app_lock);
-    real_thread_set_name("display_app");
 
     do {
         fd = virt_open("/dev/fb0", O_RDWR);

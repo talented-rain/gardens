@@ -48,6 +48,8 @@ static void *env_monitor_entry(void *args)
     struct fwk_eeprom sgrt_eep;
     kssize_t retval;
 
+    real_thread_set_name(__FUNCTION__);
+
     do 
     {
         fd = virt_open("/dev/ap3216c", O_RDWR);

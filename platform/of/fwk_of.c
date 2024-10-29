@@ -59,7 +59,7 @@ void setup_machine_fdt(void *ptr)
 {
 	kuint8_t *ptr_fdt_start;
 
-	ptr_fdt_start = ptr;
+	ptr_fdt_start = ptr ? ptr : (void *)CONFIG_DEVICE_TREE_BASE;
 	if (!isValid(ptr_fdt_start) || !fwk_early_init_dt_verify(ptr_fdt_start))
 		return;
 

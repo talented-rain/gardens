@@ -50,7 +50,7 @@ static void kthread_schedule_timeout(kuint32_t args)
         goto END;
 
     /*!< automatic tracking of time-slice */
-    sprt_work->expires = (JIFFIES_MAX - jiffies) <= REAL_THREAD_PREEMPT_PERIOD ? 0 : jiffies;
+    sprt_work->expires = ((JIFFIES_MAX - jiffies) <= REAL_THREAD_PREEMPT_PERIOD) ? 0 : jiffies;
     
     /*!< --------------------------------------------------------- */
     /*!< check priority */
@@ -82,8 +82,8 @@ static void *kthread_entry(void *args)
 {
     struct timer_list *sprt_tim = &sgrt_kthread_timer;
     real_thread_t tid = mrt_current->tid;
-    kuint64_t stats = 0;
     
+    real_thread_set_name(__FUNCTION__);
     spin_lock_init(&sgrt_kthread_spinlock);
 
 #if CONFIG_PREEMPT
@@ -100,11 +100,10 @@ static void *kthread_entry(void *args)
     /*!< 1. create kworker task */
     kworker_init();
 
+    print_info("%s is enter, which tid is: %d\n", __FUNCTION__, tid);
+
     for (;;)
-    {
-        stats = scheduler_stats_get();
-        print_info("%s: tid = %d: the number of scheduled threads is: %d\n", __FUNCTION__, tid, stats);
-        
+    {        
 #if CONFIG_PREEMPT
         /*!< start timer */
         if (!sprt_tim->expires)
