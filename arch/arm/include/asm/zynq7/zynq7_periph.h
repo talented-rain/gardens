@@ -21,6 +21,10 @@
 #include <common/generic.h>
 #include <common/io_stream.h>
 
+#include "xparameters.h"
+#include "xvtc_hw.h"
+#include "xaxivdma_hw.h"
+
 /*!< The defines */
 #define XSdPs_WriteReg8(addr, offset, data) \
                                             mrt_writeb(data, (addr) + (offset))
@@ -75,7 +79,7 @@
 #define XPS_L2CC_CACHE_INV_CLN_INDX_OFFSET	0x07F8U		    /*!< Cache Invalidate and Clean by Index */
 #define XPS_L2CC_CACHE_INV_CLN_WAY_OFFSET	0x07FCU		    /*!< Cache Invalidate and Clean by Way */
 
-#define XPS_L2CC_DEBUG_CTRL_OFFSET		    0x0F40U		    /* Debug Control Register */
+#define XPS_L2CC_DEBUG_CTRL_OFFSET		    0x0F40U		    /*!< Debug Control Register */
 
 #define XREG_CP15_CACHE_SIZE_SEL		    "2, %0, c0, c0, 0"
 #define XREG_CP15_CLEAN_INVAL_DC_LINE_MVA_POC   \
@@ -403,7 +407,7 @@ typedef struct
     kuint16_t DeviceId;	                                    /*!< Unique ID  of device */
     kuint32_t BaseAddress;                                  /*!< Base address of device (IPIF) */
     kuint32_t InputClockHz;                                 /*!< Input clock frequency */
-    kint32_t ModemPinsConnected;                            /** Specifies whether modem pins are connected to MIO or EMIO */
+    kint32_t ModemPinsConnected;                            /*!< Specifies whether modem pins are connected to MIO or EMIO */
 
 } XUartPs_Config;
 
@@ -448,7 +452,7 @@ typedef struct
 /*!< ---------------------------------------------------------------------
                                 SdPs                                   
  ---------------------------------------------------------------------- */
-/** @name Register Map
+/*!< @name Register Map
  *
  * Register offsets from the base address of an SD device.
  * @{
@@ -511,9 +515,9 @@ typedef struct
 #define XSDPS_SLOT_INTR_STS_OFFSET	        0xFCU	        /*!< Slot Interrupt Status Register */
 #define XSDPS_HOST_CTRL_VER_OFFSET	        0xFEU	        /*!< Host Controller Version Register */
 
-/* @} */
+/*!< @} */
 
-/** @name Control Register - Host control, Power control,
+/*!< @name Control Register - Host control, Power control,
  * 			Block Gap control and Wakeup control
  *
  * This register contains bits for various configuration options of
@@ -554,9 +558,9 @@ typedef struct
 #define XSDPS_WC_WUP_ON_INSRT_MASK	        0x00000002U     /**< Wakeup Card Insert */
 #define XSDPS_WC_WUP_ON_REM_MASK	        0x00000004U     /**< Wakeup Card Removal */
 
-/* @} */
+/*!< @} */
 
-/** @name Control Register - Clock control, Timeout control & Software reset
+/*!< @name Control Register - Clock control, Timeout control & Software reset
  *
  * This register contains bits for configuration options of clock, timeout and
  * software reset.
@@ -624,9 +628,9 @@ typedef struct
 #define XSDPS_INTR_ERR_TR_MASK		        0x00001000U     /**< Tuning Error */
 #define XSDPS_INTR_VEND_SPF_ERR_MASK	    0x0000E000U     /**< Vendor Specific Error */
 #define XSDPS_ERROR_INTR_ALL_MASK	        0x0000F3FFU     /**< Mask for error bits */
-/* @} */
+/*!< @} */
 
-/** @name Block Size and Block Count Register
+/*!< @name Block Size and Block Count Register
  *
  * This register contains the block count for current transfer,
  * block size and SDMA buffer size.
@@ -640,9 +644,9 @@ typedef struct
 #define XSDPS_BLK_SIZE_2048		            0x800U
 #define XSDPS_BLK_CNT_MASK		            0x0000FFFFU     /**< Block Count for Current Transfer */
 
-/* @} */
+/*!< @} */
 
-/** @name Transfer Mode and Command Register
+/*!< @name Transfer Mode and Command Register
  *
  * The Transfer Mode register is used to control the data transfers and
  * Command register is used for command generation
@@ -671,7 +675,7 @@ typedef struct
 #define XSDPS_CMD_TYPE_ABORT_MASK	        0x000000C0U     /**< CMD Type - Abort */
 #define XSDPS_CMD_MASK			            0x00003F00U     /**< Command Index Mask - Set to CMD0-63, AMCD0-63 */
 
-/** @name Auto CMD Error Status Register
+/*!< @name Auto CMD Error Status Register
  *
  * This register is read only register which contains
  * information about the error status of Auto CMD 12 and 23.
@@ -684,9 +688,9 @@ typedef struct
 #define XSDPS_AUTO_CMD_EB_MASK		        0x0008U         /**< Auto CMD End Bit Error */
 #define XSDPS_AUTO_CMD_IND_MASK		        0x0010U         /**< Auto CMD Index Error */
 #define XSDPS_AUTO_CMD_CNI_ERR_MASK	        0x0080U         /**< Command not issued by Auto CMD12 Error */
-/* @} */
+/*!< @} */
 
-/** @name Host Control2 Register
+/*!< @name Host Control2 Register
  *
  * This register contains extended configuration bits.
  * Read Write
@@ -709,9 +713,9 @@ typedef struct
 #define XSDPS_HC2_ASYNC_INTR_EN_MASK	    0x4000U         /**< Asynchronous Interrupt Enable */
 #define XSDPS_HC2_PRE_VAL_EN_MASK	        0x8000U         /**< Preset Value Enable */
 
-/* @} */
+/*!< @} */
 
-/** @name Capabilities Register
+/*!< @name Capabilities Register
  *
  * Capabilities register is a read only register which contains
  * information about the host controller.
@@ -738,12 +742,12 @@ typedef struct
 
 #define XSDPS_CAP_SYS_BUS_64_MASK	        0x10000000U     /**< 64 bit system bus  support */
 
-/* Spec 2.0 */
+/*!< Spec 2.0 */
 #define XSDPS_CAP_INTR_MODE_MASK	        0x08000000U     /**< Interrupt mode support */
 #define XSDPS_CAP_SPI_MODE_MASK		        0x20000000U     /**< SPI mode */
 #define XSDPS_CAP_SPI_BLOCK_MODE_MASK	    0x40000000U     /**< SPI block mode */
 
-/* Spec 3.0 */
+/*!< Spec 3.0 */
 #define XSDPS_CAPS_ASYNC_INTR_MASK	        0x20000000U     /**< Async Interrupt support */
 #define XSDPS_CAPS_SLOT_TYPE_MASK	        0xC0000000U     /**< Slot Type */
 #define XSDPS_CAPS_REM_CARD			        0x00000000U     /**< Removable Slot */
@@ -766,7 +770,7 @@ typedef struct
 #define XSDPS_ECAPS_SPI_MODE_MASK	        0x01000000U     /**< SPI mode */
 #define XSDPS_ECAPS_SPI_BLK_MODE_MASK	    0x02000000U     /**< SPI block mode */
 
-/** @name Present State Register
+/*!< @name Present State Register
  *
  * Gives the current status of the host controller
  * Read Only
@@ -789,7 +793,7 @@ typedef struct
 #define XSDPS_PSR_CMD_SG_LVL_MASK	        0x01000000U     /**< Cmd Line signal lvl */
 #define XSDPS_PSR_DAT74_SG_LVL_MASK	        0x1E000000U     /**< Data 7:4 signal lvl */
 
-/** @name Host Controller Version Register
+/*!< @name Host Controller Version Register
  *
  * This register is read only register which contains
  * Host Controller and Vendor Specific version.
@@ -820,7 +824,7 @@ typedef struct
 #define SD_CLK_19_MHZ		                19000000U
 #define SD_CLK_26_MHZ		                26000000U
 
-/** @name ADMA2 Descriptor related definitions
+/*!< @name ADMA2 Descriptor related definitions
  *
  * ADMA2 Descriptor related definitions
  * @{
@@ -833,7 +837,7 @@ typedef struct
 #define XSDPS_DESC_INT       	            (0x1U << 2)
 #define XSDPS_DESC_TRAN  	                (0x2U << 4)
 
-/* For changing clock frequencies */
+/*!< For changing clock frequencies */
 #define XSDPS_CLK_400_KHZ					400000U		    /*!< 400 KHZ */
 #define XSDPS_CLK_50_MHZ					50000000U	    /*!< 50 MHZ */
 #define XSDPS_CLK_52_MHZ					52000000U	    /*!< 52 MHZ */
@@ -939,6 +943,327 @@ typedef struct
 
 } XSdPs;
 
+/*!< ---------------------------------------------------------------------
+                                Dynclk                                   
+ ---------------------------------------------------------------------- */
+#define CLK_BIT_WEDGE                       13
+#define CLK_BIT_NOCOUNT                     12
+#define ERR_CLKDIVIDER                      (1 << CLK_BIT_WEDGE | 1 << CLK_BIT_NOCOUNT)
+#define ERR_CLKCOUNTCALC                    0xFFFFFFFF             //This value is used to signal an error
+
+#define OFST_DYNCLK_CTRL                    0x0
+#define OFST_DYNCLK_STATUS                  0x4
+#define OFST_DYNCLK_CLK_L                   0x8
+#define OFST_DYNCLK_FB_L                    0x0C
+#define OFST_DYNCLK_FB_H_CLK_H              0x10
+#define OFST_DYNCLK_DIV                     0x14
+#define OFST_DYNCLK_LOCK_L                  0x18
+#define OFST_DYNCLK_FLTR_LOCK_H             0x1C
+
+#define BIT_DYNCLK_START                    0
+#define BIT_DYNCLK_RUNNING                  0
+
+typedef struct 
+{
+    kuint32_t clk0L;
+    kuint32_t clkFBL;
+    kuint32_t clkFBH_clk0H;
+    kuint32_t divclk;
+    kuint32_t lockL;
+    kuint32_t fltr_lockH;
+
+} ClkConfig;
+
+typedef struct 
+{
+    kfloat_t freq;
+    kuint32_t fbmult;
+    kuint32_t clkdiv;
+    kuint32_t maindiv;
+
+} ClkMode;
+
+/*!< ---------------------------------------------------------------------
+                                VTC                                   
+ ---------------------------------------------------------------------- */
+typedef kuint32_t XAxiVdma_Bd[XAXIVDMA_BD_MINIMUM_ALIGNMENT_WD];
+
+/*!<
+ * Callback type for general interrupts
+ *
+ * @param   CallBackRef is a callback reference passed in by the upper layer
+ *          when setting the callback functions, and passed back to the
+ *          upper layer when the callback is called.
+ * @param   InterruptTypes indicates the detailed type(s) of the interrupt.
+ *          Its value equals 'OR'ing one or more XAXIVDMA_IXR_* values defined
+ *          in xaxivdma_hw.h
+ */
+typedef void (*XAxiVdma_CallBack) (void *CallBackRef, kuint32_t InterruptTypes);
+
+/*!<
+ * Callback type for Error interrupt.
+ *
+ * @param   CallBackRef is a callback reference passed in by the upper layer
+ *          when setting the callback function, and it is passed back to the
+ *          upper layer when the callback is called.
+ * @param   ErrorMask is a bit mask indicating the cause of the error. Its
+ *          value equals 'OR'ing one or more XAXIVDMA_IXR_* values defined in
+ *          xaxivdma_hw.h
+ */
+typedef void (*XAxiVdma_ErrorCallBack) (void *CallBackRef, kuint32_t ErrorMask);
+
+/*!<
+ * This typedef contains the hardware configuration information for a VDMA
+ * device. Each VDMA device should have a configuration structure associated
+ * with it.
+ */
+typedef struct 
+{
+    kuint16_t DeviceId;                                     /**< DeviceId is the unique ID  of the device */
+    kuint32_t BaseAddress;                                  /**< BaseAddress is the physical base address of the device's registers */
+
+    kuint16_t MaxFrameStoreNum;                             /**< The maximum number of Frame Stores */
+
+    kint32_t HasMm2S;                                       /**< Whether hw build has read channel */
+    kint32_t HasMm2SDRE;                                    /**< Read channel supports unaligned transfer */
+    kint32_t Mm2SWordLen;                                   /**< Read channel word length */
+    kint32_t HasS2Mm;                                       /**< Whether hw build has write channel */
+    kint32_t HasS2MmDRE;                                    /**< Write channel supports unaligned transfer */
+    kint32_t S2MmWordLen;                                   /**< Write channel word length */
+    kint32_t HasSG;                                         /**< Whether hardware has SG engine */
+    kint32_t EnableVIDParamRead;					        /**< Read Enable for video parameters in direct register mode */
+    kint32_t UseFsync;	                                    /**< DMA operations synchronized to Frame Sync */
+    kint32_t FlushonFsync;	                                /**< VDMA Transactions are flushed & channel states reset on Frame Sync */
+    kint32_t Mm2SBufDepth;	                                /**< Depth of Read Channel Line Buffer FIFO */
+    kint32_t S2MmBufDepth;	                                /**< Depth of Write Channel Line Buffer FIFO */
+    kint32_t Mm2SGenLock;	                                /**< Mm2s Gen Lock Mode */
+    kint32_t S2MmGenLock;	                                /**< S2Mm Gen Lock Mode */
+    kint32_t InternalGenLock;                               /**< Internal Gen Lock */
+    kint32_t S2MmSOF;	                                    /**< S2MM Start of Flag Enable */
+    kint32_t Mm2SStreamWidth;                               /**< MM2S TData Width */
+    kint32_t S2MmStreamWidth;                               /**< S2MM TData Width */
+    kint32_t Mm2SThresRegEn;                                /**< MM2S Threshold Register Enable Flag This corresponds to C_ENABLE_DEBUG_INFO_1 configuration parameter */
+    kint32_t Mm2SFrmStoreRegEn;                             /**< MM2S Frame Store Register Enable Flag This corresponds to C_ENABLE_DEBUG_INFO_5 configuration parameter */
+    kint32_t Mm2SDlyCntrEn;	                                /**< MM2S Delay Counter (Control Reg) Enable Flag This corresponds to C_ENABLE_DEBUG_INFO_6 configuration parameter */
+    kint32_t Mm2SFrmCntrEn;                                 /**< MM2S Frame Counter (Control Reg) Enable Flag This corresponds to C_ENABLE_DEBUG_INFO_7 configuration parameter */
+    kint32_t S2MmThresRegEn;                                /**< S2MM Threshold Register Enable Flag This corresponds to C_ENABLE_DEBUG_INFO_9 configuration parameter */
+    kint32_t S2MmFrmStoreRegEn;                             /**< S2MM Frame Store Register Enable Flag This corresponds to C_ENABLE_DEBUG_INFO_13 configuration parameter */
+    kint32_t S2MmDlyCntrEn;	                                /**< S2MM Delay Counter (Control Reg) Enable Flag This corresponds to C_ENABLE_DEBUG_INFO_14  configuration parameter */
+    kint32_t S2MmFrmCntrEn;	                                /**< S2MM Frame Counter (Control Reg) Enable Flag This corresponds to C_ENABLE_DEBUG_INFO_15 configuration parameter */
+    kint32_t EnableAllDbgFeatures;                          /**< Enable all Debug features This corresponds to C_ENABLE_DEBUG_ALL configuration parameter */
+    kint32_t AddrWidth;		                                /**< Address Width */
+    kuint8_t HasVFlip;		                                /**< Whether hardware has Vertical Flip enabled(c_enable_vert_flip) */
+
+} XAxiVdma_Config;
+
+/*!<
+ * Channel callback functions
+ */
+typedef struct 
+{
+    XAxiVdma_CallBack CompletionCallBack; 			        /**< Call back for completion intr */
+    void *CompletionRef;                  			        /**< Call back ref */
+
+    XAxiVdma_ErrorCallBack ErrCallBack;   			        /**< Call back for error intr */
+    void *ErrRef;                         			        /**< Call back ref */
+
+} XAxiVdma_ChannelCallBack;
+
+/*!< The DMA channel is only visible to driver files
+ */
+typedef struct 
+{
+    kuint32_t ChanBase;       						        /*!< Base address for this channel */
+    kuint32_t InstanceBase;   						        /*!< Base address for the whole device */
+    kuint32_t StartAddrBase;  						        /*!< Start address register array base */
+
+    kbool_t IsValid;        						        /*!< Whether the channel has been initialized */
+    kint32_t FlushonFsync;							        /*!< VDMA Transactions are flushed & channel states reset on Frame Sync */
+    kint32_t HasSG;          						        /*!< Whether hardware has SG engine */
+    kint32_t IsRead;         						        /*!< Read or write channel */
+    kint32_t HasDRE;         						        /*!< Whether support unaligned transfer */
+    kint32_t LineBufDepth;							        /*!< Depth of Channel Line Buffer FIFO */
+    kint32_t LineBufThreshold;						        /*!< Threshold point at which Channel Line almost empty flag asserts high */
+    kint32_t WordLength;     						        /*!< Word length */
+    kint32_t NumFrames;								        /*!< Number of frames to work on */
+
+    kuint32_t HeadBdPhysAddr; 						        /*!< Physical address of the first BD */
+    kuint32_t HeadBdAddr;     						        /*!< Virtual address of the first BD */
+    kuint32_t TailBdPhysAddr; 						        /*!< Physical address of the last BD */
+    kuint32_t TailBdAddr;     						        /*!< Virtual address of the last BD */
+    kint32_t Hsize;          						        /*!< Horizontal size */
+    kint32_t Vsize;          						        /*!< Vertical size saved for no-sg mode hw start */
+
+    kint32_t AllCnt;         						        /*!< Total number of BDs */
+
+    kint32_t GenLock;								        /*!< Mm2s Gen Lock Mode */
+    kint32_t S2MmSOF;								        /*!< S2MM Start of Flag */
+    kint32_t StreamWidth;     						        /*!< Stream Width */
+    XAxiVdma_Bd BDs[XAXIVDMA_MAX_FRAMESTORE] __align(32);	/*Statically allocated BDs */
+    kuint32_t DbgFeatureFlags; 						        /*!< Debug Parameter Flags */
+    kint32_t AddrWidth;
+    kint32_t direction;								        /*!< Determines whether Read or write channel */
+    kuint8_t HasVFlip;  							        /*!< Whether hardware has Vertical Flip enabled */
+
+}XAxiVdma_Channel;
+
+/*!<
+ * The XAxiVdma_DmaSetup structure contains all the necessary information to
+ * start a frame write or read.
+ *
+ */
+typedef struct 
+{
+    kint32_t VertSizeInput;                                 /**< Vertical size input */
+    kint32_t HoriSizeInput;                                 /**< Horizontal size input */
+    kint32_t Stride;                                        /**< Stride */
+    kint32_t FrameDelay;                                    /**< Frame Delay */
+
+    kint32_t EnableCircularBuf;                             /**< Circular Buffer Mode? */
+    kint32_t EnableSync;                                    /**< Gen-Lock Mode? */
+    kint32_t PointNum;                                      /**< Master we synchronize with */
+    kint32_t EnableFrameCounter;                            /**< Frame Counter Enable */
+    kuint32_t FrameStoreStartAddr[XAXIVDMA_MAX_FRAMESTORE]; /**< Start Addresses of Frame Store Buffers. */
+    kint32_t FixedFrameStoreAddr;                           /**< Fixed Frame Store Address index */
+    kint32_t GenLockRepeat;                                 /**< Gen-Lock Repeat? */
+    kuint8_t EnableVFlip;	                                /**< Vertical Flip state */
+
+} XAxiVdma_DmaSetup;
+
+/*!< Duplicate layout of XAxiVdma_DmaSetup
+ *
+ * So to remove the dependency on xaxivdma.h
+ */
+typedef struct {
+    kint32_t VertSizeInput;                                 /**< Vertical size input */
+    kint32_t HoriSizeInput;                                 /**< Horizontal size input */
+    kint32_t Stride;                                        /**< Stride */
+    kint32_t FrameDelay;                                    /**< Frame Delay */
+
+    kint32_t EnableCircularBuf;                             /**< Circular Buffer Mode? */
+    kint32_t EnableSync;                                    /**< Gen-Lock Mode? */
+    kint32_t PointNum;                                      /**< Master we synchronize with */
+    kint32_t EnableFrameCounter;                            /**< Frame Counter Enable */
+    kuint32_t FrameStoreStartAddr[XAXIVDMA_MAX_FRAMESTORE]; /**< Start Addresses of Frame Store Buffers. */
+    kint32_t FixedFrameStoreAddr;                           /**< Fixed Frame Store Address index */
+    kint32_t GenLockRepeat;                                 /**< Gen-Lock Repeat? */
+    kuint8_t EnableVFlip;	                                /**< Vertical Flip state */
+
+}XAxiVdma_ChannelSetup;
+
+/*!<
+ * The XAxiVdma driver instance data.
+ */
+typedef struct 
+{
+    kuint32_t BaseAddr;                   			        /**< Memory address for this device */
+    kint32_t HasSG;                      			        /**< Whether hardware has SG engine */
+    kbool_t IsReady;                    			        /**< Whether driver is initialized */
+
+    kint32_t MaxNumFrames;                			        /**< Number of frames to work on */
+    kint32_t HasMm2S;                    			        /**< Whether hw build has read channel */
+    kint32_t HasMm2SDRE;                 			        /**< Whether read channel has DRE */
+    kint32_t HasS2Mm;                    			        /**< Whether hw build has write channel */
+    kint32_t HasS2MmDRE;                 			        /**< Whether write channel has DRE */
+    kint32_t EnableVIDParamRead;	    			        /**< Read Enable for video parameters in direct register mode */
+    kint32_t UseFsync;       	    				        /**< DMA operations synchronized to Frame Sync */
+    kint32_t InternalGenLock;  	    				        /**< Internal Gen Lock */
+    
+    XAxiVdma_ChannelCallBack ReadCallBack;  		        /**< Call back for read channel */
+    XAxiVdma_ChannelCallBack WriteCallBack; 		        /**< Call back for write channel */
+
+    XAxiVdma_Channel ReadChannel;  					        /**< Channel to read from memory */
+    XAxiVdma_Channel WriteChannel; 					        /**< Channel to write to memory */
+    
+    kint32_t AddrWidth;		  						        /**< Address Width */
+
+} XAxiVdma;
+
+/*
+ * This driver currently supports 3 frames.
+ */
+#define DISPLAY_NUM_FRAMES                  1
+
+typedef enum 
+{
+	NR_XIL_DISPLAY_STOPPED = 0,
+	NR_XIL_DISPLAY_RUNNING = 1
+
+} DisplayState;
+
+typedef void (*XVtc_CallBack)(void *CallBackRef, kuint32_t Mask);
+typedef void (*XVtc_ErrorCallBack)(void *CallBackRef, kuint32_t ErrorMask);
+
+typedef struct 
+{
+	kchar_t label[64];                                      /*!< Label describing the resolution */
+	kuint32_t width;		                                /*!< Width(horizon) of the active video frame */
+	kuint32_t height; 	                                    /*!< Height(vertical) of the active video frame */
+	kuint32_t hps; 		                                    /*!< Start time of Horizontal sync pulse, in pixel clocks (active width + H. front porch) */
+	kuint32_t hpe; 		                                    /*!< End time of Horizontal sync pulse, in pixel clocks (active width + H. front porch + H. sync width) */
+	kuint32_t hmax; 		                                /*!< Total number of pixel clocks per line (active width + H. front porch + H. sync width + H. back porch) */
+	kuint32_t hpol; 		                                /*!< hsync pulse polarity */
+	kuint32_t vps;		                                    /*!< Start time of Vertical sync pulse, in lines (active height + V. front porch) */
+	kuint32_t vpe;		                                    /*!< End time of Vertical sync pulse, in lines (active height + V. front porch + V. sync width) */
+	kuint32_t vmax; 		                                /*!< Total number of lines per frame (active height + V. front porch + V. sync width + V. back porch) */
+	kuint32_t vpol; 		                                /*!< vsync pulse polarity */
+	kfloat_t freq; 	                                        /*!< Pixel Clock frequency */
+
+} VideoMode;
+
+/*!<
+ * This typedef contains configuration information for a VTC core.
+ * Each VTC device should have a configuration structure associated
+ */
+typedef struct 
+{
+	kuint16_t DeviceId;		                                /**< DeviceId is the unique ID of the VTC core */
+	kuint32_t BaseAddress;	                                /**< BaseAddress is the physical base address of the core's registers */
+
+} XVtc_Config;
+
+/*!<
+ * The XVtc driver instance data. An instance must be allocated for each
+ * VTC core in use.
+ */
+typedef struct 
+{
+	XVtc_Config Config;	                                    /**< Hardware Configuration */
+	kbool_t IsReady;		                                /**< Core and the driver instance are initialized */
+
+	/*!< Interrupt callbacks*/
+	XVtc_CallBack FrameSyncCallBack;	                    /**< Callback for Frame Sync interrupt */
+	void *FrameSyncRef;		                                /**< To be passed to the Frame Sync interrupt callback */
+
+	XVtc_CallBack LockCallBack;	                            /**< Callback for Signal Lock interrupt */
+	void *LockRef;			                                /**< To be passed to the Signal Lock interrupt callback */
+
+	XVtc_CallBack DetectorCallBack;	                        /**< Callback for Detector interrupt */
+	void *DetectorRef;		                                /**< To be passed to the Detector interrupt callback */
+
+	XVtc_CallBack GeneratorCallBack;	                    /**< Callback for Generator interrupt */
+	void *GeneratorRef;		                                /**< To be passed to the Generator interrupt callback */
+
+	XVtc_ErrorCallBack ErrCallBack;	                        /**< Callback for Error interrupt */
+	void *ErrRef;			                                /**< To be passed to the Error interrupt callback */
+
+} XVtc;
+
+typedef struct 
+{
+	kuint32_t dynClkAddr; 				                    /*!< Physical Base address of the dynclk core */
+	XAxiVdma *vdma; 				                        /*!< VDMA driver struct */
+	XAxiVdma_DmaSetup vdmaConfig;                           /*!< VDMA channel configuration */
+	XVtc vtc; 					                            /*!< VTC driver struct */
+	VideoMode vMode; 				                        /*!< Current video mode */
+	kuint8_t *framePtr[DISPLAY_NUM_FRAMES];                 /*!< Array of pointers to the frame buffers */
+	kuint32_t stride; 					                    /*!< The line stride of the frame buffers, in bytes */
+	kfloat_t pxlFreq; 				                        /*!< Frequency of clock currently being generated, maybe not exactly with vMode.freq */
+	kuint32_t curFrame; 					                /*!< Current frame being displayed */
+	DisplayState state; 			                        /*!< Indicates if the Display is currently running */
+
+} DisplayCtrl;
+
 /*!< The functions */
 TARGET_EXT kint32_t zynq7_post_config(void);
 TARGET_EXT kchar_t *zynq7_message_info_get(kuint32_t key);
@@ -1005,6 +1330,18 @@ TARGET_EXT kbool_t XSdPs_IsCardDetected(XSdPs *sprt_sd);
 TARGET_EXT kint32_t XSdPs_Change_BusWidth(XSdPs *sprt_sd, kuint32_t width);
 TARGET_EXT kint32_t XSdPs_SetBlkSize(XSdPs *sprt_sd, kuint32_t BlkCnt, kuint32_t BlkSize);
 TARGET_EXT void XSdPs_SetupADMA2DescTbl(XSdPs *sprt_sd, kuint32_t BlkCnt, const kuint8_t *Buff);
+
+/*!< AxiVdma & Vtc */
+TARGET_EXT XAxiVdma_Config *XAxiVdma_LookupConfig(kuint16_t DeviceId);
+TARGET_EXT kint32_t XAxiVdma_CfgInitialize(XAxiVdma *sprt_vdma, XAxiVdma_Config *sprt_cfg, kuint32_t EffectiveAddr);
+TARGET_EXT XVtc_Config *XVtc_LookupConfig(kuint16_t DeviceId);
+TARGET_EXT kint32_t XVtc_CfgInitialize(XVtc *sprt_vtc, XVtc_Config *sprt_vcfg, kuint32_t EffectiveAddr);
+TARGET_EXT kint32_t DisplayInitialize(DisplayCtrl *sprt_disp, XAxiVdma *sprt_vdma, kuint16_t vtcId, 
+                                kuint32_t dynClkAddr, kuint8_t *framePtr[DISPLAY_NUM_FRAMES], 
+                                kuint32_t stride, VideoMode *sprt_vmode);
+TARGET_EXT kint32_t DisplayChangeFrameBuffer(DisplayCtrl *sprt_disp, kuint32_t FrameAddr, kusize_t FrameSize);
+TARGET_EXT kint32_t DisplayStart(DisplayCtrl *sprt_disp);
+TARGET_EXT kint32_t DisplayStop(DisplayCtrl *sprt_dispctrl);
 
 #ifdef __cplusplus
     }

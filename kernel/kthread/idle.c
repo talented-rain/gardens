@@ -33,7 +33,7 @@ static kuint32_t g_idle_stack[IDLE_THREAD_STACK_SIZE];
  */
 static void *rest_entry(void *args)
 {
-    real_thread_set_name(__FUNCTION__);
+    real_thread_set_self_name(__FUNCTION__);
 
     for (;;)
     {   

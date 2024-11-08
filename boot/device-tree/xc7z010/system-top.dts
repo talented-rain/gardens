@@ -78,13 +78,54 @@
 };
 
 &amba_pl {
-    xlnx_vdma_hdmi {
+    xlnx_vdma_hdmi: xlnx_vdma_hdmi@43c00000 {
         compatible = "xlnx, vdma, hdmi";
+        reg = <0x43c00000 0x10000>;
         status = "okay";
         
         is-hdmi-device = <1>;
         display-timings = <&timing_1920x1080>;
         xlnx,pixel-format = "bgr24";
+
+        #address-cells = <1>;
+        #size-cells = <1>;
+
+        xlnx_axivdma: xlnx_axivdma@43000000 {
+            compatible = "xlnx, pl, axivdma";
+            reg = <0x43000000 0x10000>;
+
+            max-frame-store-num = <1>;
+            has-mm2s = <1>;
+            has-mm2s-dre = <1>;
+            mm2s-word-len = <64>;
+            has-s2mm = <0>;
+            has-s2mm-dre = <0>;
+            s2mm-word-len = <64>;
+            has-sg = <0>;
+            enable-vid-param-read = <1>;
+
+            use-fsync = <1>;
+            flush-on-fsync = <1>;
+            mm2s-buf-depth = <4096>;
+            s2mm-buf-depth = <512>;
+            mm2s-gen-lock = <0>;
+            s2mm-gen-lock = <0>;
+            internal-gen-lock = <1>;
+            s2mm-sof = <1>;
+            mm2s-stream-width = <32>;
+            s2mm-stream-width = <32>;
+            mm2s-thres-reg-en = <0>;
+            mm2s-frm-store-reg-en = <0>;
+            mm2s-dly-cntr-en = <1>;
+            mm2s-frm-cntr-en = <1>;
+            s2mm-thres-reg-en = <0>;
+            s2mm-frm-store-reg-en = <0>;
+            s2mm-sly-cntr-en = <1>;
+            s2mm-frm-cntr-en = <1>;
+            enable-all-dbg-features = <0>;
+            addr-width = <32>;
+            has-Vertical-filp = <0>;
+        };
     };
 };
 

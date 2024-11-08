@@ -66,7 +66,7 @@
     init/:          global initialization, such as "main.c";
     kernel/:        for multi-thread features, containing scheduler, and generic threading methods;
     platform/:      the generic abstract framework for system operations, provides methods to standardize programming specifications;
-    rootfs/:        file system related files, such as fatfs, ...
+    fs/:            file system related files
 
 # Readme:
 # -----------------------------------------------------------------------

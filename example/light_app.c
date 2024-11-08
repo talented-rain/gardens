@@ -49,7 +49,6 @@ static void *light_app_entry(void *args)
     struct mail sgrt_mail = {};
     kint32_t retval;
 
-    real_thread_set_name(__FUNCTION__);
     mailbox_init(&sgrt_light_app_mailbox, mrt_current->tid, "light-app-mailbox");
 
     for (;;)
@@ -102,7 +101,10 @@ kint32_t light_app_init(void)
 
     /*!< register thread */
     retval = real_thread_create(&g_light_app_tid, sprt_attr, light_app_entry, mrt_nullptr);
-    return (retval < 0) ? retval : 0;
+    if (!retval)
+        real_thread_set_name(g_light_app_tid, "light_app_entry");
+
+    return retval;
 }
 
 /*!< end of file */

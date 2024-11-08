@@ -46,8 +46,6 @@ static void *tsc_app_entry(void *args)
     kint32_t fd;
     struct fwk_input_event sgrt_event[4] = {};
     kssize_t retval;
-
-    real_thread_set_name(__FUNCTION__);
     
     do 
     {
@@ -100,7 +98,10 @@ kint32_t tsc_app_init(void)
 
     /*!< register thread */
     retval = real_thread_create(&g_tsc_app_tid, sprt_attr, tsc_app_entry, mrt_nullptr);
-    return (retval < 0) ? retval : 0;
+    if (!retval)
+        real_thread_set_name(g_tsc_app_tid, "tsc_app_entry");
+
+    return retval;
 }
 
 /*!< end of file */

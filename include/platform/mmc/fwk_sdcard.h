@@ -802,11 +802,13 @@ enum __ERT_SDCARD_SW_VOLTAGE
 
 /*!< The functions */
 TARGET_EXT void *host_sdmmc_card_initial(struct fwk_sdcard *sprt_card);
+
 TARGET_EXT void *fwk_sdcard_allocate_device(void *sprt_sd);
 TARGET_EXT void fwk_sdcard_free_device(struct fwk_sdcard *sprt_card);
 TARGET_EXT kint32_t fwk_sdcard_initial_device(struct fwk_sdcard *sprt_card);
 TARGET_EXT void fwk_sdcard_inactive_device(struct fwk_sdcard *sprt_card);
 
+TARGET_EXT kbool_t fwk_sdcard_is_insert(struct fwk_sdcard *sprt_card);
 TARGET_EXT kbool_t fwk_sdcard_detect(struct fwk_sdcard *sprt_card);
 TARGET_EXT kbool_t fwk_sdcard_to_normal(struct fwk_sdcard *sprt_card);
 TARGET_EXT kbool_t fwk_sdcard_rw_blocks(struct fwk_sdcard *sprt_card, void *ptrBuffer, 

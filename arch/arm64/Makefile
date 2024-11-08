@@ -32,15 +32,15 @@ $(TARGET_IMGE) : $(TARGET_EXEC)
 	$(OBJDUMP) -D -m $(ARCH) $(TARGET_EXEC) > $(TARGET_NASM)
 
 $(TARGET_EXEC) : $(head-objs) $(OBJECT_EXEC)
-	$(CC) -T$(LINK_SCRIPT) $(BUILD_CFLAGS) $(OUTPUT_FLAGS) -o $@ $^ $(LIBS_PATH) $(LIBS)
+	$(CC) -T$(LINK_SCRIPT) $(BUILD_CFLAGS) $(EXTRA_FLAGS) -o $@ $^ $(LIBS_PATH) $(LIBS)
 
 $(arch_output)/%.o : %.c
 	if [ ! -d $(arch_output) ]; then mkdir -p $(arch_output); fi
-	$(CC) -c $(BUILD_CFLAGS) $(MACROS) $(INCLUDE_DIRS) $(OUTPUT_FLAGS) -o $@ $<
+	$(CC) -c $(BUILD_CFLAGS) $(MACROS) $(INCLUDE_DIRS) $(EXTRA_FLAGS) -o $@ $<
 
 $(arch_output)/%.o : %.S
 	if [ ! -d $(arch_output) ]; then mkdir -p $(arch_output); fi
-	$(CC) -c $(BUILD_CFLAGS) $(MACROS) $(INCLUDE_DIRS) $(OUTPUT_FLAGS) -o $@ $<
+	$(CC) -c $(BUILD_CFLAGS) $(MACROS) $(INCLUDE_DIRS) $(EXTRA_FLAGS) -o $@ $<
 
 clean:
 	rm -rf $(head-objs)

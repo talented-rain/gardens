@@ -18,12 +18,12 @@
 #include <common/io_stream.h>
 #include <configs/configs.h>
 #include <asm/zynq7/zynq7_periph.h>
-#include <asm/zynq7/xparameters.h>
 
 /*!< The functions */
 TARGET_EXT void zynq7_led_init(void);
 TARGET_EXT void zynq7_console_init(void);
 TARGET_EXT void zynq7_systick_init(void);
 TARGET_EXT void zynq7_sdmmc_init(void);
+TARGET_EXT void zynq7_hdmi_init(void);
 
 #endif

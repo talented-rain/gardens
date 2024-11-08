@@ -9,6 +9,7 @@
 # ---------------------------------------------------------------
 CONFIG_ARCH = "arm"
 CONFIG_TYPE = "armv7"
+CONFIG_CLASS = "cortex-a7"
 CONFIG_VERDOR = "nxp"
 CONFIG_CPU = "imx6ull"
 

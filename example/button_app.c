@@ -50,7 +50,6 @@ static void *button_app_entry(void *args)
     struct mail_msg sgrt_msg[1] = {};
     kssize_t retval;
 
-    real_thread_set_name(__FUNCTION__);
     mailbox_init(sprt_mb, mrt_current->tid, "button-app-mailbox");
 
     do {
@@ -118,7 +117,10 @@ kint32_t button_app_init(void)
 
     /*!< register thread */
     retval = real_thread_create(&g_button_app_tid, sprt_attr, button_app_entry, mrt_nullptr);
-    return (retval < 0) ? retval : 0;
+    if (!retval)
+        real_thread_set_name(g_button_app_tid, "button_app_entry");
+
+    return retval;
 }
 
 /*!< end of file */

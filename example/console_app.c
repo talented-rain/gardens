@@ -52,8 +52,6 @@ static void *console_app_entry(void *args)
     static kuint8_t status = 0;
     kint32_t retval = -1;
 
-    real_thread_set_name(__FUNCTION__);
-
     ptr_buf = &g_console_recv_buf[0];
     buf_size = sizeof(g_console_recv_buf);
 
@@ -123,7 +121,10 @@ kint32_t console_app_init(void)
 
     /*!< register thread */
     retval = real_thread_create(&g_console_app_tid, sprt_attr, console_app_entry, mrt_nullptr);
-    return (retval < 0) ? retval : 0;
+    if (!retval)
+        real_thread_set_name(g_console_app_tid, "console_app_entry");
+
+    return retval;
 }
 
 /*!< end of file */

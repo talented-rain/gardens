@@ -41,6 +41,7 @@ TARGET_EXT kbool_t do_string_n_compare(void *ptr_dst, const void *ptr_src, kuint
 TARGET_EXT void do_string_reverse(void *ptr_src, kuint32_t size);
 TARGET_EXT kusize_t convert_number_to_string(void *ptr_dst, kuint64_t value);
 TARGET_EXT kchar_t *seek_char_in_string(const void *ptr_src, kchar_t ch);
+TARGET_EXT kchar_t *seek_char_by_pos(const void *ptr_src, kuint32_t index);
 TARGET_EXT kusize_t do_fmt_convert(void *ptr_buf, kubyte_t *ptr_level, const kchar_t *ptr_fmt, va_list ptr_list, kusize_t size);
 
 TARGET_EXT kchar_t *vasprintk(const kchar_t *ptr_fmt, kusize_t *size, va_list sprt_list);
@@ -53,5 +54,6 @@ TARGET_EXT kusize_t kstrlcpy(kchar_t *__dest, const kchar_t *__src, kusize_t __n
 TARGET_EXT kint32_t kstrcmp(kchar_t *__s1, const kchar_t *__s2);
 TARGET_EXT kint32_t kstrncmp(kchar_t *__s1, const kchar_t *__s2, kusize_t __n);
 TARGET_EXT kchar_t *kstrchr(const kchar_t *__s1, kchar_t ch);
+TARGET_EXT kchar_t *kstrcat(const kchar_t *__s1, kuint32_t index);
 
 #endif /* __API_STRING_H */

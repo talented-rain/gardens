@@ -83,7 +83,7 @@ static void *kthread_entry(void *args)
     struct timer_list *sprt_tim = &sgrt_kthread_timer;
     real_thread_t tid = mrt_current->tid;
     
-    real_thread_set_name(__FUNCTION__);
+    real_thread_set_self_name(__FUNCTION__);
     spin_lock_init(&sgrt_kthread_spinlock);
 
 #if CONFIG_PREEMPT

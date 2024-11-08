@@ -236,14 +236,13 @@ void system_kernel_exitcall(void)
 #endif
 }
 
-
 /*!
- * @brief   root_filesystem_initcall
+ * @brief   filesystem_initcall
  * @param   none
  * @retval  none
  * @note    if (*pFunc_init)() return error, other initcalls will be stopped immediately
  */
-kint32_t root_filesystem_initcall(void)
+kint32_t filesystem_initcall(void)
 {
 #if DYNAMIC_INIT_EXIT_WAYS
     return dync_initcall_run_list(NR_DYNC_SEC_ROOTFS);
@@ -263,12 +262,12 @@ kint32_t root_filesystem_initcall(void)
 }
 
 /*!
- * @brief   root_filesystem_exitcall
+ * @brief   filesystem_exitcall
  * @param   none
  * @retval  none
  * @note    none
  */
-void root_filesystem_exitcall(void)
+void filesystem_exitcall(void)
 {
 #if DYNAMIC_INIT_EXIT_WAYS
     dync_exitcall_run_list(NR_DYNC_SEC_ROOTFS);

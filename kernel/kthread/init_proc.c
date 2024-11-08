@@ -33,7 +33,7 @@ static kuint32_t g_init_proc_stack[INIT_THREAD_STACK_SIZE];
  */
 static void *init_proc_entry(void *args)
 {
-    real_thread_set_name(__FUNCTION__);
+    real_thread_set_self_name(__FUNCTION__);
     init_real_thread_table();
 
     print_info("%s is enter, which tid is: %d\n", __FUNCTION__, mrt_current->tid);

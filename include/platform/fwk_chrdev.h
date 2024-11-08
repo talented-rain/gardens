@@ -26,7 +26,6 @@ struct fwk_char_device
 
 	/*!< All devices with the same primary device number form a list */
 	struct fwk_char_device *sprt_next;
-
 };
 
 /*!< The globals */

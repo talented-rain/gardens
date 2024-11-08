@@ -14,7 +14,6 @@
 #include <configs/configs.h>
 #include <asm/armv7/gcc_config.h>
 #include <asm/zynq7/zynq7_periph.h>
-#include <asm/zynq7/xparameters.h>
 #include <common/time.h>
 #include <common/api_string.h>
 

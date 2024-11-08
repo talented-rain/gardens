@@ -18,7 +18,7 @@
 kuint32_t g_sched_preempt_cnt = 0;
 
 /*!< TCB */
-static struct scheduler_table sgrt_real_thread_Tabs =
+struct scheduler_table sgrt_real_thread_Tabs =
 {
     .max_tidarr		= 0,
     .max_tids		= REAL_THREAD_MAX_NUM,
@@ -41,13 +41,12 @@ static struct scheduler_context sgrt_context;
 static kuint32_t thread_schedule_ref = 0;
 
 /*!< The defines */
-#define SCHED_THREAD_HANDLER(tid)					__REAL_THREAD_HANDLER(&sgrt_real_thread_Tabs, tid)
-#define SCHED_RUNNING_THREAD						__REAL_THREAD_RUNNING_LIST(&sgrt_real_thread_Tabs)
-#define SCHED_READY_LIST							__REAL_THREAD_READY_LIST(&sgrt_real_thread_Tabs)
-#define SCHED_SUSPEND_LIST							__REAL_THREAD_SUSPEND_LIST(&sgrt_real_thread_Tabs)
-#define SCHED_SLEEP_LIST							__REAL_THREAD_SLEEP_LIST(&sgrt_real_thread_Tabs)
-
-#define __SCHED_LOCK								sgrt_real_thread_Tabs.sgrt_lock
+#define SCHED_THREAD_HANDLER(tid)               __REAL_THREAD_HANDLER(&sgrt_real_thread_Tabs, tid)
+#define SCHED_RUNNING_THREAD                    __REAL_THREAD_RUNNING_LIST(&sgrt_real_thread_Tabs)
+#define SCHED_READY_LIST                        __REAL_THREAD_READY_LIST(&sgrt_real_thread_Tabs)
+#define SCHED_SUSPEND_LIST                      __REAL_THREAD_SUSPEND_LIST(&sgrt_real_thread_Tabs)
+#define SCHED_SLEEP_LIST                        __REAL_THREAD_SLEEP_LIST(&sgrt_real_thread_Tabs)
+#define __SCHED_LOCK                            sgrt_real_thread_Tabs.sgrt_lock
 
 /*!< set thread status */
 #define __SET_THREAD_STATUS(tid, value)	\
@@ -69,7 +68,7 @@ static kuint32_t thread_schedule_ref = 0;
         }	\
     } while (0)
 
-/* get thread status */
+/*!< get thread status */
 #define __GET_THREAD_STATUS(tid)	\
 ({	\
     struct real_thread *sprt_task = SCHED_THREAD_HANDLER(tid);	\
@@ -103,6 +102,17 @@ struct real_thread *get_current_thread(void)
 }
 
 /*!
+ * @brief	get ready thread list head from tcb
+ * @param  	tid
+ * @retval 	ready thread list
+ * @note   	none
+ */
+struct list_head *get_ready_thread_table(void)
+{
+    return SCHED_READY_LIST;
+}
+
+/*!
  * @brief	get thread from tcb
  * @param  	tid
  * @retval 	thread
@@ -114,12 +124,31 @@ struct real_thread *get_thread_handle(real_thread_t tid)
 }
 
 /*!
+ * @brief	set name to thread
+ * @param  	name: thread name
+ * @retval 	none
+ * @note   	none
+ */
+void real_thread_set_name(real_thread_t tid, const kchar_t *name)
+{
+    struct real_thread *sprt_thread;
+
+    if (!name || !(*name))
+        return;
+
+    sprt_thread = SCHED_THREAD_HANDLER(tid);
+
+    memset(sprt_thread->name, 0, REAL_THREAD_NAME_SIZE);
+    kstrlcpy(sprt_thread->name, name, REAL_THREAD_NAME_SIZE);
+}
+
+/*!
  * @brief	set name to current thread
  * @param  	name: thread name
  * @retval 	none
  * @note   	none
  */
-void real_thread_set_name(const kchar_t *name)
+void real_thread_set_self_name(const kchar_t *name)
 {
     struct real_thread *sprt_work;
 

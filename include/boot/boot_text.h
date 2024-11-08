@@ -109,4 +109,11 @@ TARGET_EXT kuaddr_t __mem_pool_end;
 #define MEMORY_POOL_BASE                    ((kuaddr_t)&__mem_pool_start)
 #define MEMORY_POOL_SIZE                    ((kusize_t)((kuaddr_t)(&__mem_pool_end) - (kuaddr_t)(&__mem_pool_start)))
 
+/*!< framebuffer */
+TARGET_EXT kuaddr_t __fb_dram_start;
+TARGET_EXT kuaddr_t __fb_dram_end;
+
+#define FBUFFER_DRAM_BASE                   ((kuaddr_t)&__fb_dram_start)
+#define FBUFFER_DRAM_SIZE                   ((kusize_t)((kuaddr_t)(&__fb_dram_end) - (kuaddr_t)(&__fb_dram_start)))
+
 #endif /* __BOOT_TEXT_H */

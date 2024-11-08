@@ -55,6 +55,7 @@ kint32_t board_init_systick(void)
 kint32_t board_init_sdmmc(void)
 {
 	zynq7_sdmmc_init();
+//	zynq7_hdmi_init();
 
     return RET_BOOT_PASS;
 }

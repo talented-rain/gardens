@@ -62,6 +62,10 @@ ifeq ($(CONFIG_TYPE),)
 	$(error "undefine CONFIG_TYPE !")
 endif
 
+ifeq ($(CONFIG_CLASS),)
+	$(error "undefine CONFIG_CLASS !")
+endif
+
 ifeq ($(CONFIG_CPU),)
 	$(error "undefine CONFIG_CPU !")
 endif
@@ -76,6 +80,7 @@ endif
 
 ARCH			?=	$(patsubst "%",%, $(CONFIG_ARCH))
 TYPE			?=	$(patsubst "%",%, $(CONFIG_TYPE))
+CLASS			?=	$(patsubst "%",%, $(CONFIG_CLASS))
 CPU				?=	$(patsubst "%",%, $(CONFIG_CPU))
 VENDOR			?=	$(patsubst "%",%, $(CONFIG_VERDOR))
 COMPILER		?= 	$(patsubst "%",%, $(CONFIG_COMPILER))
@@ -104,7 +109,13 @@ LIBS_PATH		:=  -L $(COMPILER_LIBC)/usr/lib	\
 					-L $(COMPILER_LIBC)/lib
 
 LIBS			:=	--static -lgcc -lm -lc
-OUTPUT_FLAGS	:=  -fexec-charset=GB2312
+EXTRA_FLAGS		:=  -fexec-charset=GB2312
+
+ifeq ($(CONFIG_VFP),y)
+EXTRA_FLAGS     +=	-mcpu=$(CLASS)	\
+					-mfpu=vfpv3	\
+					-mfloat-abi=hard
+endif
 
 BUILD_CFLAGS   	:=  -g3 -O0 -Wall -nostdlib	\
 					-Wundef	\
@@ -122,7 +133,7 @@ MACROS			+=	-DCONFIG_DEBUG_JTAG
 OBJECT_PATH		:=	$(PROJECT_DIR)/objects
 
 OUTPUT_PATH		:=	$(PROJECT_DIR)/boot
-LINK_SCRIPT		:=	$(PROJECT_DIR)/arch/$(ARCH)/cpu_ramboot.lds
+LINK_SCRIPT		:=	$(PROJECT_DIR)/arch/$(ARCH)/cpu/$(TYPE)/$(CPU)/cpu_ramboot.lds
 DTC				:=	$(PROJECT_DIR)/scripts/dtc/dtc
 BUILD_SCRIPT	:=	$(PROJECT_DIR)/scripts/Makefile.build
 
@@ -135,8 +146,8 @@ INCLUDE_DIRS	:= 	$(PROJECT_DIR)/	\
 					$(PROJECT_DIR)/arch/$(ARCH)/include	\
 					$(PROJECT_DIR)/include	\
 					$(PROJECT_DIR)/board/mach-$(CPU)	\
-					$(PROJECT_DIR)/rootfs	\
-					$(PROJECT_DIR)/rootfs/fatfs
+					$(PROJECT_DIR)/lib	\
+					$(PROJECT_DIR)/lib/fatfs
 
 ARCH_DIRS       :=  arch/$(ARCH)/
 COMMON_DIRS     :=  common/
@@ -144,17 +155,18 @@ BOOT_DIRS       :=  boot/
 BOARD_DIRS      :=  board/
 PLATFORM_DIRS   :=  platform/
 KERNEL_DIRS     :=  kernel/
-ROOTFS_DIRS     :=  rootfs/
+EXT_LIB_DIRS    :=  lib/
+ROOTFS_DIRS     :=  fs/
 DRIVER_DIRS     :=  drivers/
 INIT_DIRS       :=  example/ init/
 
 OBJECT_EXEC		:=	$(OBJECT_PATH)/built-in.o
 SOURCE_DIRS		:=	$(ARCH_DIRS) $(COMMON_DIRS) $(BOOT_DIRS) $(BOARD_DIRS) $(PLATFORM_DIRS)	\
-					$(KERNEL_DIRS) $(ROOTFS_DIRS) $(DRIVER_DIRS) $(INIT_DIRS)
+					$(KERNEL_DIRS) $(EXT_LIB_DIRS) $(ROOTFS_DIRS) $(DRIVER_DIRS) $(INIT_DIRS)
 INCLUDE_DIRS	:= 	$(patsubst %, -I %, $(INCLUDE_DIRS))
 
-export ARCH TYPE CPU VENDOR CC CXX LD AR OBJDUMP OBJCOPY READELF
-export LIBS_PATH LIBS OUTPUT_FLAGS BUILD_CFLAGS MACROS CONF_MAKEFILE
+export ARCH TYPE CLASS CPU VENDOR CC CXX LD AR OBJDUMP OBJCOPY READELF
+export LIBS_PATH LIBS EXTRA_FLAGS BUILD_CFLAGS MACROS CONF_MAKEFILE
 export PROJECT_DIR LINK_SCRIPT DTC BUILD_SCRIPT INCLUDE_DIRS
 export OBJECT_PATH OBJECT_EXEC TARGET_EXEC TARGET_IMGE TARGET_NASM TARGET_LASM
 
@@ -164,7 +176,7 @@ VPATH			:= 	$(SOURCE_DIRS)
 # *********************************************************************
 
 force:
-.PHONY:			all clean distclean config dtbs debug
+.PHONY:			all clean distclean config dtbs info debug
 
 all : dtbs $(OBJECT_EXEC) force
 	$(Q)$(MAKE) -C $(ARCH_DIRS) all
@@ -198,7 +210,22 @@ $(CONF_MAKEFILE): force
 	$(call create_conf, $@, $(CONF_GERNERIC))
 endif
 
-debug:
+info:
+	@echo "------------------------------------------------------------------------"
+	@echo "                 project      : $(TARGET)"   
+	@echo "                 arch         : $(ARCH)"
+	@echo "                 arch type    : $(TYPE)"
+	@echo "                 arch class   : $(CLASS)"
+	@echo "                 vendor       : $(VENDOR)"
+	@echo "                 cpu          : $(CPU)"
+	@echo " "
+	@echo "         ------------< ** information ** >------------ "
+	@echo " "
+	@echo "                 author       : Yang Yujun"
+	@echo "                 e-mail       : <yujiantianhu@163.com>"
+	@echo "------------------------------------------------------------------------"
+
+debug: info
 	$(Q)$(MAKE) -f $(BUILD_SCRIPT) _debug
 	$(Q)$(MAKE) -C $(ARCH_DIRS) debug
 

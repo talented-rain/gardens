@@ -42,7 +42,7 @@ endif
 
 define arch_build
 	if [ ! -d $(arch_output) ]; then mkdir -p $(arch_output); fi
-	$(1) -Wp,-MD,$@.d -c $(BUILD_CFLAGS) $(MACROS) $(INCLUDE_DIRS) $(OUTPUT_FLAGS) -o $(2) $(3)
+	$(1) -Wp,-MD,$@.d -c $(BUILD_CFLAGS) $(MACROS) $(INCLUDE_DIRS) $(EXTRA_FLAGS) -o $(2) $(3)
 endef
 
 force:
@@ -55,7 +55,7 @@ $(TARGET_IMGE) : $(TARGET_EXEC) force
 	$(OBJDUMP) -D -m $(ARCH) -S -l $(TARGET_EXEC) > $(TARGET_LASM)
 
 $(TARGET_EXEC) : $(head-objs) force
-	$(CC) -T$(LINK_SCRIPT) $(BUILD_CFLAGS) $(OUTPUT_FLAGS) -o $@ $(head-objs) $(OBJECT_EXEC) $(LIBS_PATH) $(LIBS)
+	$(CC) -T$(LINK_SCRIPT) $(BUILD_CFLAGS) $(EXTRA_FLAGS) -o $@ $(head-objs) $(OBJECT_EXEC) $(LIBS_PATH) $(LIBS)
 
 $(arch_output)/%.o : %.S force
 	$(call arch_build, $(CC), $@, $<)

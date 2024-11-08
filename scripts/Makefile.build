@@ -56,7 +56,7 @@ local_cmd	:= 	$(obj_path)/build-in.o.cmd
 VPATH		:=	$(cur_path)
 
 define build_object
-	$(1) -Wp,-MD,$@.d -c $(BUILD_CFLAGS) $(MACROS) $(INCLUDE_DIRS) $(OUTPUT_FLAGS) -o $(2) $(3)
+	$(1) -Wp,-MD,$@.d -c $(BUILD_CFLAGS) $(MACROS) $(INCLUDE_DIRS) $(EXTRA_FLAGS) -o $(2) $(3)
 endef
 
 define build_recusion

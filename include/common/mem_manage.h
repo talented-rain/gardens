@@ -40,8 +40,9 @@ typedef struct mem_info
 {
 	kuaddr_t base;                                          
 	kusize_t lenth;
-
+    
 	struct mem_block *sprt_mem;
+
 } srt_mem_info_t;
 
 #define MEM_BLOCK_HEADER_SIZE								(mrt_num_align4(sizeof(struct mem_block)))
@@ -56,6 +57,8 @@ TARGET_EXT void free_employ_simple_memory(void *ptr_head, void *ptr_mem);
 TARGET_EXT kbool_t malloc_block_initial(void);
 TARGET_EXT kbool_t malloc_block_self_defines(kuaddr_t base, kusize_t size);
 TARGET_EXT void malloc_block_destroy(void);
+
+TARGET_EXT void *memset_ex(void *__s, unsigned int __c, size_t __n);
 
 /*!< API function */
 /*!
@@ -111,6 +114,47 @@ static inline void memory_set(void *dest, kuint8_t data, kusize_t size)
     );
 
 #endif
+}
+
+/*!
+ * @brief   memory_compat_set
+ * @param   dest, data, size
+ * @retval  none
+ * @note    "memset" just allow set 1-byte data, but this func can set 4-bytes
+ */
+static inline void memory_compat_set(void *dest, kuint32_t data, kusize_t size)
+{
+    kuaddr_t start_addr, end_addr;
+    kuaddr_t result;
+
+    if (!dest)
+        return;
+    
+    start_addr = (kuaddr_t)dest;
+    end_addr   = (kuaddr_t)(start_addr + size);
+
+    /*!< address must be 4 bytes alignment */
+    if ((start_addr & 0x3) ||
+        (end_addr & 0x3))
+    {
+        memory_set(dest, data, size);
+        return;
+    }
+
+    __asm__ __volatile__ (
+        "   ldr %0, [%1]        \n\t"
+        " 1:                    \n\t"
+        "   cmp %0, %2          \n\t"
+        "   bhs 2f              \n\t"
+        "   str %3, [%0]        \n\t"
+        "   add %0, #4          \n\t"
+        "   b 1b                \n\t"
+        " 2:                    \n\t"
+        "   str %0, [%1]        \n\t"
+        : "=&r"(result)
+        : "r"(&start_addr), "r"(end_addr), "r"(data)
+        : "cc", "memory"
+    );
 }
 
 /*!

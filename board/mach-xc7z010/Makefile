@@ -15,6 +15,8 @@ obj-y	+=	zynq7_console.o
 obj-y	+=	zynq7_systick.o
 obj-y	+=	zynq7_sdmmc.o
 
+#obj-y	+=	zynq7_hdmi.o
+
 obj-y	+=	board_init.o
 
 # end of file

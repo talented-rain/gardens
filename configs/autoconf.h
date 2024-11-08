@@ -1,11 +1,13 @@
 #define CONFIG_ARCH "arm"
 #define CONFIG_TYPE "armv7"
+#define CONFIG_CLASS "cortex-a9"
 #define CONFIG_VERDOR "xilinx"
 #define CONFIG_CPU "xc7z010"
 #define CONFIG_COMPILER "arm-linux-gnueabihf-"
 #define CONFIG_COMPILER_PATH "/usr/local/arm/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf"
 #define CONFIG_ARCH_ARMV7 1
 #define CONFIG_LITTILE_ENDIAN 1
+#define CONFIG_VFP 1
 #define CONFIG_XTAL_FREQ_CLK (24000000)
 #define CONFIG_RTC_FREQ_CLK (32768)
 #define CONFIG_RAM_DDR_ORIGIN (0x00100000)
@@ -39,8 +41,12 @@
 #define CONFIG_INPUTDEV 1
 #define CONFIG_VIDEO 1
 #define CONFIG_USB 1
+#define CONFIG_FB_MULTI_SUPPORT 1
+#define CONFIG_FBUFFER_NUM 2
 #define CONFIG_CPU_ZYNQ 1
 #define CONFIG_CLOCK_ZYNQ 1
 #define CONFIG_SDK_LED_ZYNQ 1
+#define CONFIG_SDK_HDMI_ZYNQ 1
+#define CONFIG_DISPLAY_APP 1
 #define CONFIG_LIGHT_APP 1
 #define CONFIG_CONSOLE_APP 1

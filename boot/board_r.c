@@ -12,8 +12,9 @@
 
 /*!< The includes*/
 #include <boot/board_init.h>
-#include <rootfs/rfs_disk.h>
-#include <platform/mmc/fwk_sdfatfs.h>
+#include <platform/fwk_fcntl.h>
+#include <fs/fs_fatfs.h>
+#include <fs/fs_intr.h>
 
 /*!< API function */
 /*!
@@ -52,35 +53,47 @@ kint32_t system_boot_initial(void)
  */
 kint32_t fdt_boot_initial(void)
 {
-    struct rfs_disk_file sgrt_file;
-    kint32_t iRetval;
+    struct fs_stream sgrt_file;
+    struct fatfs_disk *sprt_fdisk;
+    struct fwk_gendisk *sprt_gdisk;
+    struct fwk_block_device sgrt_blkdev;
+    kint32_t retval;
 
     if ((PROGRAM_RAM_START <= (CONFIG_DEVICE_TREE_BASE + CONFIG_FDT_MAX_SIZE - 1)))
         return RET_BOOT_ERR;
 
-    rfs_fatfs_file_initial(&sgrt_file);
-
-    iRetval = rfs_fatfs_disk_create(sgrt_file.sprt_disk, SDDISK);
-    if (iRetval < 0)
-    {
-        print_debug("create disk failed!\n");
+    sprt_fdisk = fs_alloc_fatfs(SDDISK);
+    if (!isValid(sprt_fdisk))
         return RET_BOOT_ERR;
-    }
 
-    iRetval = sgrt_file.init(&sgrt_file, "firmware.dtb", 
-                                NR_RFS_DISK_OpenExsiting | NR_RFS_DISK_OpenRead, CONFIG_DEVICE_TREE_BASE, CONFIG_FDT_MAX_SIZE);
-    if (iRetval < 0)
+    sprt_gdisk = &sprt_fdisk->sgrt_gdisk;
+    sgrt_blkdev.sprt_gdisk = sprt_gdisk;
+
+    retval = sprt_gdisk->mount(sprt_gdisk);
+    if (retval)
+        goto fail1;
+
+    sgrt_file.full_name = "/boot/firmware.dtb";
+    sgrt_file.mode = O_RDONLY;
+    retval = sprt_gdisk->sprt_bops->open(&sgrt_blkdev, &sgrt_file);
+    if (retval)
+        goto fail2;
+
+    retval = sprt_gdisk->sprt_bops->read(&sgrt_file, 
+                                    (void *)CONFIG_DEVICE_TREE_BASE, CONFIG_FDT_MAX_SIZE, 0);
+    if (retval <= 0)
     {
-        print_debug("read device-tree failed!\n");
-        goto END;
+        print_err("can not read device-tree file!\n");
+        retval = -ER_EMPTY;
     }
 
-    sgrt_file.exit(&sgrt_file);
+    sprt_gdisk->sprt_bops->close(&sgrt_blkdev, &sgrt_file);
 
-END:
-    rfs_fatfs_disk_destroy(sgrt_file.sprt_disk);
-
-    return (iRetval < 0) ? RET_BOOT_ERR : RET_BOOT_PASS;
+fail2:
+    sprt_gdisk->unmount(sprt_gdisk);
+fail1:
+    kfree(sprt_fdisk);
+    return retval ? RET_BOOT_ERR : RET_BOOT_PASS;
 }
 
 /*!

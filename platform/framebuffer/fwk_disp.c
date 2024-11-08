@@ -257,7 +257,8 @@ static void fwk_display_fill_rectangle(struct fwk_disp_info *sprt_disp, kuint32_
     kuint8_t pixelbits;
     kuint32_t rgb_data;
 
-    if ((x_start > sprt_disp->width) || (y_start > sprt_disp->height) || (x_end > sprt_disp->width) || (y_end > sprt_disp->height))
+    if ((x_start > sprt_disp->width) || (y_start > sprt_disp->height) || 
+        (x_end > sprt_disp->width) || (y_end > sprt_disp->height))
         return;
 
     if (x_end < x_start)
@@ -285,9 +286,15 @@ static void fwk_display_fill_rectangle(struct fwk_disp_info *sprt_disp, kuint32_
     for (y_cnt = 0; y_cnt < height; y_cnt++)
     {
         offset = fwk_display_advance_position(x_start, y_start + y_cnt, sprt_disp->width);
-    
-        for (x_cnt = 0; x_cnt < width; x_cnt++)
-            mrt_fwk_disp_write_fbuffer(sprt_disp->buffer, x_cnt + offset, pixelbits, rgb_data);;
+
+        if ((pixelbits == FWK_RGB_PIXEL24) ||
+            (pixelbits == FWK_RGB_PIXEL32))
+            memset_ex(sprt_disp->buffer + (offset << 2), rgb_data, (width << 2));
+        else
+        {
+            for (x_cnt = 0; x_cnt < width; x_cnt++)
+                mrt_fwk_disp_write_fbuffer(sprt_disp->buffer, x_cnt + offset, pixelbits, rgb_data);
+        }
     }
 
     mutex_unlock(&sprt_disp->sgrt_lock);
@@ -302,29 +309,13 @@ static void fwk_display_fill_rectangle(struct fwk_disp_info *sprt_disp, kuint32_
  */
 static void fwk_display_clear(struct fwk_disp_info *sprt_disp, kuint32_t data)
 {
-    kuint32_t x_cnt, y_cnt, offset;
     kuint8_t pixelbits;
     kuint32_t rgb_data;
 
-    if ((data == RGB_BLACK) || (data == RGB_WHITE))
-    {
-        memset(sprt_disp->buffer, data, sprt_disp->buf_size);
-        return;
-    }
-
-    offset = fwk_display_advance_position(0, 0, sprt_disp->width);
     pixelbits = mrt_fwk_disp_bpp_get(sprt_disp->bpp);
     rgb_data  = fwk_display_convert_rgbbit(FWK_RGB_PIXELBIT, pixelbits, data);
 
-    mutex_lock(&sprt_disp->sgrt_lock);
-
-    for (y_cnt = 0; y_cnt < sprt_disp->height; y_cnt++)
-    {
-        for (x_cnt = 0; x_cnt < sprt_disp->width; x_cnt++) 
-            mrt_fwk_disp_write_fbuffer(sprt_disp->buffer, offset++, pixelbits, rgb_data);
-    }
-
-    mutex_unlock(&sprt_disp->sgrt_lock);
+    memset_ex(sprt_disp->buffer, rgb_data, sprt_disp->buf_size);
 }
 
 /*!
@@ -589,16 +580,14 @@ static const struct fwk_disp_ops sgrt_fwk_display_oprts =
  * @retval  sprt_disp
  * @note    none
  */
-void *fwk_display_initial_info(struct fwk_disp_info *sprt_disp,
+void *fwk_display_ctrl_init(struct fwk_disp_info *sprt_disp,
                           void *fbuffer, kusize_t size, kuint32_t width, kuint32_t height, kuint32_t bpp)
 {
-
     if (!sprt_disp)
         sprt_disp = kmalloc(sizeof(*sprt_disp), GFP_KERNEL);
 
     if (isValid(sprt_disp))
     {
-
         sprt_disp->buffer = fbuffer;
         sprt_disp->buf_size = size;
         sprt_disp->width = width;
@@ -610,7 +599,6 @@ void *fwk_display_initial_info(struct fwk_disp_info *sprt_disp,
     }
 
     return sprt_disp;
-
 }
 
 /*!< end of file */

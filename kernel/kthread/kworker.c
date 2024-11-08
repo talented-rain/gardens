@@ -51,7 +51,6 @@ static void *kworker_entry(void *args)
     struct workqueue *sprt_wq;
     struct workqueue *sprt_temp;
 
-    real_thread_set_name(__FUNCTION__);
     print_info("%s is enter, which tid is: %d\n", __FUNCTION__, mrt_current->tid);
 
     for (;;)
@@ -85,6 +84,7 @@ END:
 kint32_t kworker_init(void)
 {
     struct real_thread_attr *sprt_attr = &sgrt_kworker_attr;
+    kint32_t retval;
 
 	sprt_attr->detachstate = REAL_THREAD_CREATE_JOINABLE;
 	sprt_attr->inheritsched	= REAL_THREAD_INHERIT_SCHED;
@@ -98,7 +98,11 @@ kint32_t kworker_init(void)
     real_thread_set_time_slice(sprt_attr, REAL_THREAD_TIME_DEFUALT);
 
     /*!< register thread */
-    return kernel_thread_create(&g_kworker_tid, sprt_attr, kworker_entry, mrt_nullptr);
+    retval = kernel_thread_create(&g_kworker_tid, sprt_attr, kworker_entry, mrt_nullptr);
+    if (!retval)
+        real_thread_set_name(g_kworker_tid, "kworker_entry");
+
+    return retval;
 }
 
 /*!< end of file */
