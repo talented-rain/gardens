@@ -47,7 +47,7 @@ static kuint16_t radix_tree_numlen(kuint32_t number)
     if (isPower2(MAX_BRANCH))
         return mrt_align(count, MAX_BRANCH);
     
-    result = mrt_urem(count, MAX_BRANCH);
+    result = udiv_remainder(count, MAX_BRANCH);
     return result ? (count + MAX_BRANCH - result) : count;
 }
 

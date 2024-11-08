@@ -9,10 +9,12 @@
 # Copyright (c) 2024   Yang Yujun <yujiantianhu@163.com>
 #
 
-build:
+# '_build' must be the first target
+_build:
 
 obj-y		:=
 
+include $(CONF_MAKEFILE)
 include Makefile
 
 # get current path
@@ -48,36 +50,64 @@ depend-obj	:=	$(wildcard $(depend-obj))
 include $(depend-obj)
 endif
 
+local_built	:= 	$(obj_path)/built-in.o
+local_cmd	:= 	$(obj_path)/build-in.o.cmd
+
 VPATH		:=	$(cur_path)
-.PHONY		+=	build debug
 
-build : $(obj_path)/built-in.o
+define build_object
+	$(1) -Wp,-MD,$@.d -c $(BUILD_CFLAGS) $(MACROS) $(INCLUDE_DIRS) $(EXTRA_FLAGS) -o $(2) $(3)
+endef
 
-$(obj_path)/built-in.o : $(build-obj) $(ouput-obj)
-	$(LD) -EL -r -o $@ $^
+define build_recusion
+	@for dir in $(dir-y); do $(Q)$(MAKE) -C $$dir -f $(BUILD_SCRIPT) $(1); done
+endef
 
-$(build-obj):
-	@for dir in $(dir-y); do $(Q)$(MAKE) -C $$dir -f $(BUILD_SCRIPT); done
+_force:
+.PHONY:	_build _all _force _clean _distclean _debug
 
-$(obj_path)/%.o : %.c
+_build: _all
+
+_all : $(local_built) $(ouput-obj) _force
+	if [ -e $(local_cmd) ]; then rm -f $(local_cmd); fi
+ifneq ($(ouput-obj),)
+	@echo $(ouput-obj) > $(local_cmd)
+endif
+	@for item in $(build-obj); do \
+		if [ -e $$item ]; then	\
+			if [ -e $(local_cmd) ]; then	\
+				echo $$item >> $(local_cmd);	\
+			else	\
+				echo $$item > $(local_cmd);	\
+			fi;	\
+		fi	\
+	done
+	if [ -s $(local_cmd) ]; then $(LD) -EL -r -o $(local_built) `cat $(local_cmd)`; fi
+
+$(local_built) : _force
+	$(call build_recusion, _build)
 	if [ ! -d $(obj_path) ]; then mkdir -p $(obj_path); fi
-	$(CC) -Wp,-MD,$@.d -c $(BUILD_CFLAGS) $(MACROS) $(INCLUDE_DIRS) $(OUTPUT_FLAGS) -o $@ $<
 
-$(obj_path)/%.o : %.S
-	if [ ! -d $(obj_path) ]; then mkdir -p $(obj_path); fi
-	$(CC) -Wp,-MD,$@.d -c $(BUILD_CFLAGS) $(MACROS) $(INCLUDE_DIRS) $(OUTPUT_FLAGS) -o $@ $<
+$(obj_path)/%.o : %.S _force
+	$(call build_object, $(CC), $@, $<)
 
-clean:
-	@for dir in $(dir-y); do $(Q)$(MAKE) -C $$dir -f $(BUILD_SCRIPT) clean; done
-	rm -rf $(ouput-obj) $(build-obj) $(depend-obj)
+$(obj_path)/%.o : %.c _force
+	$(call build_object, $(CC), $@, $<)
 
-distclean:
-	@for dir in $(dir-y); do $(Q)$(MAKE) -C $$dir -f $(BUILD_SCRIPT) distclean; done
-	rm -rf $(ouput-obj) $(build-obj) $(depend-obj)
+$(obj_path)/%.o : %.cpp _force
+	$(call build_object, $(CXX), $@, $<)
+
+_clean:
+	$(call build_recusion, _clean)
+	rm -rf $(ouput-obj) $(build-obj) $(depend-obj) $(local_cmd)
+
+_distclean:
+	$(call build_recusion, _distclean)
+	rm -rf $(ouput-obj) $(build-obj) $(depend-obj) $(local_cmd)
 	rm -rf $(obj_path)
 
-debug:
-	@for dir in $(dir-y); do $(Q)$(MAKE) -C $$dir -f $(BUILD_SCRIPT) debug; done
+_debug:
+	$(call build_recusion, _debug);
 	@echo '==========>' $(obj-y)
 
 # end of file

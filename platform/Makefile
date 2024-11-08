@@ -27,7 +27,7 @@ obj-y	+=	gpio/
 obj-y	+=	i2c/
 
 obj-y	+=	chardev/
-# obj-y	+=	blk_device/
+obj-y	+=	block/
 obj-y	+=	net_device/
 
 obj-y	+=	framebuffer/

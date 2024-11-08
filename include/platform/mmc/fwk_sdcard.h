@@ -525,6 +525,9 @@ enum _ERT_FWK_SDCARD_R1_STATUS_BIT
         NR_SdCard_R1_AddressErr_Bit | NR_SdCard_R1_OutOfRange_Bit),
 };
 
+#define FWK_SDCARD_CMD_APP								(0x80000000U)
+#define FWK_SDCARD_CMD_MASK								(0x0000003fU)
+
 /*!< Command index(bit[45:40]): General Command */
 typedef enum ert_fwk_sdcard_gcmd
 {
@@ -578,12 +581,27 @@ typedef enum ert_fwk_sdcard_gcmd
 /*!< Command index(bit[45:40]): Special Application Command */
 typedef enum ert_fwk_sdcard_acmd
 {
-    NR_SdCard_ACmd_SetBusWidth = 6U,                    /*!< ac,    R1,     Define data bus width (00: 1bit; 10: 4bit) */
-    NR_SdCard_ACmd_GetSdStatus = 13U,                   /*!< adtc,  R1,     Send SD status */
-    NR_SdCard_ACmd_GetOpCond = 41U,                     /*!< bcr,   R3,     The host requires the card to send its support information (HCS) and OCR register content */
-    NR_SdCard_ACmd_GetSCR = 51U,                        /*!< adtc,  R1,     Read Configuration Register SCR */
+	/*!< ac, R1, Define data bus width (00: 1bit; 10: 4bit) */
+    NR_SdCard_ACmd_SetBusWidth = FWK_SDCARD_CMD_APP | 6U,
+
+	/*!< adtc, R1, Send SD status */
+    NR_SdCard_ACmd_GetSdStatus = FWK_SDCARD_CMD_APP | 13U,
+
+	/*!< bcr, R3, The host requires the card to send its support information (HCS) and OCR register content */
+    NR_SdCard_ACmd_GetOpCond = FWK_SDCARD_CMD_APP | 41U,
+
+	/*!< ac, R1, The host requires to send pullup command to card before using DAT line 3(using 4-bit bus) */
+    NR_SdCard_ACmd_PullUp = FWK_SDCARD_CMD_APP | 42U,
+
+	/*!< adtc, R1, Read Configuration Register SCR */
+    NR_SdCard_ACmd_GetSCR = FWK_SDCARD_CMD_APP | 51U,
 
 } ert_fwk_sdcard_acmd_t;
+
+/*!< for ert_fwk_sdcard_gcmd */
+#define FWK_SDCARD_CMDTYPE_GENERIC						(0)
+/*!< for ert_fwk_sdcard_acmd */
+#define FWK_SDCARD_CMDTYPE_APPLICATION					(1)
 
 __align(1) typedef struct fwk_sdcard_cmd
 {
@@ -597,6 +615,7 @@ __align(1) typedef struct fwk_sdcard_cmd
     
     kuint8_t crc;
 
+    kuint32_t cmdType;
     kuint32_t resp[4];
     kuint32_t respType;
 
@@ -629,6 +648,7 @@ enum __ERT_SDCARD_DATA_FLAGS
     NR_SdCard_CmdFlagsReadEnable = mrt_bit(1U),             /*!< data direction(1: read; 0: write) */
     NR_SdCard_CmdFlagsAuto12Enable = mrt_bit(2U),           /*!< auto stop, Suitable for multi block operations */
     NR_SdCard_CmdFlagsAuto23Enable = mrt_bit(3U),           /*!< auto write, Suitable for multi block operations */
+	NR_SdCard_CmdFlagsWithBlock = mrt_bit(4U),				/*!< r/w block ? if no, it maybe call by cmd6 or SCR */
 };
 
 /*!
@@ -702,6 +722,7 @@ typedef struct fwk_sdcard_if
     void (*recvResp) (struct fwk_sdcard_cmd *sprt_cmds);
     kint32_t (*sendData) (struct fwk_sdcard_data *sprt_data);
     kint32_t (*recvData) (struct fwk_sdcard_data *sprt_data);
+    kint32_t (*setup_dma)(struct fwk_sdcard_data *sprt_data);
 
     kbool_t (*is_insert) (struct fwk_sdcard_host *sprt_host);
     void (*setBusWidth) (struct fwk_sdcard_host *sprt_host, kuint32_t option);
@@ -781,11 +802,13 @@ enum __ERT_SDCARD_SW_VOLTAGE
 
 /*!< The functions */
 TARGET_EXT void *host_sdmmc_card_initial(struct fwk_sdcard *sprt_card);
+
 TARGET_EXT void *fwk_sdcard_allocate_device(void *sprt_sd);
 TARGET_EXT void fwk_sdcard_free_device(struct fwk_sdcard *sprt_card);
 TARGET_EXT kint32_t fwk_sdcard_initial_device(struct fwk_sdcard *sprt_card);
 TARGET_EXT void fwk_sdcard_inactive_device(struct fwk_sdcard *sprt_card);
 
+TARGET_EXT kbool_t fwk_sdcard_is_insert(struct fwk_sdcard *sprt_card);
 TARGET_EXT kbool_t fwk_sdcard_detect(struct fwk_sdcard *sprt_card);
 TARGET_EXT kbool_t fwk_sdcard_to_normal(struct fwk_sdcard *sprt_card);
 TARGET_EXT kbool_t fwk_sdcard_rw_blocks(struct fwk_sdcard *sprt_card, void *ptrBuffer, 
@@ -803,9 +826,10 @@ static inline kint32_t fwk_sdcard_initial_command(struct fwk_sdcard_cmd *sprt_cm
 {
     memory_reset(sprt_cmd, sizeof(struct fwk_sdcard_cmd));
 
-    sprt_cmd->index = index;
+    sprt_cmd->index = index & FWK_SDCARD_CMD_MASK;
     sprt_cmd->args = mrt_be32_to_cpu(args);
     sprt_cmd->respType = response;
+    sprt_cmd->cmdType = (index & FWK_SDCARD_CMD_APP) ? FWK_SDCARD_CMDTYPE_APPLICATION : FWK_SDCARD_CMDTYPE_GENERIC;
 
     return ER_NORMAL;
 }

@@ -171,6 +171,39 @@
     } while (0)
 
 /*!
+ * @brief  	mrt_set_cp15
+ * @param  	op: such as "0, %0, c0, c0, 0"
+ * @retval 	none
+ * @note   	write rn to cp15
+ */
+#define mrt_set_cp15(op, rn)    \
+    do {    \
+        __asm__ __volatile__ (  \
+            " mcr p15, "op   \
+            :   \
+            : "r"(rn)   \
+            : "memory"  \
+        );  \
+    } while (0)
+
+/*!
+ * @brief  	mrt_get_cp15
+ * @param  	op: such as "0, %0, c0, c0, 0"
+ * @retval 	none
+ * @note   	read cp15 to rn
+ */
+#define mrt_get_cp15(op, rn)    \
+    do {    \
+        __asm__ __volatile__ (  \
+            " mrc p15, "op   \
+            : "=r"(rn)  \
+            :   \
+            : "memory"  \
+        );  \
+    } while (0)
+
+/*!< API functions */
+/*!
  * @brief  	__get_primask
  * @param  	none
  * @retval 	none
@@ -354,6 +387,12 @@ static inline void __set_cp15_isb(kuint32_t result)
     );
 }
 
+/*!
+ * @brief  	__get_cpsr
+ * @param  	none
+ * @retval 	cpsr
+ * @note   	get cpsr
+ */
 static inline kuint32_t __get_cpsr(void)
 {
     kuint32_t result = 0;
@@ -368,6 +407,12 @@ static inline kuint32_t __get_cpsr(void)
     return result;
 }
 
+/*!
+ * @brief  	__set_cpsr
+ * @param  	cpsr
+ * @retval 	none
+ * @note   	set cpsr
+ */
 static inline void __set_cpsr(kuint32_t result)
 {
     __asm__ __volatile__ (

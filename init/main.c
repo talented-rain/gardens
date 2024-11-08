@@ -27,6 +27,8 @@
 #include <kernel/sched.h>
 #include <kernel/thread.h>
 #include <kernel/instance.h>
+#include <fs/fs_intr.h>
+#include <fs/fs_fatfs.h>
 
 /*!< The globals */
 
@@ -39,16 +41,15 @@
  */
 void start_kernel(void)
 {
-    print_info("start kernel ...... \n");
-
     /*!< disable interrupt */
     mrt_disable_cpu_irq();
 
     /*!< initial memory pool */
     fwk_mempool_initial();
+    print_info("\nstart kernel ...... \n");
 
     /*!< build device-tree */
-    setup_machine_fdt((void *)CONFIG_DEVICE_TREE_BASE);
+    setup_machine_fdt(mrt_nullptr);
 
     /*!< board initcall */
     if (run_machine_initcall())
@@ -58,7 +59,11 @@ void start_kernel(void)
     initIRQ();
 
     /*!< systick init */
-	board_init_systick();
+    board_init_systick();
+
+    /*!< file system */
+    if (filesystem_initcall())
+        goto fail;
 
     /*!< populate device node after initializing hardware */
     if (fwk_of_platform_populate_init())
@@ -87,9 +92,7 @@ void start_kernel(void)
 
 fail:
     print_info("start kernel failed!\n");
-
-    for (;;)
-    {};
+    mrt_assert(false);
 }
 
 /* end of file */

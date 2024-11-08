@@ -88,6 +88,28 @@
 /*!< CP15
  * General Usage: mcr/mrc p15, <opc1>, <Rn>, <CRn>, <CRm>, <opc2>
  * For Example: "mrc/mcr p15, 0, r0, c1, c0, 0"
+ * 
+ * CP15: 0 ~ 15
+ *         c0:  ID code program (read only)
+ *         c1:  SCTLR (write only)
+ *         c2:  Address tlb base
+ *         c3:  Access control
+ *         c4:  Reserved
+ *         c5:  Memory invalid address
+ *         c6:  Memory invalid address
+ *         c7:  High speed cache and Writting cache
+ *         c8:  TLB control. TLB: virtual memory MMU
+ *         c9:  High speed cache lock
+ *         c10: TLB lock. TLB: virtual memory MMU
+ *         c11: TCM ACCESS
+ *         c12: VBAR
+ *         c13: process ID
+ *         c14: Reserved
+ *         c15: ......
+ * CP14: debug
+ * CP10, CP11: Float and Vector Calucation
+ * CP8, CP9, CP12, CP13: Reserved for ARM
+ * CP0 ~ CP7: Reserved for users
  */
 #define READ_CP15_REGISTER(opc1, Rn, CRn, CRm, opc2)    \
                                         mrc p15, opc1, Rn, CRn, CRm, opc2
@@ -102,6 +124,7 @@
 #define WRITE_CP15_BP(Rn)               WRITE_CP15_REGISTER(0, Rn, c7,  c5,  6)
 #define WRITE_CP15_DSB(Rn)              WRITE_CP15_REGISTER(0, Rn, c7,  c10, 4)
 #define WRITE_CP15_ISB(Rn)              WRITE_CP15_REGISTER(0, Rn, c7,  c5,  4)
+#define WRITE_CP15_CLR_DCACHE_MVA(Rn)   WRITE_CP15_REGISTER(0, Rn, c7,  c14, 1)
 
 #define CP15_SCTLR_BIT_M	            (1 << 0)	        /*!< MMU enable */
 #define CP15_SCTLR_BIT_A	            (1 << 1)	        /*!< Alignment abort enable */

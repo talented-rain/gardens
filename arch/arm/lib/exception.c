@@ -28,7 +28,8 @@ kuaddr_t data_abort_addr;
  */
 void exec_undefined_handler(void)
 {
-    mrt_assert(false);
+    print_err("%s: program instruction undefine\n", __FUNCTION__);
+//  mrt_assert(false);
 }
 
 /*!
@@ -39,8 +40,8 @@ void exec_undefined_handler(void)
  */
 void exec_prefetch_abort_handler(void)
 {
-    print_err("lr \'%x\' cause fault\n", prefecth_abort_addr);
-    mrt_assert(false);
+    print_err("%s: lr \'%x\' cause fault\n", __FUNCTION__, prefecth_abort_addr);
+//  mrt_assert(false);
 }
 
 /*!
@@ -51,8 +52,8 @@ void exec_prefetch_abort_handler(void)
  */
 void exec_data_abort_handler(void)
 {
-    print_err("lr \'%x\' cause fault\n", data_abort_addr);
-    mrt_assert(false);
+    print_err("%s: lr \'%x\' cause fault\n", __FUNCTION__, data_abort_addr);
+//  mrt_assert(false);
 }
 
 /*!

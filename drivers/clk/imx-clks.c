@@ -449,7 +449,7 @@ kint32_t __fwk_init imx_clks_driver_init(void)
 	sprt_anatop = fwk_of_find_matching_node_and_match(mrt_nullptr, sgrt_imx_antop_driver_ids, mrt_nullptr);
     sprt_clks = fwk_of_find_matching_node_and_match(mrt_nullptr, sgrt_imx_ccm_driver_ids, mrt_nullptr);
 	if (!isValid(sprt_anatop) || !isValid(sprt_clks))
-		return ER_NORMAL;
+		return -ER_NOTFOUND;
 
     reg = fwk_of_iomap(sprt_anatop, 0);
     sprt_pll = (srt_hal_imx_ccm_pll_t *)fwk_io_remap(reg);

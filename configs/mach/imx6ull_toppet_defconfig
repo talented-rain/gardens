@@ -1,0 +1,138 @@
+# Name:			imx6ull_toppet_defconfig
+# Author: 		Yang Yujun
+# E-mail:      	<yujiantianhu@163.com>
+# Created on:  	2024.10.23
+#
+# Copyright (c) 2024   Yang Yujun <yujiantianhu@163.com>
+
+# Generic
+# ---------------------------------------------------------------
+CONFIG_ARCH = "arm"
+CONFIG_TYPE = "armv7"
+CONFIG_CLASS = "cortex-a7"
+CONFIG_VERDOR = "nxp"
+CONFIG_CPU = "imx6ull"
+
+CONFIG_COMPILER = "arm-linux-gnueabihf-"
+CONFIG_COMPILER_PATH = "/usr/local/arm/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf"
+
+CONFIG_ARCH_ARMV7 = y
+CONFIG_LITTILE_ENDIAN = y
+# ---------------------------------------------------------------
+
+# Clock */
+# ---------------------------------------------------------------
+# 24MHz
+CONFIG_XTAL_FREQ_CLK = (24000000)
+# 32.768KHz
+CONFIG_RTC_FREQ_CLK = (32768)
+# ---------------------------------------------------------------
+
+# Memory */
+# ---------------------------------------------------------------
+CONFIG_RAM_DDR_ORIGIN = (0x80000000)
+CONFIG_RAM_DDR_LENTH = (0x20000000)
+
+# RAM(->DDR) Configuration
+# ------------------------------------------------------------------------
+# 0x80000000 ~ 0x801FFFFF: 2MB, reserved
+# 0x80200000 ~ 0x805FFFFF: 4MB, early stack and params(global_data)
+# 0x80600000 ~ 0x807FFFFF: 2MB, malloc len (early pool)
+# 0x80800000 ~ 0x81FFFFFF: 24MB, params (boot -> kernel), extra memory reserved
+# 0x82000000 ~ 0x820003FF: 1KB, UND, stack
+# 0x82000400 ~ 0x820403FF: 256KB, FIQ, stack
+# 0x82040400 ~ 0x820803FF: 256KB, IRQ, stack
+# 0x82080400 ~ 0x820807FF: 1KB, ABT, stack
+# 0x82080800 ~ 0x822807FF: 2MB, SVC, stack
+# 0x82280800 ~ 0x824807FF: 2MB, SYS, stack
+# 0x82480800 ~ 0x82C807FF: 8MB, heap
+# 0x82C80800 ~ 0x83C807FF: 16MB, memory pool
+# 0x83C80700 ~ 0x85FFFFFF: reserved
+# 0x86000000 ~ 0x87FFFFFF: 32MB, device tree
+
+CONFIG_PROGRAM_BASE = (0x88000000)
+CONFIG_DEVICE_TREE_BASE = (0x86000000)
+CONFIG_MEMORY_BASE = (0x82000000)
+# ---------------------------------------------------------------
+
+# boot
+# ---------------------------------------------------------------
+CONFIG_BOARD_SP_ADDR = (0x80800000)
+CONFIG_BOOT_MALLOC_LEN = (2 * 1024 * 1024)
+# ---------------------------------------------------------------
+
+# kernel
+# ---------------------------------------------------------------
+CONFIG_FDT_MAX_SIZE = (32 * 1024 * 1024)
+CONFIG_SYS_STACK_SIZE = (2 * 1024 * 1024)
+CONFIG_SVC_STACK_SIZE = (2 * 1024 * 1024)
+CONFIG_ABT_STACK_SIZE = (1 * 1024)
+CONFIG_IRQ_STACK_SIZE = (256 * 1024)
+CONFIG_FIQ_STACK_SIZE = (256 * 1024)
+CONFIG_UND_STACK_SIZE = (1 * 1024)
+CONFIG_MEMPOOL_SIZE = (16 * 1024 * 1024)
+CONFIG_FBUFFER_SIZE = (24 * 1024 * 1024)
+
+CONFIG_UND_STACK_BASE = (CONFIG_MEMORY_BASE     + CONFIG_UND_STACK_SIZE)
+CONFIG_FIQ_STACK_BASE = (CONFIG_UND_STACK_BASE  + CONFIG_FIQ_STACK_SIZE)
+CONFIG_IRQ_STACK_BASE = (CONFIG_FIQ_STACK_BASE  + CONFIG_IRQ_STACK_SIZE)
+CONFIG_ABT_STACK_BASE = (CONFIG_IRQ_STACK_BASE  + CONFIG_ABT_STACK_SIZE)
+CONFIG_SVC_STACK_BASE = (CONFIG_ABT_STACK_BASE  + CONFIG_SVC_STACK_SIZE)
+CONFIG_SYS_STACK_BASE = (CONFIG_SVC_STACK_BASE  + CONFIG_SYS_STACK_SIZE)
+# ---------------------------------------------------------------
+
+# Board
+# ---------------------------------------------------------------
+CONFIG_LCD_PIXELBIT = (24)
+# ---------------------------------------------------------------
+
+# platform
+# ---------------------------------------------------------------
+CONFIG_OF = y
+CONFIG_BLOCK_DEVICE = n
+CONFIG_PINCTRL = y
+CONFIG_MMC = y
+CONFIG_I2C = y
+CONFIG_INPUTDEV = y
+CONFIG_VIDEO = y
+CONFIG_USB = y
+# ---------------------------------------------------------------
+
+# drivers
+# ---------------------------------------------------------------
+CONFIG_CPU_IMX6 = y
+CONFIG_CLOCK_IMX6 = y
+
+# Gpio
+CONFIG_GPIO_IMX6 = y
+CONFIG_GPIO_IMX_LED = y
+
+# Pinctrl
+CONFIG_PINCTRL_IMX6 = y
+
+# input
+CONFIG_INPUT_IMX_KEY = y
+
+# i2c
+CONFIG_I2C_IMX6 = y
+CONFIG_I2C_AP3216C = y
+CONFIG_I2C_AT24CXX = y
+CONFIG_I2C_TSC2007 = y
+
+# video
+CONFIG_VIDEO_FB_IMX6 = y
+
+# usb
+CONFIG_USB_IMX6 = y
+CONFIG_USB_GADGET_IMX6 = y
+CONFIG_USB_IMX_MOUSE = y
+# ---------------------------------------------------------------
+
+# example
+CONFIG_BUTTON_APP = y
+CONFIG_DISPLAY_APP = y
+CONFIG_ENV_MONITOR_APP = y
+CONFIG_LIGHT_APP = y
+CONFIG_TSC_APP = n
+
+# end of file

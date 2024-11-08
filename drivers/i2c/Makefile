@@ -9,9 +9,10 @@
 # Copyright (c) 2024   Yang Yujun <yujiantianhu@163.com>
 #
 
-obj-y	+=	imx-i2c.o
-obj-y	+=	tsc2007.o
-obj-y	+=	ap3216c.o
-obj-y	+=	at24cxx.o
+obj-$(CONFIG_I2C_IMX6)	+=	imx-i2c.o
+
+obj-$(CONFIG_I2C_TSC2007)	+=	tsc2007.o
+obj-$(CONFIG_I2C_AP3216C)	+=	ap3216c.o
+obj-$(CONFIG_I2C_AT24CXX)	+=	at24cxx.o
 
 # end of file

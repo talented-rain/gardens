@@ -9,7 +9,7 @@
 # Copyright (c) 2024   Yang Yujun <yujiantianhu@163.com>
 #
 
-obj-y	+=	imx6ull/
+obj-y	+=	$(CPU)/
 
 obj-y	+=	lowlevel_init.o
 obj-y	+=	irq.o

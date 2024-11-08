@@ -9,40 +9,51 @@
 # Copyright (c) 2024   Yang Yujun <yujiantianhu@163.com>
 #
 
-TARGET			:=	imx6ull_topeet
+dtb-y 			:=
+
+include $(CONF_MAKEFILE)
+include $(CPU)/Makefile
+
+TARGET			:=	$(dtb-y)
 DT_DIRS			:=	$(shell pwd)
-DT_FILE			:=	$(DT_DIRS)/imx6ull
+DT_NAME			:=	$(DT_DIRS)/$(CPU)
+DT_FILE			:=	$(DT_NAME)/$(TARGET).dts
 
 INCLUDES		:=	$(DT_DIRS)/	\
-					$(DT_DIRS)/imx6ull/	\
+					$(DT_DIRS)/$(CPU)/	\
 					$(DT_DIRS)/dt-bindings/
 
 DTC_INCLUDES	:= 	$(patsubst %, -i %, $(INCLUDES))
 CXX_INCLUDES	:=	$(patsubst %, -I %, $(INCLUDES))
 
 DTC				:=	$(PROJECT_DIR)/scripts/dtc/dtc
+DTB				:=	$(DT_NAME)/$(TARGET).dtb
+DTS				:=	$(DT_NAME)/.$(TARGET).dts
+DEP				:=	$(DTS).d
+TEMP			:=	$(DTS).temp
+
 BUILD_FLAGS		:=	-nostdinc -undef -D__DTS__ -x assembler-with-cpp
 
 all:
-	cpp -Wp,-MD,$(DT_FILE)/.$(TARGET).dts.d $(BUILD_FLAGS) $(CXX_INCLUDES) -o $(DT_FILE)/.$(TARGET).dts.temp $(DT_FILE)/$(TARGET).dts
-	$(DTC) -I dts -O dts $(DTC_INCLUDES) -o $(DT_FILE)/.$(TARGET).dts $(DT_FILE)/.$(TARGET).dts.temp
-	$(DTC) -I dts -O dtb -o $(DT_FILE)/$(TARGET).dtb $(DT_FILE)/.$(TARGET).dts
-	cp $(DT_FILE)/$(TARGET).dtb ../firmware.dtb
+	cpp -Wp,-MD,$(DEP) $(BUILD_FLAGS) $(CXX_INCLUDES) -o $(TEMP) $(DT_FILE)
+	$(DTC) -I dts -O dts $(DTC_INCLUDES) -o $(DTS) $(TEMP)
+	$(DTC) -I dts -O dtb -o $(DTB) $(DTS)
+	cp $(DTB) ../firmware.dtb
 
 clean:
-	rm -rf $(DT_FILE)/.$(TARGET).dts.temp 
-	rm -rf $(DT_FILE)/.$(TARGET).dts.d 
-	rm -rf $(DT_FILE)/.$(TARGET).dts
+	rm -rf $(TEMP) 
+	rm -rf $(DEP) 
+	rm -rf $(DTS)
 
 distclean:
 	rm -rf ../firmware.dtb
-	rm -rf $(DT_FILE)/$(TARGET).dtb 
-	rm -rf $(DT_FILE)/.$(TARGET).dts.temp 
-	rm -rf $(DT_FILE)/.$(TARGET).dts.d 
-	rm -rf $(DT_FILE)/.$(TARGET).dts
+	rm -rf $(DTB) 
+	rm -rf $(TEMP) 
+	rm -rf $(DEP) 
+	rm -rf $(DTS)
 
 check:
-	$(DTC) -q -I dts -O dtb $(DTC_INCLUDES) $(TARGET).dts
+	$(DTC) -q -I dts -O dtb $(DTC_INCLUDES) $(DT_FILE)
 
 version:
 	$(DTC) -v

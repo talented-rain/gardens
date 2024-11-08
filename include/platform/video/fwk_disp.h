@@ -59,7 +59,7 @@ typedef struct fwk_disp_ops
 } srt_fwk_disp_ops_t;
 
 /*!< The functions */
-TARGET_EXT void *fwk_display_initial_info(struct fwk_disp_info *sprt_disp,
+TARGET_EXT void *fwk_display_ctrl_init(struct fwk_disp_info *sprt_disp,
                           void *fbuffer, kusize_t size, kuint32_t width, kuint32_t height, kuint32_t bpp);
 
 #endif /*!< __FWK_DISP_H_ */

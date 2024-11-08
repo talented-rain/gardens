@@ -71,8 +71,8 @@ set(include_dirs
     ${PROJECT_SOURCE_DIR}/arch/${ARCH}/include
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/board/${VENDOR}
-    ${PROJECT_SOURCE_DIR}/rootfs
-    ${PROJECT_SOURCE_DIR}/rootfs/fatfs
+    ${PROJECT_SOURCE_DIR}/lib
+    ${PROJECT_SOURCE_DIR}/lib/fatfs
 )
 
 # source path
@@ -120,9 +120,9 @@ set(kernel_sources
     ${PROJECT_SOURCE_DIR}/kernel/kthread
 )
 set(rootfs_sources
-    ${PROJECT_SOURCE_DIR}/rootfs
-    ${PROJECT_SOURCE_DIR}/rootfs/fatfs
-    ${PROJECT_SOURCE_DIR}/rootfs/option
+    ${PROJECT_SOURCE_DIR}/fs
+    ${PROJECT_SOURCE_DIR}/lib/fatfs
+    ${PROJECT_SOURCE_DIR}/lib/option
 )
 set(drivers_sources
     ${PROJECT_SOURCE_DIR}/drivers/clk

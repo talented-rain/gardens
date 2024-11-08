@@ -17,7 +17,7 @@
     .arm
 
     .extern start_kernel
-    .global  _kernel_start
+    .global _kernel_start
 
 _kernel_start:
     b _mmu_page_init

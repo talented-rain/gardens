@@ -53,6 +53,8 @@ static void *light_app_entry(void *args)
 
     for (;;)
     {       
+//      print_info("%s is running, which tid is: %d\n", __FUNCTION__, mrt_current->tid);
+        
         fd = virt_open("/dev/ledgpio", O_RDWR);
         if (fd < 0)
             goto END1;
@@ -99,7 +101,10 @@ kint32_t light_app_init(void)
 
     /*!< register thread */
     retval = real_thread_create(&g_light_app_tid, sprt_attr, light_app_entry, mrt_nullptr);
-    return (retval < 0) ? retval : 0;
+    if (!retval)
+        real_thread_set_name(g_light_app_tid, "light_app_entry");
+
+    return retval;
 }
 
 /*!< end of file */

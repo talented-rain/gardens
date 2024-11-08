@@ -81,21 +81,21 @@ struct timer_list
 #define mrt_time_check_type(a, b)   \
 	const kutime_t _a = 0;	\
 	const kutime_t _b = 0;	\
-	(void)(&_a == &a);	\
-    (void)(&_b == &b);
+	(void)(&_a == &(a));	\
+    (void)(&_b == &(b));
 
 /*!< a > b ? true : false */
 #define mrt_time_after(a, b)    \
 ({  \
     mrt_time_check_type(a, b)   \
-	(a > b);   \
+	((a) > (b));   \
 })
 
 /*!< a >= b ? true : false */
 #define mrt_time_after_eq(a, b)	\
 ({  \
     mrt_time_check_type(a, b)   \
-	(a >= b);   \
+	((a) >= (b));   \
 })
 
 #define mrt_time_before(a, b)                               mrt_time_after(b, a)            /*!< a < b ? true : false */

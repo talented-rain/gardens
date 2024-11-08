@@ -9,6 +9,6 @@
 # Copyright (c) 2024   Yang Yujun <yujiantianhu@163.com>
 #
 
-obj-y	+=	fsl_mouse.o
+obj-$(CONFIG_USB_IMX_MOUSE)	+=	fsl_mouse.o
 
 # end of file

@@ -41,6 +41,7 @@ static kint32_t fwk_sdcard_command_stop_transmission(struct fwk_sdcard_cmd *sprt
 static kint32_t fwk_sdcard_command_switch_voltage(struct fwk_sdcard_cmd *sprt_cmd, struct fwk_sdcard_if *sprt_if, kuint32_t flags);
 static kint32_t fwk_sdcard_command_set_buswidth(struct fwk_sdcard_cmd *sprt_cmd, struct fwk_sdcard_if *sprt_if, kuint32_t flags);
 static kint32_t fwk_sdcard_command_set_blocksize(struct fwk_sdcard_cmd *sprt_cmd, struct fwk_sdcard_if *sprt_if, kuint32_t flags);
+static kint32_t fwk_sdcard_command_pullup(struct fwk_sdcard_cmd *sprt_cmd, struct fwk_sdcard_if *sprt_if, kuint32_t flags);
 
 static kint32_t fwk_sdcard_command_ctrl_function(struct fwk_sdcard_cmd *sprt_cmd, struct fwk_sdcard_if *sprt_if, 
                                             kuint32_t mode, kuint32_t group, kuint32_t funcIndex);
@@ -211,19 +212,20 @@ static kint32_t fwk_sdcard_command_operation_cond(struct fwk_sdcard_cmd *sprt_cm
     /*!< get card structure */
     sprt_card = mrt_container_of(sprt_if, struct fwk_sdcard, sgrt_if);
 
-    /*!< send command package */
-    iRetval = sprt_if->sendCommand(sprt_cmd);
-    if (iRetval)
-        return iRetval;
+	/*!< send command package */
+	iRetval = sprt_if->sendCommand(sprt_cmd);
+	if (iRetval)
+		return iRetval;
 
-    sprt_if->recvResp(sprt_cmd);
+	sprt_if->recvResp(sprt_cmd);
 
-    if (mrt_isBitSetl(NR_SdCard_OcrNotBusy_Bit, &sprt_cmd->resp[0]))
-        sprt_card->ocr = sprt_cmd->resp[0];
-    else
-        iRetval = -ER_RETRY;
+	if (mrt_isBitSetl(NR_SdCard_OcrNotBusy_Bit, &sprt_cmd->resp[0]))
+	{
+		sprt_card->ocr = sprt_cmd->resp[0];
+		return ER_NORMAL;
+	}
 
-    return iRetval;
+    return -ER_RETRY;
 }
 
 /*
@@ -449,20 +451,6 @@ static kint32_t fwk_sdcard_command_get_scr(struct fwk_sdcard_cmd *sprt_cmd, stru
     mrt_resetl(&sgrt_data.flags);
     mrt_setbitl(NR_SdCard_CmdFlagsReadEnable, &sgrt_data.flags);
 
-    sprt_cmd->ptrData = &sgrt_data;
-
-    /*!< send command package */
-    iRetval = sprt_if->sendCommand(sprt_cmd);
-    if (iRetval)
-        return iRetval;
-
-    sprt_if->recvResp(sprt_cmd);
-    iRetval = mrt_isBitResetl(NR_SdCard_R1_AllErrBit, &sprt_cmd->resp[0]) ? ER_NORMAL : -ER_ERROR;
-
-    /*!< receive data from data line */
-    if (iRetval)
-        return iRetval;
-    
     /*!< sizeof(iScrDataBuffer) must greater than blockCount * align4(blockSize) */
     iDataBufferSize = mrt_num_align4(sgrt_data.blockSize) * sgrt_data.blockCount + 8U;
 
@@ -475,12 +463,28 @@ static kint32_t fwk_sdcard_command_get_scr(struct fwk_sdcard_cmd *sprt_cmd, stru
     sgrt_data.txBuffer = mrt_nullptr;
     sgrt_data.rxBuffer = ptrDataBuffer;
 
+    sprt_cmd->ptrData = &sgrt_data;
+    if (sprt_if->setup_dma)
+        sprt_if->setup_dma(&sgrt_data);
+
+    /*!< send command package */
+    iRetval = sprt_if->sendCommand(sprt_cmd);
+    if (iRetval)
+        goto END;
+
+    sprt_if->recvResp(sprt_cmd);
+    iRetval = mrt_isBitResetl(NR_SdCard_R1_AllErrBit, &sprt_cmd->resp[0]) ? ER_NORMAL : -ER_ERROR;
+
+    /*!< receive data from data line */
+    if (iRetval)
+        goto END;
+    
     /*!< start to receive data */
     iRetval = sprt_if->recvData(&sgrt_data);
     if (iRetval)
     {
-        kfree(ptrDataBuffer);
-        return ((-ER_BUSY) == iRetval) || ((-ER_TIMEOUT) == iRetval) ? -ER_RETRY : iRetval;
+        iRetval = ((-ER_BUSY) == iRetval) || ((-ER_TIMEOUT) == iRetval) ? -ER_RETRY : iRetval;
+        goto END;
     }
     
     /*!< data line: card to host is MSB first, Big Endian */
@@ -531,6 +535,7 @@ static kint32_t fwk_sdcard_command_get_scr(struct fwk_sdcard_cmd *sprt_cmd, stru
         default: break;
     }
 
+END:
     kfree(ptrDataBuffer);
     return iRetval;
 }
@@ -758,15 +763,10 @@ static kint32_t fwk_sdcard_command_ctrl_function(struct fwk_sdcard_cmd *sprt_cmd
 
     /*!< if not support function switch */
     if (sprt_card->version < NR_SdCard_Version1_0)
-    {
-        iRetval = -ER_NSUPPORT;
-        goto END;
-    }
+        return -ER_NSUPPORT;
+
     if (mrt_isBitResetl(NR_SdCard_CmdClassSwitch, &sprt_card->sgrt_csd.cardCommandClass))
-    {
-        iRetval = -ER_NSUPPORT;
-        goto END;
-    }
+        return -ER_NSUPPORT;
 
     sgrt_data.blockCount = 1U;
     sgrt_data.blockSize = 64U;
@@ -774,7 +774,7 @@ static kint32_t fwk_sdcard_command_ctrl_function(struct fwk_sdcard_cmd *sprt_cmd
     /*!< set block size */
     iRetval = fwk_sdcard_send_command(sprt_card, fwk_sdcard_command_set_blocksize, sgrt_data.blockSize);
     if (iRetval)
-        goto END;
+    	return iRetval;
 
     /*!< tell host that data will be transferred after sending commond */
     mrt_resetl(&sgrt_data.flags);
@@ -782,6 +782,20 @@ static kint32_t fwk_sdcard_command_ctrl_function(struct fwk_sdcard_cmd *sprt_cmd
 
     sprt_func = (struct fwk_sdcard_cmd6_data *)sprt_cmd->ptrData;
     sprt_cmd->ptrData = &sgrt_data;
+
+    iDataBufferSize = mrt_num_align4(sgrt_data.blockSize) * sgrt_data.blockCount + 8U;
+
+    /*!< 8U is reserved */
+    ptrDataBuffer = (kuint32_t *)kzalloc(iDataBufferSize, GFP_KERNEL);
+    if (!isValid(ptrDataBuffer))
+        return -ER_NOMEM;
+
+    sgrt_data.rxBuffer  = ptrDataBuffer;
+    sgrt_data.txBuffer  = mrt_nullptr;
+    sgrt_data.ptrHost   = sprt_cmd->ptrHost;
+
+    if (sprt_if->setup_dma)
+        sprt_if->setup_dma(&sgrt_data);
 
     /*!< send command package */
     iRetval = sprt_if->sendCommand(sprt_cmd);
@@ -795,27 +809,10 @@ static kint32_t fwk_sdcard_command_ctrl_function(struct fwk_sdcard_cmd *sprt_cmd
     if (iRetval)
         goto END;
     
-    iDataBufferSize = mrt_num_align4(sgrt_data.blockSize) * sgrt_data.blockCount + 8U;
-
-    /*!< 8U is reserved */
-    ptrDataBuffer = (kuint32_t *)kzalloc(iDataBufferSize, GFP_KERNEL);
-    if (!isValid(ptrDataBuffer))
-    {
-        iRetval = -ER_NOMEM;
-        goto END;
-    }
-
-    sgrt_data.rxBuffer  = ptrDataBuffer;
-    sgrt_data.txBuffer  = mrt_nullptr;
-    sgrt_data.ptrHost   = sprt_cmd->ptrHost;
-
     /*!< start to receive data */
     iRetval = sprt_if->recvData(&sgrt_data);
     if (iRetval)
-    {
-        kfree(ptrDataBuffer);
         goto END;
-    }
 
     /*!< endian convert */
     /*!<
@@ -842,9 +839,8 @@ static kint32_t fwk_sdcard_command_ctrl_function(struct fwk_sdcard_cmd *sprt_cmd
     sprt_func->funcMode[1U] = (kuint8_t)((sgrt_data.rxBuffer[4U] >> 28U) & 0xfU);
     sprt_func->funcMode[0U] = (kuint8_t)((sgrt_data.rxBuffer[4U] >> 24U) & 0xfU);
 
-    kfree(ptrDataBuffer);
-
 END:
+    kfree(ptrDataBuffer);
     return iRetval;
 }
 
@@ -915,6 +911,36 @@ static kint32_t fwk_sdcard_command_select_function(struct fwk_sdcard *sprt_card,
     return ER_NORMAL;
 }
 
+/*
+ * @brief   fwk_sdcard_command_pullup
+ * @param   flags: none
+ * @retval  none
+ * @note    ACMD42 Controller
+ */
+static kint32_t fwk_sdcard_command_pullup(struct fwk_sdcard_cmd *sprt_cmd, struct fwk_sdcard_if *sprt_if, kuint32_t flags)
+{
+    kint32_t iRetval;
+
+    if (!sprt_cmd)
+        return -ER_NULLPTR;
+
+    if (!sprt_if)
+        return fwk_sdcard_initial_command(sprt_cmd, NR_SdCard_ACmd_PullUp, FWK_SDCARD_CMD_NONE_ARGS, NR_SdCard_Response_1);
+
+    /*!< send command package */
+    iRetval = sprt_if->sendCommand(sprt_cmd);
+    if (iRetval)
+        return iRetval;
+    
+    sprt_if->recvResp(sprt_cmd);
+
+    /*!< check R1 Status */
+    if (!mrt_isBitResetl(NR_SdCard_R1_AllErrBit, &sprt_cmd->resp[0]))
+        return -ER_ERROR;
+
+    return iRetval;
+}
+
 /*!< -------------------------------------------------------------------------- */
 /*!
  * @brief   fwk_sdcard_send_command
@@ -965,6 +991,8 @@ static kint32_t fwk_sdcard_send_app_command(struct fwk_sdcard *sprt_card,
             /*!< send App Command */
             iRetval = fwk_sdcard_send_command(sprt_card, cmd_controller, args);
         }
+
+        delay_us(100);
 
     } while ((-ER_RETRY == iRetval) && (--iRetry));
 
@@ -1104,8 +1132,13 @@ kint32_t fwk_sdcard_read_blocks(struct fwk_sdcard *sprt_card, void *ptrBuffer,
     sgrt_data.txBuffer = mrt_nullptr;
     mrt_resetl(&sgrt_data.flags);
     mrt_setbitl(NR_SdCard_CmdFlagsReadEnable, &sgrt_data.flags);
+    mrt_setbitl(NR_SdCard_CmdFlagsWithBlock, &sgrt_data.flags);
 
     sgrt_cmd.ptrData = &sgrt_data;
+
+    /*!< setup DMA before reading */
+    if (sprt_if->setup_dma)
+        sprt_if->setup_dma(&sgrt_data);
 
     do
     {
@@ -1168,8 +1201,13 @@ kint32_t fwk_sdcard_write_blocks(struct fwk_sdcard *sprt_card, void *ptrBuffer,
     sgrt_data.txBuffer = (const kuint32_t *)ptrBuffer;
     mrt_resetl(&sgrt_data.flags);
     mrt_clrbitl(NR_SdCard_CmdFlagsReadEnable, &sgrt_data.flags);
+    mrt_setbitl(NR_SdCard_CmdFlagsWithBlock, &sgrt_data.flags);
 
     sgrt_cmd.ptrData = &sgrt_data;
+
+    /*!< setup DMA before reading */
+    if (sprt_if->setup_dma)
+        sprt_if->setup_dma(&sgrt_data);
 
     do
     {
@@ -1268,6 +1306,27 @@ kint32_t fwk_sdcard_erase_blocks(struct fwk_sdcard *sprt_card, kuint32_t iBlockS
 __weak void *host_sdmmc_card_initial(struct fwk_sdcard *sprt_card)
 {
     return mrt_nullptr;
+}
+
+/*!
+ * @brief   check if card is inserted
+ * @param   sprt_card
+ * @retval  1: insert; 0: none
+ * @note    card detection
+ */
+kbool_t fwk_sdcard_is_insert(struct fwk_sdcard *sprt_card)
+{
+    struct fwk_sdcard_if *sprt_if;
+    struct fwk_sdcard_host *sprt_host;
+
+    if (!isValid(sprt_card))
+        return false;
+
+    sprt_if = &sprt_card->sgrt_if;
+    sprt_host = sprt_if->sprt_host;
+
+    /*!< if card is not inserted, wait a loop */
+    return sprt_if->is_insert(sprt_host);
 }
 
 /*!
@@ -1483,7 +1542,7 @@ kbool_t fwk_sdcard_detect(struct fwk_sdcard *sprt_card)
     /*!< Voltage supply */
     mrt_setbitl(NR_SdCard_OcrVdd32_33_Bit, &iOpCondCmdArgs);
     mrt_setbitl(NR_SdCard_OcrVdd33_34_Bit, &iOpCondCmdArgs);
-    mrt_setbitl(NR_SdCard_OcrToV18Request_Bit, &iOpCondCmdArgs);
+//  mrt_setbitl(NR_SdCard_OcrToV18Request_Bit, &iOpCondCmdArgs);
 
     /*!< send ACMD41 */
     iRetval = fwk_sdcard_send_app_command(sprt_card, fwk_sdcard_command_operation_cond, iOpCondCmdArgs);
@@ -1511,6 +1570,9 @@ kbool_t fwk_sdcard_detect(struct fwk_sdcard *sprt_card)
     /*!< get rca */
     iRetval = fwk_sdcard_send_command(sprt_card, fwk_sdcard_command_get_rca, 0U);
     if (iRetval)
+        goto fail;
+
+    if (!sprt_card->relativeAddr)
         goto fail;
 
     return true;
@@ -1544,42 +1606,48 @@ kbool_t fwk_sdcard_to_normal(struct fwk_sdcard *sprt_card)
     if (iRetval)
         goto fail1;
 
+    /*!< set card frequency to 25MHz */
+    sprt_if->setClkFreq(sprt_host, NR_SdCard_ClkFreq_25MHz);
+
     /*!< select card */
     iRetval = fwk_sdcard_send_command(sprt_card, fwk_sdcard_command_select_card, sprt_card->relativeAddr);
     if (iRetval)
         goto fail1;
 
+    /*!< Pull-up disconnected during data transfer */
+    iRetval = fwk_sdcard_send_app_command(sprt_card, fwk_sdcard_command_pullup, 0U);
+    if (iRetval)
+        goto fail2;
+    
     /*!< get scr: ACMD51 */
     iRetval = fwk_sdcard_send_app_command(sprt_card, fwk_sdcard_command_get_scr, 0U);
     if (iRetval)
         goto fail2;
-
-    /*!< set card with high speed */
-    iRetval = fwk_sdcard_command_select_function(sprt_card, NR_SdCard_Cmd6GroupAccess, NR_SdCard_Cmd6SpeedHigh);
-    if (iRetval)
-        goto fail2;
-
-    /*!< set card frequency to 25MHz */
-    sprt_if->setClkFreq(sprt_host, NR_SdCard_ClkFreq_25MHz);
 
     /*!< check if card and host support 4bits width */
     if (!mrt_isBitSetb(0x4U, &sprt_card->sgrt_scr.sdBusWidths) || mrt_isBitResetl(NR_SdCard_Support4BitWidth, &sprt_host->flagBit))
         goto fail2;
 
     /*!<
-     * 只更改卡或主机的位宽, CMD6可回复DATA, 不阻塞, 且结果正确;
-     * 只更改卡的位宽, CMD17读命令不阻塞(有数据可读), 但读取结果错误;
-     * 只更改主机位宽, CMD17读命令阻塞(无数据可读)
+     * for imx6ull:
+     *  只更改卡或主机的位宽, CMD6可回复DATA, 不阻塞, 且结果正确;
+     *  只更改卡的位宽, CMD17读命令不阻塞(有数据可读), 但读取结果错误;
+     *  只更改主机位宽, CMD17读命令阻塞(无数据可读)
      * 
-     * 分析: 大概率是主机的问题
+     *  分析: 大概率是主机的问题
      */
     /*!< set card DATA bus width = 4bit */
-//  iRetval = fwk_sdcard_send_app_command(sprt_card, fwk_sdcard_command_set_buswidth, FWK_SDCARD_ACMD6_BUS_WIDTH_4);
-    if (iRetval)
-        goto fail2;
+	iRetval = fwk_sdcard_send_app_command(sprt_card, fwk_sdcard_command_set_buswidth, FWK_SDCARD_ACMD6_BUS_WIDTH_4);
+	if (iRetval)
+		goto fail2;
     
     /*!< set host DATA bus width = 4bit */
-//  sprt_if->setBusWidth(sprt_host, NR_SdCard_BusWidth_4Bit);
+	sprt_if->setBusWidth(sprt_host, NR_SdCard_BusWidth_4Bit);
+
+    /*!< set card with high speed */
+    iRetval = fwk_sdcard_command_select_function(sprt_card, NR_SdCard_Cmd6GroupAccess, NR_SdCard_Cmd6SpeedHigh);
+    if (iRetval)
+        goto fail2;
 
     /*!< set card drive strenth */
     iRetval = fwk_sdcard_command_select_function(sprt_card, NR_SdCard_Cmd6GroupDrvStrenth, NR_SdCard_Cmd6DriverDefault);
@@ -1626,8 +1694,8 @@ kbool_t fwk_sdcard_rw_blocks(struct fwk_sdcard *sprt_card, void *ptrBuffer,
         return false;
 
     sprt_host = sprt_card->sgrt_if.sprt_host;
-    if ((!sprt_host->maxBlockCount) || ((iBlockStart + iBlockCount) > sprt_host->maxBlockCount))
-        return false;
+//  if ((!sprt_host->maxBlockCount) || ((iBlockStart + iBlockCount) > sprt_host->maxBlockCount))
+//      return false;
 
     ptrNextBuffer = (kuint8_t *)ptrBuffer;
     iBlockTrans = 0U;

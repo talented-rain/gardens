@@ -33,13 +33,13 @@ static kuint32_t g_idle_stack[IDLE_THREAD_STACK_SIZE];
  */
 static void *rest_entry(void *args)
 {
-    struct real_thread *sprt_ready;
+    real_thread_set_self_name(__FUNCTION__);
 
     for (;;)
     {   
 #if (!CONFIG_PREEMPT)
         /*!< check priority */
-        sprt_ready = get_first_ready_thread();
+        struct real_thread *sprt_ready = get_first_ready_thread();
         if (!sprt_ready || (sprt_ready == mrt_current))
             continue;
 

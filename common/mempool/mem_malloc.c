@@ -147,6 +147,19 @@ __weak void *memset(void *__s, int __c, size_t __n)
 }
 
 /*!
+ * @brief   memset_ex
+ * @param   dst, val, size
+ * @retval  none
+ * @note    for "memset"
+ */
+__weak void *memset_ex(void *__s, unsigned int __c, size_t __n)
+{
+	memory_compat_set(__s, __c, __n);
+
+	return __s;
+}
+
+/*!
  * @brief   memcmp
  * @param   __s1, __s2, __n
  * @retval  none

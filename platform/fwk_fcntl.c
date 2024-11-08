@@ -472,6 +472,7 @@ static void *fwk_do_mmap(void *addr, kusize_t length, kint32_t prot, kint32_t fl
 	if (!isValid(sprt_file))
 		return mrt_nullptr;
 
+	sgrt_vm.offset = offset;
 	if (sprt_file->sprt_foprts->mmap)
 	{
 		retval = sprt_file->sprt_foprts->mmap(sprt_file, &sgrt_vm);
@@ -479,7 +480,7 @@ static void *fwk_do_mmap(void *addr, kusize_t length, kint32_t prot, kint32_t fl
 			return mrt_nullptr;
 	}
 
-	if ((offset + length) > sgrt_vm.size)
+	if (length > sgrt_vm.size)
 		return mrt_nullptr;
 	
 	if (!isValid(addr))

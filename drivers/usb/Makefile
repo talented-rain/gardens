@@ -9,6 +9,6 @@
 # Copyright (c) 2024   Yang Yujun <yujiantianhu@163.com>
 #
 
-obj-y	+=	gadget/
+obj-$(CONFIG_USB_GADGET_IMX6)	+=	gadget/
 
 # end of file

@@ -267,4 +267,16 @@ void io_putc(const kubyte_t ch)
     imx_console_putc(ch);
 }
 
+/*!
+ * @brief   io_putstr
+ * @param   none
+ * @retval  none
+ * @note    printk typedef
+ */
+void io_putstr(const kubyte_t *msgs, kusize_t size)
+{
+	for (kusize_t i = 0; i < size; i++)
+		imx_console_putc(msgs + i);
+}
+
 /* end of file */

@@ -25,6 +25,7 @@ enum __ERT_KERNEL_MAIL_TYPE
     NR_MAIL_TYPE_KEY,
     NR_MAIL_TYPE_ABS,
     NR_MAIL_TYPE_REL,
+    NR_MAIL_TYPE_SERIAL,
 };
 
 struct mail_msg

@@ -1,0 +1,129 @@
+# Name:			zynq7_microphase_defconfig
+# Author: 		Yang Yujun
+# E-mail:      	<yujiantianhu@163.com>
+# Created on:  	2024.10.23
+#
+# Copyright (c) 2024   Yang Yujun <yujiantianhu@163.com>
+
+# Generic
+# ---------------------------------------------------------------
+CONFIG_ARCH = "arm"
+CONFIG_TYPE = "armv7"
+CONFIG_CLASS = "cortex-a9"
+CONFIG_VERDOR = "xilinx"
+CONFIG_CPU = "xc7z010"
+
+CONFIG_COMPILER = "arm-linux-gnueabihf-"
+CONFIG_COMPILER_PATH = "/usr/local/arm/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf"
+
+CONFIG_ARCH_ARMV7 = y
+CONFIG_LITTILE_ENDIAN = y
+
+CONFIG_VFP = y
+# ---------------------------------------------------------------
+
+# Clock */
+# ---------------------------------------------------------------
+# 24MHz
+CONFIG_XTAL_FREQ_CLK = (24000000)
+# 32.768KHz
+CONFIG_RTC_FREQ_CLK = (32768)
+# ---------------------------------------------------------------
+
+# Memory */
+# ---------------------------------------------------------------
+CONFIG_RAM_DDR_ORIGIN = (0x00100000)
+CONFIG_RAM_DDR_LENTH = (0x0FF00000)
+# ---------------------------------------------------------------
+
+# 64MB
+CONFIG_PROGRAM_OFFSET = (0x04000000)
+
+# RAM(->DDR) Configuration
+# ----------------< 64MB >-------------------------
+# 0x00100000 ~ 0x002FFFFF: 2MB, reserved
+# 0x00300000 ~ 0x006FFFFF: 4MB, early stack and params(global_data)
+# 0x00700000 ~ 0x008FFFFF: 2MB, malloc len (early pool)
+# 0x00900000 ~ 0x018FFFFF: 16MB, params (boot -> kernel), extra memory reserved
+# 0x01900000 ~ 0x019003FF: 1KB, UND, stack
+# 0x01900400 ~ 0x019403FF: 256KB, FIQ, stack
+# 0x01940400 ~ 0x019803FF: 256KB, IRQ, stack
+# 0x01980400 ~ 0x019807FF: 1KB, ABT, stack
+# 0x01980800 ~ 0x01B807FF: 2MB, SVC, stack
+# 0x01B80800 ~ 0x01D807FF: 2MB, SYS, stack
+# 0x01D80800 ~ 0x020FFFFF: reserved
+# 0x02100000 ~ 0x040FFFFF: 32MB, device tree
+
+CONFIG_PROGRAM_BASE = (0x00100000)
+CONFIG_DEVICE_TREE_BASE = (0x02100000)
+CONFIG_MEMORY_BASE = (0x01900000)
+
+# boot
+# ---------------------------------------------------------------
+CONFIG_BOARD_SP_ADDR = (0x00900000)
+CONFIG_BOOT_MALLOC_LEN = (2 * 1024 * 1024)
+# ---------------------------------------------------------------
+
+# kernel
+# ---------------------------------------------------------------
+CONFIG_FDT_MAX_SIZE = (32 * 1024 * 1024)
+CONFIG_SYS_STACK_SIZE = (2 * 1024 * 1024)
+CONFIG_SVC_STACK_SIZE = (2 * 1024 * 1024)
+CONFIG_ABT_STACK_SIZE = (1 * 1024)
+CONFIG_IRQ_STACK_SIZE = (256 * 1024)
+CONFIG_FIQ_STACK_SIZE = (256 * 1024)
+CONFIG_UND_STACK_SIZE = (1 * 1024)
+CONFIG_MEMPOOL_SIZE = (16 * 1024 * 1024)
+CONFIG_FBUFFER_SIZE = (24 * 1024 * 1024)
+
+CONFIG_UND_STACK_BASE = (CONFIG_MEMORY_BASE     + CONFIG_UND_STACK_SIZE)
+CONFIG_FIQ_STACK_BASE = (CONFIG_UND_STACK_BASE  + CONFIG_FIQ_STACK_SIZE)
+CONFIG_IRQ_STACK_BASE = (CONFIG_FIQ_STACK_BASE  + CONFIG_IRQ_STACK_SIZE)
+CONFIG_ABT_STACK_BASE = (CONFIG_IRQ_STACK_BASE  + CONFIG_ABT_STACK_SIZE)
+CONFIG_SVC_STACK_BASE = (CONFIG_ABT_STACK_BASE  + CONFIG_SVC_STACK_SIZE)
+CONFIG_SYS_STACK_BASE = (CONFIG_SVC_STACK_BASE  + CONFIG_SYS_STACK_SIZE)
+# ---------------------------------------------------------------
+
+# Board
+# ---------------------------------------------------------------
+CONFIG_LCD_PIXELBIT = (24)
+# ---------------------------------------------------------------
+
+# platform
+# ---------------------------------------------------------------
+CONFIG_OF = y
+CONFIG_BLOCK_DEVICE = n
+CONFIG_PINCTRL = y
+CONFIG_MMC = y
+CONFIG_I2C = y
+CONFIG_INPUTDEV = y
+CONFIG_VIDEO = y
+CONFIG_USB = y
+
+# support multi framebuffer
+CONFIG_FB_MULTI_SUPPORT = y
+
+ifeq ($(CONFIG_FB_MULTI_SUPPORT),y)
+CONFIG_FBUFFER_NUM = 2
+endif
+# ---------------------------------------------------------------
+
+# drivers
+# ---------------------------------------------------------------
+CONFIG_CPU_ZYNQ = y
+CONFIG_CLOCK_ZYNQ = y
+
+CONFIG_SDK_LED_ZYNQ = y
+CONFIG_SDK_HDMI_ZYNQ = y
+
+# ---------------------------------------------------------------
+
+# example
+CONFIG_BUTTON_APP = n
+CONFIG_DISPLAY_APP = y
+CONFIG_ENV_MONITOR_APP = n
+CONFIG_LIGHT_APP = y
+CONFIG_TSC_APP = n
+CONFIG_CONSOLE_APP = y
+
+# end of file

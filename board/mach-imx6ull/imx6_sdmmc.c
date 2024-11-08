@@ -919,7 +919,6 @@ static kint32_t imx6ull_sdmmc_read_data(srt_imx_usdhc_t *sprt_usdhc, struct fwk_
     }
 
     return iRetval;
-
 }
 
 /*!

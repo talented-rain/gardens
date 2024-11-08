@@ -21,6 +21,7 @@ struct fwk_vm_area
 {
     kuaddr_t virt_addr;
     kusize_t size;
+    kuint32_t offset;
 };
 
 /*!< The functions */

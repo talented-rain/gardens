@@ -83,11 +83,11 @@ typedef struct list_head srt_list_head_t;
 }
 
 #define DECLARE_LIST_HEAD(list)	\
-	struct list_head list = LIST_HEAD_INIT(&list)
+						struct list_head list = LIST_HEAD_INIT(&list)
 
 /*!< list pointer defines */
 #define DECLARE_LIST_HEAD_PTR_INIT(ptr_list, list)	\
-	struct list_head *ptr_list = list;
+						struct list_head *ptr_list = list;
 #define DECLARE_LIST_HEAD_PTR(ptr_list)							DECLARE_LIST_HEAD_PTR_INIT(ptr_list, mrt_nullptr)
 
 /*!< get every member from list */
@@ -145,26 +145,26 @@ typedef struct list_head srt_list_head_t;
  */
 #define foreach_list_next_entry(pos, head, member)	\
 	for (pos = mrt_list_first_entry(head, typeof(*pos), member);	\
-	     &pos->member != (head);	\
+	     &(pos->member) != (head);	\
 	     pos = mrt_list_next_entry(pos, member))
 
 #define foreach_list_prev_entry(pos, head, member)	\
 	for (pos = mrt_list_last_entry(head, typeof(*pos), member);	\
-	     &pos->member != (head);	\
+	     &(pos->member) != (head);	\
 	     pos = mrt_list_prev_entry(pos, member))
 
 /* get list and next list, and then delete current list from list_head */
 #define foreach_list_next_entry_safe(pos, temp, head, member)	\
 	for (pos = mrt_list_first_entry(head, typeof(*pos), member),	\
 		temp = mrt_list_next_entry(pos, member);	\
-	     &pos->member != (head);	\
+	     &(pos->member) != (head);	\
 	     pos = temp, temp = mrt_list_next_entry(temp, member))
 
 /* get list and prev list, and then delete current list from list_head */
 #define foreach_list_prev_entry_safe(pos, temp, head, member)	\
 	for (pos = mrt_list_last_entry(head, typeof(*pos), member),	\
 		temp = mrt_list_prev_entry(pos, member);	\
-	     &pos->member != (head);	\
+	     &(pos->member) != (head);	\
 	     pos = temp, temp = mrt_list_prev_entry(temp, member))
 
 /*!< API functions */
