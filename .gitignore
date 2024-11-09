@@ -15,6 +15,7 @@
 .git/
 build/
 objects/
+boot/image/
 
 # ignore files
 # .gitignore
@@ -26,6 +27,8 @@ objects/
 **/*.dis
 **/*.img
 **/*.bin
+**/*.lst
+**/*.map
 **/*.*.dts*
 **/*.dtb
 
