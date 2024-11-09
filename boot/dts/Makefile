@@ -38,7 +38,7 @@ all:
 	cpp -Wp,-MD,$(DEP) $(BUILD_FLAGS) $(CXX_INCLUDES) -o $(TEMP) $(DT_FILE)
 	$(DTC) -I dts -O dts $(DTC_INCLUDES) -o $(DTS) $(TEMP)
 	$(DTC) -I dts -O dtb -o $(DTB) $(DTS)
-	cp $(DTB) ../firmware.dtb
+	cp $(DTB) $(IMAGE_PATH)/firmware.dtb
 
 clean:
 	rm -rf $(TEMP) 
@@ -46,7 +46,7 @@ clean:
 	rm -rf $(DTS)
 
 distclean:
-	rm -rf ../firmware.dtb
+	rm -rf $(IMAGE_PATH)/firmware.dtb
 	rm -rf $(DTB) 
 	rm -rf $(TEMP) 
 	rm -rf $(DEP) 

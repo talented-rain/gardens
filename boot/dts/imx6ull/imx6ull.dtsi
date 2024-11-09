@@ -7,11 +7,11 @@
  * published by the Free Software Foundation.
  */
 
-#include <dt-bindings/imx6ul-clock.h>
+#include <dt-bindings/imx6ul/imx6ul-clock.h>
 #include <dt-bindings/gpio.h>
 #include <dt-bindings/arm-gic.h>
-#include <dt-bindings/imx6ull-pinfunc.h>
-#include <dt-bindings/imx6ull-pinfunc-snvs.h>
+#include <dt-bindings/imx6ull/imx6ull-pinfunc.h>
+#include <dt-bindings/imx6ull/imx6ull-pinfunc-snvs.h>
 #include "../skeleton.dtsi"
 
 / {

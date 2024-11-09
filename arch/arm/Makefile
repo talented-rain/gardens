@@ -48,14 +48,14 @@ endef
 force:
 .PHONY: all clean distclean
 
-all: $(TARGET_IMGE) force
-$(TARGET_IMGE) : $(TARGET_EXEC) force
+all: $(TARGET_BINY) force
+$(TARGET_BINY) : $(TARGET_EXEC) force
 	$(OBJCOPY) -O binary -S $(TARGET_EXEC) $@
 	$(OBJDUMP) -D -m $(ARCH) $(TARGET_EXEC) > $(TARGET_NASM)
 	$(OBJDUMP) -D -m $(ARCH) -S -l $(TARGET_EXEC) > $(TARGET_LASM)
 
 $(TARGET_EXEC) : $(head-objs) force
-	$(CC) -T$(LINK_SCRIPT) $(BUILD_CFLAGS) $(EXTRA_FLAGS) -o $@ $(head-objs) $(OBJECT_EXEC) $(LIBS_PATH) $(LIBS)
+	$(CC) -T$(LINK_SCRIPT) $(BUILD_CFLAGS) $(EXTRA_FLAGS) -Wl,-Map=$(TARGET_MMAP) -o $@ $(head-objs) $(OBJECT_EXEC) $(LIBS_PATH) $(LIBS)
 
 $(arch_output)/%.o : %.S force
 	$(call arch_build, $(CC), $@, $<)
@@ -71,7 +71,8 @@ clean:
 
 distclean:
 	rm -rf $(head-objs) $(depd-objs)
-	rm -rf $(TARGET_EXEC) $(TARGET_IMGE) $(TARGET_NASM) $(TARGET_LASM)
+	rm -rf $(TARGET_EXEC) $(TARGET_BINY) $(TARGET_IMGE) 
+	rm -rf $(TARGET_NASM) $(TARGET_LASM) $(TARGET_MMAP)
 
 debug:
 	@echo '==========>' $(head-objs)
