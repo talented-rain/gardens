@@ -24,6 +24,8 @@ objects/
 **/*.o
 **/*.elf
 **/*.dis
+**/*.lst
+**/*.map
 **/*.img
 **/*.bin
 **/*.*.dts*
@@ -33,6 +35,7 @@ objects/
 !**/*.a
 !**/*.so
 !.gitignore
+!**/fsbl/*
 
 # end of file
 
