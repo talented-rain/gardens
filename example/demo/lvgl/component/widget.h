@@ -1,7 +1,7 @@
 /*
  * User Thread Instance Tables
  *
- * File Name:   botton_text.h
+ * File Name:   lvgl_widget.h
  * Author:      Yang Yujun
  * E-mail:      <yujiantianhu@163.com>
  * Created on:  2024.04.02
@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef __BOTTON_TEXT_H_
-#define __BOTTON_TEXT_H_
+#ifndef __LVGL_WIDGET_H_
+#define __LVGL_WIDGET_H_
 
 /*!< The globals */
 #include <common/basic_types.h>
@@ -25,6 +25,6 @@
 /*!< The globals */
 
 /*!< The functions */
-TARGET_EXT void lvgl_botton_text(void *args);
+TARGET_EXT void lvgl_widget_draw(void *args);
 
-#endif /* __BOTTON_TEXT_H_ */
+#endif /* __LVGL_WIDGET_H_ */

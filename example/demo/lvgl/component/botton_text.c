@@ -1,5 +1,5 @@
 /*
- * User Thread Instance (button task) Interface
+ * User Thread Instance (lvgl task) Interface
  *
  * File Name:   botton_text.c
  * Author:      Yang Yujun
@@ -11,7 +11,6 @@
  */
 
 /*!< The globals */
-#include <lvgl/lvgl.h>
 #include "botton_text.h"
 
 /*!< The defines */

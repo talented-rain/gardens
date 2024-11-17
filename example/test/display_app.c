@@ -29,7 +29,7 @@
 #include <kernel/mailbox.h>
 #include <fs/fs_intr.h>
 
-#include "thread_table.h"
+#include "../thread_table.h"
 
 /*!< The defines */
 #define DISPLAY_APP_THREAD_STACK_SIZE                       REAL_THREAD_STACK_PAGE(1)    /*!< 1 page (4kbytes) */

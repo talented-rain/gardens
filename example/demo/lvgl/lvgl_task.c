@@ -30,7 +30,7 @@
 #include <fs/fs_intr.h>
 
 #include "../../thread_table.h"
-#include "application/app.h"
+#include "app/app.h"
 
 /*!< The defines */
 #define LVGL_TASK_THREAD_STACK_SIZE                       REAL_THREAD_STACK_PAGE(1)    /*!< 1 page (4kbytes) */

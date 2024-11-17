@@ -12,7 +12,9 @@
 
 /*!< The globals */
 #include "../porting/lv_port_disp_template.h"
+#include "../component/widget.h"
 #include "../component/botton_text.h"
+
 #include "app.h"
 
 /*!< The defines */
@@ -32,6 +34,9 @@ void lvgl_task_startup(struct fwk_disp_ctrl *sprt_dctrl)
 {
     lv_init();
     lv_port_disp_init(sprt_dctrl);
+
+    /*!< widget */
+    lvgl_widget_draw(sprt_dctrl);
 
     /*!< botton */
     lvgl_botton_text(sprt_dctrl);
