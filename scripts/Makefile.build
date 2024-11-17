@@ -36,20 +36,18 @@ build-obj	:=	$(patsubst $(PROJECT_DIR)%, $(OBJECT_PATH)%, $(build-obj))
 endif
 
 # get xxx.o and xxx.o.d in current directory
-ouput-obj	:=	$(filter-out %/, $(obj-y))
-depend-obj	:=	$(foreach file, $(ouput-obj), $(addsuffix .d, $(file)))
+output-obj	:=	$(filter-out %/, $(obj-y))
+depend-obj	:=
+output-dirs	:=
 
-ifneq ($(ouput-obj),)
-ouput-obj	:=	$(addprefix $(cur_path)/, $(ouput-obj))
-ouput-obj	:=	$(patsubst $(PROJECT_DIR)%, $(OBJECT_PATH)%, $(ouput-obj))
-endif
+ifneq ($(output-obj),)
+abspath-obj :=	$(patsubst $(cur_path)/%,$(obj_path)/%,$(filter $(cur_path)/%, $(output-obj)))
+relpath-obj :=	$(patsubst %,$(obj_path)/%,$(filter-out $(cur_path)/%, $(output-obj)))
+output-obj	:=	$(abspath-obj) $(relpath-obj)
+output-dirs	:=	$(sort $(dir $(output-obj)))
 
-ifneq ($(depend-obj),)
-depend-obj	:=	$(addprefix $(cur_path)/, $(depend-obj))
-depend-obj	:=	$(patsubst $(PROJECT_DIR)%, $(OBJECT_PATH)%, $(depend-obj))
-depend-obj	:=	$(wildcard $(depend-obj))
-
-include $(depend-obj)
+depend-obj	:=	$(foreach file, $(output-obj), $(addsuffix .d, $(file)))
+-include $(depend-obj)
 endif
 
 local_built	:= 	$(obj_path)/built-in.o
@@ -71,10 +69,10 @@ _force:
 
 _build: _all
 
-_all : $(local_built) $(ouput-obj) _force
+_all : $(local_built) $(output-obj) _force
 	if [ -e $(local_cmd) ]; then rm -f $(local_cmd); fi
-ifneq ($(ouput-obj),)
-	@echo $(ouput-obj) > $(local_cmd)
+ifneq ($(output-obj),)
+	@echo $(output-obj) > $(local_cmd)
 endif
 	@for item in $(build-obj); do \
 		if [ -e $$item ]; then	\
@@ -90,6 +88,11 @@ endif
 $(local_built) : _force
 	$(call build_recusion, _build)
 	if [ ! -d $(obj_path) ]; then mkdir -p $(obj_path); fi
+	@for item in $(output-dirs); do \
+		if [ ! -d $$item ]; then \
+			mkdir -p $$item;	\
+		fi	\
+	done
 
 $(obj_path)/%.o : %.S _force
 	$(call build_object, $(CC), $@, $<)
@@ -102,16 +105,14 @@ $(obj_path)/%.o : %.cpp _force
 
 _clean:
 	$(call build_recusion, _clean)
-	rm -rf $(ouput-obj) $(build-obj) $(depend-obj) $(local_cmd)
+	rm -rf $(output-obj) $(build-obj) $(depend-obj) $(local_cmd)
 	rm -rf $(obj_path)
 
 _distclean: _clean
 	
 _debug:
 	$(call build_recusion, _debug);
-	@echo '==========>' $(VPATH)
-ifneq ($(INCLUDE_DIRS),)
-	@echo '++++++++++>' $(INCLUDE_DIRS)
-endif
+	@echo '==========>' $(src-y)
+	@echo '++++++++++>' $(VPATH)
 
 # end of file

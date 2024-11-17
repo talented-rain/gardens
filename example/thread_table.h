@@ -61,4 +61,6 @@ TARGET_EXT kint32_t console_app_init(void);
 static inline kint32_t console_app_init(void) { return 0; }
 #endif
 
+TARGET_EXT kint32_t lvgl_task_init(void);
+
 #endif /* __THREAD_TABLE_H_ */

@@ -1,10 +1,12 @@
 /**
  * @file lv_port_disp_templ.c
- *
+ * 
+ * for HeavenFox OS
+ *  ---- Yang Yujun
  */
 
 /*Copy this file as "lv_port_disp.c" and set this value to "1" to enable content*/
-#if 0
+#if 1
 
 /*********************
  *      INCLUDES
@@ -15,15 +17,15 @@
 /*********************
  *      DEFINES
  *********************/
-#ifndef MY_DISP_HOR_RES
-    #warning Please define or replace the macro MY_DISP_HOR_RES with the actual screen width, default value 320 is used for now.
-    #define MY_DISP_HOR_RES    320
-#endif
+// #ifndef MY_DISP_HOR_RES
+//     #warning Please define or replace the macro MY_DISP_HOR_RES with the actual screen width, default value 320 is used for now.
+//     #define MY_DISP_HOR_RES    320
+// #endif
 
-#ifndef MY_DISP_VER_RES
-    #warning Please define or replace the macro MY_DISP_HOR_RES with the actual screen height, default value 240 is used for now.
-    #define MY_DISP_VER_RES    240
-#endif
+// #ifndef MY_DISP_VER_RES
+//     #warning Please define or replace the macro MY_DISP_HOR_RES with the actual screen height, default value 240 is used for now.
+//     #define MY_DISP_VER_RES    240
+// #endif
 
 /**********************
  *      TYPEDEFS
@@ -41,6 +43,7 @@ static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
 /**********************
  *  STATIC VARIABLES
  **********************/
+static struct timer_list sgrt_lvgl_tick_timer;
 
 /**********************
  *      MACROS
@@ -50,8 +53,14 @@ static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
  *   GLOBAL FUNCTIONS
  **********************/
 
-void lv_port_disp_init(void)
+void lv_port_disp_init(struct fwk_disp_ctrl *sprt_dctrl)
 {
+    struct fwk_disp_info *sprt_disp;
+
+    sprt_disp = sprt_dctrl->sprt_di;
+    if (!isValid(sprt_disp))
+        return;
+
     /*-------------------------
      * Initialize your display
      * -----------------------*/
@@ -82,6 +91,7 @@ void lv_port_disp_init(void)
      *      and you only need to change the frame buffer's address.
      */
 
+#if 0
     /* Example for 1) */
     static lv_disp_draw_buf_t draw_buf_dsc_1;
     static lv_color_t buf_1[MY_DISP_HOR_RES * 10];                          /*A buffer for 10 rows*/
@@ -100,6 +110,14 @@ void lv_port_disp_init(void)
     lv_disp_draw_buf_init(&draw_buf_dsc_3, buf_3_1, buf_3_2,
                           MY_DISP_VER_RES * LV_VER_RES_MAX);   /*Initialize the display buffer*/
 
+#else
+
+    static lv_disp_draw_buf_t draw_buf_dsc_4;
+    lv_disp_draw_buf_init(&draw_buf_dsc_4, sprt_disp->buffer, sprt_disp->buffer_bak,
+                          sprt_disp->height * sprt_disp->width);   /*Initialize the display buffer*/
+
+#endif
+
     /*-----------------------------------
      * Register the display in LVGL
      *----------------------------------*/
@@ -110,14 +128,16 @@ void lv_port_disp_init(void)
     /*Set up the functions to access to your display*/
 
     /*Set the resolution of the display*/
-    disp_drv.hor_res = MY_DISP_HOR_RES;
-    disp_drv.ver_res = MY_DISP_VER_RES;
+    disp_drv.hor_res = sprt_disp->width;
+    disp_drv.ver_res = sprt_disp->height;
 
     /*Used to copy the buffer's content to the display*/
     disp_drv.flush_cb = disp_flush;
 
     /*Set a display buffer*/
-    disp_drv.draw_buf = &draw_buf_dsc_1;
+    disp_drv.draw_buf = &draw_buf_dsc_4;
+
+    disp_drv.user_data = (void *)sprt_dctrl;
 
     /*Required for Example 3)*/
     //disp_drv.full_refresh = 1;
@@ -134,11 +154,23 @@ void lv_port_disp_init(void)
 /**********************
  *   STATIC FUNCTIONS
  **********************/
+static void lvgl_disp_tick_inc(kuint32_t args)
+{
+    struct timer_list *sprt_tim = (struct timer_list *)args;
+
+    lv_tick_inc(10);
+    mod_timer(sprt_tim, jiffies + msecs_to_jiffies(10));
+}
 
 /*Initialize your display and the required peripherals.*/
 static void disp_init(void)
 {
     /*You code here*/
+    struct timer_list *sprt_tim = &sgrt_lvgl_tick_timer;
+
+    setup_timer(sprt_tim, lvgl_disp_tick_inc, (kuint32_t)sprt_tim);
+    sprt_tim->expires = jiffies + msecs_to_jiffies(10);
+    add_timer(sprt_tim);
 }
 
 volatile bool disp_flush_enabled = true;
@@ -167,10 +199,18 @@ static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
 
         int32_t x;
         int32_t y;
+
+        struct fwk_disp_ctrl *sprt_dctrl;
+        struct fwk_disp_info *sprt_disp;
+
+        sprt_dctrl = (struct fwk_disp_ctrl *)disp_drv->user_data;
+        sprt_disp  = sprt_dctrl->sprt_di;
+
         for(y = area->y1; y <= area->y2; y++) {
             for(x = area->x1; x <= area->x2; x++) {
                 /*Put a pixel to the display. For example:*/
                 /*put_px(x, y, *color_p)*/
+                sprt_disp->sprt_ops->write_point(sprt_disp, x, y, color_p->full);
                 color_p++;
             }
         }

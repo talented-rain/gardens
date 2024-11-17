@@ -10,6 +10,7 @@
 #
 
 obj-y   +=  thread_table.o
+obj-y	+=	demo/
 
 obj-$(CONFIG_LIGHT_APP)         +=	light_app.o
 obj-$(CONFIG_BUTTON_APP)        +=	button_app.o

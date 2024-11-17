@@ -22,9 +22,10 @@ real_thread_init_t g_real_thread_init_tables[] =
     console_app_init,
     light_app_init,
     button_app_init,
-    display_app_init,
+//  display_app_init,
     tsc_app_init,
     env_monitor_init,
+    lvgl_task_init,
     
     mrt_nullptr,
 };

@@ -4,7 +4,7 @@
  */
 
 /*Copy this file as "lv_port_disp.h" and set this value to "1" to enable content*/
-#if 0
+#if 1
 
 #ifndef LV_PORT_DISP_TEMPL_H
 #define LV_PORT_DISP_TEMPL_H
@@ -19,8 +19,16 @@ extern "C" {
 #if defined(LV_LVGL_H_INCLUDE_SIMPLE)
 #include "lvgl.h"
 #else
-#include "lvgl/lvgl.h"
+#include <lvgl/lvgl.h>
 #endif
+
+#include <platform/fwk_fcntl.h>
+#include <platform/fwk_basic.h>
+#include <platform/video/fwk_fbmem.h>
+#include <platform/video/fwk_font.h>
+#include <platform/video/fwk_disp.h>
+#include <platform/video/fwk_rgbmap.h>
+#include <platform/video/fwk_bitmap.h>
 
 /*********************
  *      DEFINES
@@ -34,7 +42,7 @@ extern "C" {
  * GLOBAL PROTOTYPES
  **********************/
 /* Initialize low level display driver */
-void lv_port_disp_init(void);
+void lv_port_disp_init(struct fwk_disp_ctrl *sprt_dctrl);
 
 /* Enable updating the screen (the flushing process) when disp_flush() is called by LVGL
  */

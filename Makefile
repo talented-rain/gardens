@@ -237,8 +237,8 @@ info:
 	@echo "------------------------------------------------------------------------"
 
 debug:
-#	$(Q)$(MAKE) -f $(BUILD_SCRIPT) _debug
-	$(Q)$(MAKE) -C $(EXT_LIB_DIRS) debug
+	$(Q)$(MAKE) -f $(BUILD_SCRIPT) _debug
+#	$(Q)$(MAKE) -C $(EXT_LIB_DIRS) debug
 #	$(Q)$(MAKE) -C $(ARCH_DIRS) debug
 
 # end of file

@@ -33,8 +33,7 @@ output-objs 	:=	$(abs_path-objs) $(rel_path-objs)
 output-dirs		:=	$(sort $(dir $(output-objs)))
 
 depend-objs		:=	$(patsubst %,%.d, $(output-objs))
-depend-objs		:=	$(wildcard $(depend-objs))
-include $(depend-objs)
+-include $(depend-objs)
 
 VPATH			+=	$(lib_path)
 INCLUDE_DIRS	+=  $(inc-y)

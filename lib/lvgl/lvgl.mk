@@ -25,7 +25,7 @@ EXTRA_FLAGS += 	-fexec-charset=GBK
 endif
 
 CSRCS	:=
-include examples/lv_examples.mk
+#include examples/lv_examples.mk
 include src/core/lv_core.mk
 include src/draw/lv_draw.mk
 include src/extra/lv_extra.mk
