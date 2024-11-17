@@ -1,7 +1,17 @@
-# HeavenFox Operation System
-# 
+<h1 align="center"> HeavenFox OS</h1>
+<p align="center">HeavenFox OS is a lightweight embedded system kernel similar to Linux</p>
 
 **English** | [中文](./README_zh.md)
+
+-------------------------------------------------------------------------
+
+#### Catalog
+- [Note](#note)
+- [Information](#information)
+- [Feature](#feature)
+- [Methods](#methods)
+- [Folder Instruction](#folder-instruction)
+- [Updating Logs](#updating-logs)
 
 ## Note
     HeavenFox OS aims to simplify the Linux kernel by refering to the kernel mechanism,
@@ -77,7 +87,7 @@
     lib/:           the third-party libraries or code;
     platform/:      the generic abstract framework for system operations, provides methods to standardize programming specifications;
 
-## Updating Record
+## Updating Logs
 ### 2024.11.17
     author: Yang Yujun
     commit: 
