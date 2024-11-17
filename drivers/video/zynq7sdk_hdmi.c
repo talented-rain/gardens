@@ -23,7 +23,7 @@
 #include <platform/fwk_uaccess.h>
 #include <platform/video/fwk_fbmem.h>
 
-#include <asm/zynq7/zynq7_periph.h>
+#include <zynq7/zynq7_periph.h>
 
 /*!< The defines */
 #define ZYNQ7_SDK_HDMI_XPRES_MAX                (1920)
@@ -136,19 +136,16 @@ static kint32_t zynq7sdk_hdmi_init(void *base, struct zynq7sdk_hdmi_drv *sprt_dr
 static kint32_t zynq7sdk_hdmi_open(struct fwk_fb_info *sprt_info, kint32_t user)
 {
     struct zynq7sdk_hdmi_drv *sprt_drv;
-    struct fwk_fb_fix_screen_info *sprt_fix;
     kint32_t retval;
 
     sprt_drv = fwk_fb_get_drvdata(sprt_info);
-    sprt_fix = &sprt_info->sgrt_fix;
-
     retval = DisplayStart(&sprt_drv->sgrt_dctrl);
     if (retval)
         return -ER_FAILD;
 
     print_info("hdmi device is opened\n");
 
-    memset_ex(sprt_info->screen_base, 0xffffffff, sprt_fix->smem_len);
+    memset_ex(sprt_info->screen_base, 0xffffffff, sprt_info->screen_size);
     print_info("clear full screen with white color\n");
 
     return ER_NORMAL;
@@ -163,13 +160,11 @@ static kint32_t zynq7sdk_hdmi_open(struct fwk_fb_info *sprt_info, kint32_t user)
 static kint32_t zynq7sdk_hdmi_close(struct fwk_fb_info *sprt_info, kint32_t user)
 {
     struct zynq7sdk_hdmi_drv *sprt_drv;
-    struct fwk_fb_fix_screen_info *sprt_fix;
     kint32_t retval;
 
     sprt_drv = fwk_fb_get_drvdata(sprt_info);
-    sprt_fix = &sprt_info->sgrt_fix;
 
-    memset_ex(sprt_info->screen_base, 0x00000000, sprt_fix->smem_len);
+    memset_ex(sprt_info->screen_base, 0x00000000, sprt_info->screen_size);
     retval = DisplayStop(&sprt_drv->sgrt_dctrl);
     if (!retval)
         print_info("hdmi device is closed\n");
@@ -192,11 +187,6 @@ kint32_t zynq7sdk_hdmi_ioctl(struct fwk_fb_info *sprt_info, kuint32_t cmd, kuadd
     sprt_drv = fwk_fb_get_drvdata(sprt_info);
     if (!arg)
         return -ER_NULLPTR;
-
-    if (sprt_drv->sgrt_dctrl.curFrame)
-    {
-        new_smem = 0;
-    }
 
     switch (cmd)
     {

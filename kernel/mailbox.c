@@ -158,7 +158,7 @@ struct mailbox *mailbox_create(real_thread_t tid, const kchar_t *name)
  */
 void mailbox_destroy(struct mailbox *sprt_mb)
 {
-    if (!sprt_mb)
+    if (mrt_unlikely(!sprt_mb))
         return;
 
     mailbox_deinit(sprt_mb);
@@ -166,6 +166,24 @@ void mailbox_destroy(struct mailbox *sprt_mb)
 }
 
 /*!< ------------------------------------------------------------- */
+/*!
+ * @brief   initialize mail
+ * @param   sprt_mb, sprt_mail
+ * @retval  none
+ * @note    none
+ */
+void mail_init(struct mailbox *sprt_mb, struct mail *sprt_mail)
+{
+    if (mrt_unlikely(!sprt_mb) || 
+        mrt_unlikely(!sprt_mail))
+        return;
+
+    memset(sprt_mail, 0, sizeof(*sprt_mail));
+    sprt_mail->src_name = sprt_mb->name;
+    mutex_init(&sprt_mail->sgrt_lock);
+    init_list_head(&sprt_mail->sgrt_link);
+}
+
 /*!
  * @brief   create mail
  * @param   sprt_mb
@@ -176,13 +194,11 @@ struct mail *mail_create(struct mailbox *sprt_mb)
 {
     struct mail *sprt_mail;
 
-    sprt_mail = kzalloc(sizeof(*sprt_mail), GFP_KERNEL);
+    sprt_mail = kmalloc(sizeof(*sprt_mail), GFP_KERNEL);
     if (!isValid(sprt_mail))
         return sprt_mail;
 
-    sprt_mail->src_name = sprt_mb->name;
-    mutex_init(&sprt_mail->sgrt_lock);
-
+    mail_init(sprt_mb, sprt_mail);
     return sprt_mail;
 }
 
@@ -194,16 +210,11 @@ struct mail *mail_create(struct mailbox *sprt_mb)
  */
 void mail_destroy(struct mailbox *sprt_mb, struct mail *sprt_mail)
 {
-    if (!sprt_mail)
+    if (mrt_unlikely(!sprt_mail))
         return;
-
-    mutex_lock(&sprt_mail->sgrt_lock);
-    list_head_del(&sprt_mail->sgrt_link);
 
     if (sprt_mb && !strcmp(sprt_mb->name, sprt_mail->src_name))
         kfree(sprt_mail);
-    else
-        mutex_unlock(&sprt_mail->sgrt_lock);
 }
 
 /*!
@@ -215,6 +226,11 @@ void mail_destroy(struct mailbox *sprt_mb, struct mail *sprt_mail)
 kint32_t mail_send(const kchar_t *mb_name, struct mail *sprt_mail)
 {
     struct mailbox *sprt_mb;
+    struct mail *sprt_to;
+    struct mail_msg *sprt_msg;
+    kuint8_t *buffer;
+    kuint32_t msg_idx;
+    kusize_t msg_size, size;
 
     if (mrt_unlikely(!sprt_mail) || mrt_unlikely(!sprt_mail->sprt_msg))
         return -ER_NOMEM;
@@ -223,18 +239,48 @@ kint32_t mail_send(const kchar_t *mb_name, struct mail *sprt_mail)
     if (!isValid(sprt_mb))
         return PTR_ERR(sprt_mb);
 
-    /*!< if the last mail with the same address is being read, you should wait a while before sending new */
-    mutex_lock(&sprt_mail->sgrt_lock);
+    size = sizeof(*sprt_mail);
+    size = mrt_align(size, 8);
+    msg_size = sprt_mail->num_msgs * sizeof(*sprt_mail->sprt_msg);
+
+    sprt_to = kzalloc(size + msg_size, GFP_KERNEL);
+    if (!isValid(sprt_to))
+        return PTR_ERR(sprt_to);
+
+    /*!< copy to new */
+    sprt_msg = (struct mail_msg *)((kuint8_t *)sprt_to + size);
+    for (msg_idx = 0; msg_idx < sprt_mail->num_msgs; msg_idx++)
+    {
+        buffer = kcalloc(sizeof(*buffer), sprt_mail->sprt_msg[msg_idx].size, GFP_KERNEL);
+        if (!isValid(buffer))
+            goto fail;
+        
+        memcpy(&sprt_msg[msg_idx], &sprt_mail->sprt_msg[msg_idx], sizeof(*sprt_mail->sprt_msg));
+        memcpy(buffer, sprt_msg[msg_idx].buffer, sizeof(*buffer) * sprt_msg[msg_idx].size);
+        sprt_msg[msg_idx].buffer = buffer;           
+    }
+
+    sprt_to->num_msgs = sprt_mail->num_msgs;
+    sprt_to->sprt_msg = sprt_msg;
+    sprt_to->src_name = sprt_mb->name;
+    sprt_to->status = NR_MAIL_NONE;
+
+    mutex_init(&sprt_to->sgrt_lock);
+    init_list_head(&sprt_to->sgrt_link);
 
     mutex_lock(&sprt_mb->sgrt_lock);
-    list_head_add_tail(&sprt_mb->sgrt_mail, &sprt_mail->sgrt_link);
+    list_head_add_tail(&sprt_mb->sgrt_mail, &sprt_to->sgrt_link);
     sprt_mb->num_mails++;
     mutex_unlock(&sprt_mb->sgrt_lock);
 
-    sprt_mail->status = NR_MAIL_NONE;
-    mutex_unlock(&sprt_mail->sgrt_lock);
-
     return ER_NORMAL;
+
+fail:
+    while (msg_idx)
+        kfree(sprt_msg[--msg_idx].buffer);
+
+    kfree(sprt_to);
+    return ER_FAILD;
 }
 
 /*!
@@ -243,21 +289,17 @@ kint32_t mail_send(const kchar_t *mb_name, struct mail *sprt_mail)
  * @retval  errno
  * @note    none
  */
-kint32_t mail_recv(struct mailbox *sprt_mb, struct mail *sprt_mail, kutime_t timeout)
+struct mail *mail_recv(struct mailbox *sprt_mb, kutime_t timeout)
 {
-    struct mail *sprt_recv;
-    struct mail_msg *sprt_msg;
-    kuint8_t *buffer;
-    kuint32_t msg_idx;
-    kint32_t retval;
+    struct mail *sprt_recv = mrt_nullptr;
 
-    if (!sprt_mb || !sprt_mail)
-        return -ER_NOMEM;
+    if (mrt_unlikely(!sprt_mb))
+        return ERR_PTR(-ER_NOMEM);
 
     while (mrt_list_head_empty(&sprt_mb->sgrt_mail))
     {
         if (!timeout)
-            return -ER_EMPTY;
+            return ERR_PTR(-ER_EMPTY);
 
         schedule_delay_ms(timeout);
     }
@@ -265,62 +307,21 @@ kint32_t mail_recv(struct mailbox *sprt_mb, struct mail *sprt_mail, kutime_t tim
     /*!< get each mail */
     mutex_lock(&sprt_mb->sgrt_lock);
     sprt_recv = mrt_list_first_entry(&sprt_mb->sgrt_mail, typeof(*sprt_recv), sgrt_link);
-    mutex_unlock(&sprt_mb->sgrt_lock);
-
-    mutex_lock(&sprt_recv->sgrt_lock);
-
+    if (sprt_recv->num_msgs > 1)
+        mrt_nop();
+    
     /*!< make sure that sprt_recv is still valid */
     if (mrt_list_head_empty(&sprt_recv->sgrt_link))
-        return -ER_EMPTY;
-
-    /*!< clear the last status */
-    mail_recv_finish(sprt_mail);
-    sprt_mail->status = NR_MAIL_NONE;
-
-    if ((!sprt_recv->num_msgs) || (!sprt_recv->sprt_msg))
     {
-        retval = -ER_EMPTY;
-        sprt_recv->status = NR_MAIL_ERROR;
-        goto END;
+        mutex_unlock(&sprt_mb->sgrt_lock);
+        return ERR_PTR(-ER_EMPTY);
     }
 
-    sprt_msg = kcalloc(sizeof(*sprt_msg), sprt_recv->num_msgs, GFP_KERNEL);
-    if (!isValid(sprt_msg))
-    {
-        retval = PTR_ERR(sprt_msg);
-        goto END;
-    }
-
-    sprt_mail->num_msgs = sprt_recv->num_msgs;
-    sprt_mail->sprt_msg = sprt_msg;
-
-    for (msg_idx = 0; msg_idx < sprt_mail->num_msgs; msg_idx++)
-    {
-        sprt_msg[msg_idx].type = sprt_recv->sprt_msg[msg_idx].type;
-        sprt_msg[msg_idx].code = sprt_recv->sprt_msg[msg_idx].code;
-        sprt_msg[msg_idx].size = sprt_recv->sprt_msg[msg_idx].size;
-
-        buffer = kcalloc(sizeof(*buffer), sprt_msg[msg_idx].size, GFP_KERNEL);
-        if (!isValid(buffer))
-        {
-            buffer = mrt_nullptr;
-            sprt_msg[msg_idx].size = 0;
-        }
-        else
-            memcpy(buffer, sprt_recv->sprt_msg[msg_idx].buffer, sizeof(*buffer) * sprt_msg[msg_idx].size);
-        
-        sprt_msg[msg_idx].buffer = buffer;           
-    }
-
-    retval = sprt_mail->num_msgs;
-    sprt_recv->status = NR_MAIL_ALREADY_READ;
-
-END:
     sprt_mb->num_mails--;
-    mutex_unlock(&sprt_recv->sgrt_lock);
-    mail_destroy(sprt_mb, sprt_recv);
+    list_head_del(&sprt_recv->sgrt_link);
+    mutex_unlock(&sprt_mb->sgrt_lock);
 
-    return retval;
+    return sprt_recv;
 }
 
 /*!
@@ -340,15 +341,9 @@ void mail_recv_finish(struct mail *sprt_mail)
             if (sprt_mail->sprt_msg[idx].buffer)
                 kfree(sprt_mail->sprt_msg[idx].buffer);
         }
-
-        kfree(sprt_mail->sprt_msg);
-        sprt_mail->sprt_msg = mrt_nullptr;
-        sprt_mail->num_msgs = 0;
     }
 
-    sprt_mail->src_name = mrt_nullptr;
-    sprt_mail->status = NR_MAIL_ALREADY_READ;
-    mutex_init(&sprt_mail->sgrt_lock);
+    kfree(sprt_mail);
 }
 
 /*!< end of file */

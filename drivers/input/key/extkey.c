@@ -24,7 +24,7 @@
 #include <platform/gpio/fwk_gpiodesc.h>
 #include <kernel/wait.h>
 
-#include <asm/imx6/imx6ull_periph.h>
+#include <imx6/imx6ull_periph.h>
 
 /*!< The defines */
 struct extkey_drv_data

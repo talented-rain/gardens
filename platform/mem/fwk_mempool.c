@@ -28,15 +28,21 @@ struct fwk_mempool
     struct spin_lock sgrt_lock;
 };
 
-#define FWK_MEMPOOL_KERNEL              0
-#define FWK_MEMPOOL_FB_DRAM             1
-#define FWK_MEMPOOL_TYPE_MAX            2
+#define FWK_MEMPOOL_FIXDATA             0
+#define FWK_MEMPOOL_KERNEL              1
+#define FWK_MEMPOOL_FB_DRAM             2
+#define FWK_MEMPOOL_TYPE_MAX            3
 
 /*!< The globals */
 static struct mem_info sgrt_kernel_mem_info[FWK_MEMPOOL_TYPE_MAX] = {};
 
 static struct fwk_mempool sgrt_kernel_mempool[FWK_MEMPOOL_TYPE_MAX] =
 {
+    {
+        .name = "fixed data",
+        .mask = NR_KMEM_FIXED,
+        .sprt_info = &sgrt_kernel_mem_info[FWK_MEMPOOL_FIXDATA],
+    },
     {
         .name = "kernel heap",
         .mask = NR_KMEM_NORMAL,
@@ -88,15 +94,38 @@ kbool_t fwk_mempool_initial(void)
  * @retval  none
  * @note    memory block initial
  */
-kbool_t memory_block_self_defines(kuaddr_t base, kusize_t size)
+kbool_t memory_block_self_defines(kint32_t flags, kuaddr_t base, kusize_t size)
 {
-    struct fwk_mempool *sprt_pool = &sgrt_kernel_mempool[FWK_MEMPOOL_KERNEL];
-    struct mem_info *sprt_info = sprt_pool->sprt_info;
+    struct fwk_mempool *sprt_pool = mrt_nullptr;
+    struct mem_info *sprt_info;
+    kuint32_t index;
 
+    if (flags < 0)
+        sprt_pool = &sgrt_kernel_mempool[FWK_MEMPOOL_KERNEL];
+    else
+    {
+        for (index = 0; index < FWK_MEMPOOL_TYPE_MAX; index++)
+        {
+            if (flags & sgrt_kernel_mempool[index].mask)
+            {
+                if (!sprt_pool)
+                    sprt_pool = &sgrt_kernel_mempool[index];
+                else
+                    return false;
+            }
+        }
+    }
+
+    if (!sprt_pool)
+        return false;
+
+    sprt_info = sprt_pool->sprt_info;
     if (isValid(sprt_info->sprt_mem))
         return false;
 
     memory_simple_block_create(sprt_info, base, size);
+    init_waitqueue_head(&sprt_pool->sgrt_wqh);
+    spin_lock_init(&sprt_pool->sgrt_lock);
 
     return true;
 }
@@ -107,10 +136,34 @@ kbool_t memory_block_self_defines(kuaddr_t base, kusize_t size)
  * @retval  none
  * @note    memory block destroy
  */
-void memory_block_self_destroy(void)
+void memory_block_self_destroy(kint32_t flags)
 {
-    struct fwk_mempool *sprt_pool = &sgrt_kernel_mempool[FWK_MEMPOOL_KERNEL];
-    struct mem_info *sprt_info = sprt_pool->sprt_info;
+    struct fwk_mempool *sprt_pool = mrt_nullptr;
+    struct mem_info *sprt_info;
+    kuint32_t index;
+
+    if (flags < 0)
+        sprt_pool = &sgrt_kernel_mempool[FWK_MEMPOOL_KERNEL];
+    else
+    {
+        for (index = 0; index < FWK_MEMPOOL_TYPE_MAX; index++)
+        {
+            if (flags & sgrt_kernel_mempool[index].mask)
+            {
+                if (!sprt_pool)
+                    sprt_pool = &sgrt_kernel_mempool[index];
+                else
+                    return;
+            }
+        }
+    }
+
+    if (!sprt_pool)
+        return;
+
+    sprt_info = sprt_pool->sprt_info;
+    if (!isValid(sprt_info->sprt_mem))
+        return;
 
     memory_simple_block_destroy(sprt_info);
     init_waitqueue_head(&sprt_pool->sgrt_wqh);

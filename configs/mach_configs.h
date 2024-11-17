@@ -21,8 +21,6 @@
 #include <board/board_config.h>
 
 /*!< The defines */
-#define CONFIG_STACK_WITH_LDS                   (1)                 /*!< configure stack by .lds */
-
 #define CONFIG_HZ                               (100UL)             /*!< timer interrupt per 10ms*/
 #define CONFIG_USE_AMP                          (0)
 

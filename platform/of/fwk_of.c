@@ -26,7 +26,9 @@
 
 /*!< -------------------------------------------------------------------------- */
 /*!< The globals */
-kuint8_t *ptr_fdt_memBuffer	= mrt_nullptr;
+struct fdt_params *sprt_fwk_fdt_params;
+kuint8_t *ptr_fdt_memBuffer = mrt_nullptr;
+
 /*!< Global list */
 struct fwk_device_node *sprt_fwk_of_allNodes = mrt_nullptr;
 
@@ -57,9 +59,14 @@ static void *fwk_fdt_memory_alloc(kuint32_t size, kuint32_t align);
  */
 void setup_machine_fdt(void *ptr)
 {
+    struct fdt_params *sprt_param;
     kuint8_t *ptr_fdt_start;
 
-    ptr_fdt_start = ptr ? ptr : (void *)CONFIG_DEVICE_TREE_BASE;
+    sprt_param = (struct fdt_params *)ptr;
+    if (!isValid(sprt_param))
+        return;
+    
+    ptr_fdt_start = sprt_param->sgrt_fdt.base;
     if (!isValid(ptr_fdt_start) || !fwk_early_init_dt_verify(ptr_fdt_start))
         return;
 

@@ -10,7 +10,10 @@
 #
 
 obj-y	+=	crt0.o
+
 obj-y	+=	lib1funcs.o
+obj-y	+=	memory.o
+
 obj-y	+=	interrupt.o
 obj-y	+=	exception.o
 

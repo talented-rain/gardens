@@ -19,7 +19,7 @@
 #include <platform/clk/fwk_clk_provider.h>
 #include <platform/clk/fwk_clk_gate.h>
 
-#include <asm/imx6/imx6ull_clocks.h>
+#include <imx6/imx6ull_clocks.h>
 
 /*!< The defines */
 typedef struct fwk_clks srt_fwk_clks_t;

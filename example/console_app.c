@@ -37,6 +37,68 @@ static kuint8_t g_console_recv_buf[1024];
 
 /*!< API functions */
 /*!
+ * @brief  send mail to light thread
+ * @param  sprt_mb, command_line
+ * @retval none
+ * @note   none
+ */
+static void command_mail_to_light(struct mailbox *sprt_mb, kuint8_t *command_line)
+{
+    struct mail sgrt_mail;
+    struct mail_msg sgrt_msg[1] = {};
+    kuint8_t status = 0;
+
+    if (!kstrncmp((kchar_t *)command_line, "led1 on", 7))
+        status = 1;
+    else if (!kstrncmp((kchar_t *)command_line, "led1 off", 8))
+        status = 0;
+    else
+        return;
+
+    mail_init(sprt_mb, &sgrt_mail);
+    
+    sgrt_msg[0].buffer = &status;
+    sgrt_msg[0].size = 1;
+    sgrt_msg[0].type = NR_MAIL_TYPE_SERIAL;
+
+    sgrt_mail.sprt_msg = &sgrt_msg[0];
+    sgrt_mail.num_msgs = 1;
+
+    mail_send("light-app-mailbox", &sgrt_mail);
+}
+
+/*!
+ * @brief  send mail to display thread
+ * @param  sprt_mb, command_line
+ * @retval none
+ * @note   none
+ */
+static void command_mail_to_display(struct mailbox *sprt_mb, kuint8_t *command_line)
+{
+    struct mail sgrt_mail;
+    struct mail_msg sgrt_msg[1] = {};
+    kuint8_t status = 0;
+
+    if (!kstrncmp((kchar_t *)command_line, "page up", 9))
+        status = 1;
+    else if (!kstrncmp((kchar_t *)command_line, "page down", 8))
+        status = 2;
+    else
+        return;
+
+    mail_init(sprt_mb, &sgrt_mail);
+    
+    sgrt_msg[0].buffer = &status;
+    sgrt_msg[0].size = 1;
+    sgrt_msg[0].type = NR_MAIL_TYPE_SERIAL;
+
+    sgrt_mail.sprt_msg = &sgrt_msg[0];
+    sgrt_mail.num_msgs = 1;
+
+    mail_send("display-app-mailbox", &sgrt_mail);
+}
+
+/*!
  * @brief  console recieve task
  * @param  none
  * @retval none
@@ -45,11 +107,8 @@ static kuint8_t g_console_recv_buf[1024];
 static void *console_app_entry(void *args)
 {
     struct mailbox *sprt_mb = &sgrt_console_app_mailbox;
-    struct mail *sprt_mail = mrt_nullptr;
-    struct mail_msg sgrt_msg[1] = {};
     kuint8_t *ptr_buf;
     kusize_t buf_size;
-    static kuint8_t status = 0;
     kint32_t retval = -1;
 
     ptr_buf = &g_console_recv_buf[0];
@@ -67,31 +126,8 @@ static void *console_app_entry(void *args)
 
         print_info("recv command line, data is: %s\n", ptr_buf);
 
-        if (!kstrncmp((kchar_t *)ptr_buf, "led1 on", 7))
-            status = 1;
-        else if (!kstrncmp((kchar_t *)ptr_buf, "led1 off", 8))
-            status = 0;
-        else
-            continue;
-
-        if (sprt_mail)
-            mail_destroy(sprt_mb, sprt_mail);
-
-        sprt_mail = mail_create(sprt_mb);
-        if (!isValid(sprt_mail))
-        {
-            sprt_mail = mrt_nullptr;
-            continue;
-        }
-        
-        sgrt_msg[0].buffer = &status;
-        sgrt_msg[0].size = 1;
-        sgrt_msg[0].type = NR_MAIL_TYPE_SERIAL;
-
-        sprt_mail->sprt_msg = &sgrt_msg[0];
-        sprt_mail->num_msgs = 1;
-
-        mail_send("light-app-mailbox", sprt_mail);
+        command_mail_to_light(sprt_mb, ptr_buf);
+        command_mail_to_display(sprt_mb, ptr_buf);
     }
 
     return args;

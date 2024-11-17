@@ -103,7 +103,7 @@ OBJDUMP			:= 	$(COMPILER)objdump
 OBJCOPY			:= 	$(COMPILER)objcopy
 READELF			:= 	$(COMPILER)readelf
 
-COMPILER_LIBC	:=	$(COMPILER_PATH)/$(COMPILER)/libc
+COMPILER_LIBC	:=	$(strip $(patsubst %-, $(COMPILER_PATH)/%/libc, $(COMPILER)))
 
 LIBS_PATH		:=  -L $(COMPILER_LIBC)/usr/lib	\
 					-L $(COMPILER_LIBC)/lib
@@ -126,7 +126,7 @@ BUILD_CFLAGS   	:=  -g3 -O0 -Wall -nostdlib	\
                     -Werror-implicit-function-declaration \
                     -fno-tree-scev-cprop
 
-MACROS			+=	-DCONFIG_DEBUG_JTAG
+MACROS			:=	-DCONFIG_DEBUG_JTAG
 
 # *********************************************************************
 
@@ -149,8 +149,10 @@ INCLUDE_DIRS	:= 	$(PROJECT_DIR)/	\
 					$(PROJECT_DIR)/arch/$(ARCH)/include	\
 					$(PROJECT_DIR)/include	\
 					$(PROJECT_DIR)/board/mach-$(CPU)	\
-					$(PROJECT_DIR)/lib	\
-					$(PROJECT_DIR)/lib/fatfs
+					$(PROJECT_DIR)/lib
+
+EXT_LIB_DIRS    :=  $(PROJECT_DIR)/lib
+EXT_LIB_EXEC	:=	$(PROJECT_DIR)/lib/objects
 
 ARCH_DIRS       :=  arch/$(ARCH)/
 COMMON_DIRS     :=  common/
@@ -158,20 +160,19 @@ BOOT_DIRS       :=  boot/
 BOARD_DIRS      :=  board/
 PLATFORM_DIRS   :=  platform/
 KERNEL_DIRS     :=  kernel/
-EXT_LIB_DIRS    :=  lib/
 ROOTFS_DIRS     :=  fs/
 DRIVER_DIRS     :=  drivers/
 INIT_DIRS       :=  example/ init/
 
 OBJECT_EXEC		:=	$(OBJECT_PATH)/built-in.o
 SOURCE_DIRS		:=	$(ARCH_DIRS) $(COMMON_DIRS) $(BOOT_DIRS) $(BOARD_DIRS) $(PLATFORM_DIRS)	\
-					$(KERNEL_DIRS) $(EXT_LIB_DIRS) $(ROOTFS_DIRS) $(DRIVER_DIRS) $(INIT_DIRS)
+					$(KERNEL_DIRS) $(ROOTFS_DIRS) $(DRIVER_DIRS) $(INIT_DIRS)
 INCLUDE_DIRS	:= 	$(patsubst %, -I %, $(INCLUDE_DIRS))
 
 export ARCH TYPE CLASS CPU VENDOR CC CXX LD AR OBJDUMP OBJCOPY READELF
 export LIBS_PATH LIBS EXTRA_FLAGS BUILD_CFLAGS MACROS CONF_MAKEFILE
 export PROJECT_DIR LINK_SCRIPT DTC BUILD_SCRIPT INCLUDE_DIRS
-export IMAGE_PATH OBJECT_PATH OBJECT_EXEC 
+export IMAGE_PATH OBJECT_PATH OBJECT_EXEC EXT_LIB_DIRS EXT_LIB_EXEC
 export TARGET_EXEC TARGET_BINY TARGET_IMGE TARGET_NASM TARGET_LASM TARGET_MMAP
 
 obj-y			+=	$(SOURCE_DIRS)
@@ -180,9 +181,10 @@ VPATH			:= 	$(SOURCE_DIRS)
 # *********************************************************************
 
 force:
-.PHONY:			all clean distclean config dtbs info debug
+.PHONY:			all local clean distclean config dtbs libs info debug
 
-all : dtbs $(OBJECT_EXEC) force
+all : dtbs libs local force
+local: $(OBJECT_EXEC) force
 	$(Q)$(MAKE) -C $(ARCH_DIRS) all
 
 $(OBJECT_EXEC): force
@@ -191,17 +193,22 @@ $(OBJECT_EXEC): force
 clean:
 	$(Q)$(MAKE) -C $(ARCH_DIRS) clean
 	$(Q)$(MAKE) -f $(BUILD_SCRIPT) _clean
-	rm -rf $(OBJECT_EXEC)
+#	if [ -d $(OBJECT_PATH) ]; then rm -rf $(OBJECT_PATH); fi
 	
+	$(Q)$(MAKE) -C $(EXT_LIB_DIRS) clean
 	$(Q)$(MAKE) -C $(OUTPUT_PATH)/dts clean
 
 distclean:
 	$(Q)$(MAKE) -C $(ARCH_DIRS) distclean
 	$(Q)$(MAKE) -f $(BUILD_SCRIPT) _distclean
+	$(Q)$(MAKE) -C $(EXT_LIB_DIRS) distclean
 	$(Q)$(MAKE) -C $(OUTPUT_PATH)/dts distclean
 
-dtbs:
+dtbs: force
 	$(Q)$(MAKE) -C $(OUTPUT_PATH)/dts
+
+libs: force
+	$(Q)$(MAKE) -C $(EXT_LIB_DIRS) all
 
 config: $(CONF_HEADER) force
 $(CONF_HEADER): $(CONF_MAKEFILE) force
@@ -223,14 +230,15 @@ info:
 	@echo "                 vendor       : $(VENDOR)"
 	@echo "                 cpu          : $(CPU)"
 	@echo " "
-	@echo "         ------------< ** information ** >------------ "
+	@echo "          		** information ** 									   "
 	@echo " "
 	@echo "                 author       : Yang Yujun"
 	@echo "                 e-mail       : <yujiantianhu@163.com>"
 	@echo "------------------------------------------------------------------------"
 
-debug: info
-	$(Q)$(MAKE) -f $(BUILD_SCRIPT) _debug
-	$(Q)$(MAKE) -C $(ARCH_DIRS) debug
+debug:
+#	$(Q)$(MAKE) -f $(BUILD_SCRIPT) _debug
+	$(Q)$(MAKE) -C $(EXT_LIB_DIRS) debug
+#	$(Q)$(MAKE) -C $(ARCH_DIRS) debug
 
 # end of file

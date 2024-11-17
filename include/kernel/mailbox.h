@@ -82,10 +82,11 @@ TARGET_EXT void mailbox_deinit(struct mailbox *sprt_mb);
 TARGET_EXT struct mailbox *mailbox_create(real_thread_t tid, const kchar_t *name);
 TARGET_EXT void mailbox_destroy(struct mailbox *sprt_mb);
 
+TARGET_EXT void mail_init(struct mailbox *sprt_mb, struct mail *sprt_mail);
 TARGET_EXT struct mail *mail_create(struct mailbox *sprt_mb);
 TARGET_EXT void mail_destroy(struct mailbox *sprt_mb, struct mail *sprt_mail);
 TARGET_EXT kint32_t mail_send(const kchar_t *mb_name, struct mail *sprt_mail);
-TARGET_EXT kint32_t mail_recv(struct mailbox *sprt_mb, struct mail *sprt_mail, kutime_t timeout);
+TARGET_EXT struct mail *mail_recv(struct mailbox *sprt_mb, kutime_t timeout);
 TARGET_EXT void mail_recv_finish(struct mail *sprt_mail);
 
 #endif /* __KEL_MAILBOX_H_ */

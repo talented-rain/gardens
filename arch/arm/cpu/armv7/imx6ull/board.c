@@ -14,8 +14,8 @@
 #include <common/generic.h>
 #include <boot/board_init.h>
 #include <asm/armv7/gcc_config.h>
-#include <asm/imx6/imx6ull_clocks.h>
-#include <asm/imx6/imx6ull_pins.h>
+#include <imx6/imx6ull_clocks.h>
+#include <imx6/imx6ull_pins.h>
 
 /*!< The defines */
 #define IMX_CCM_PORT_ENTRY()								IMX6UL_CCM_PROPERTY_ENTRY()

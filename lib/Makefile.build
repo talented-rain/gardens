@@ -1,0 +1,80 @@
+#
+# Makefile
+#
+# File Name:   Makefile
+# Author:      Yang Yujun
+# E-mail:      <yujiantianhu@163.com>
+# Created on:  2024.11.16
+#
+# Copyright (c) 2024   Yang Yujun <yujiantianhu@163.com>
+#
+
+# '_build' must be the first target
+_build:
+
+src-y			:=
+inc-y			:=
+
+VPATH			:=
+
+# get current path
+lib_path		:= 	$(shell pwd)
+cur_dir			:=	$(shell basename $(lib_path))
+lib_output		:=	$(LIB_OBJECT_PATH)/$(cur_dir)
+build-y			:=	$(LIB_OBJECT_PATH)/lib$(cur_dir).a
+
+include $(CONF_MAKEFILE)
+include $(cur_dir).mk
+
+obj-y			:=	$(patsubst %,%.o, $(filter-out %/, $(src-y)))
+abs_path-objs	:=	$(patsubst $(lib_path)/%,$(lib_output)/%,$(filter $(lib_path)/%, $(obj-y)))
+rel_path-objs	:=	$(patsubst %,$(lib_output)/%,$(filter-out $(lib_path)/%, $(obj-y)))
+output-objs 	:=	$(abs_path-objs) $(rel_path-objs)
+output-dirs		:=	$(sort $(dir $(output-objs)))
+
+depend-objs		:=	$(patsubst %,%.d, $(output-objs))
+depend-objs		:=	$(wildcard $(depend-objs))
+include $(depend-objs)
+
+VPATH			+=	$(lib_path)
+INCLUDE_DIRS	+=  $(inc-y)
+
+define build_object
+	$(1) -Wp,-MD,$@.d -c $(BUILD_CFLAGS) $(MACROS) $(INCLUDE_DIRS) $(EXTRA_FLAGS) -o $(2) $(3)
+endef
+
+_force:
+.PHONY: all clean distclean _force
+
+all: _build
+_build: $(lib_output) $(output-objs) _force
+	$(AR) -crv $(build-y) $(output-objs)
+
+$(lib_output): _force
+	if [ ! -d $(lib_output) ]; then mkdir -p $(lib_output); fi
+	@for item in $(output-dirs); do \
+		if [ ! -d $$item ]; then \
+			mkdir -p $$item;	\
+		fi	\
+	done
+
+$(lib_output)/%.S.o : %.S _force
+	$(call build_object, $(CC), $@, $<)
+
+$(lib_output)/%.c.o : %.c _force
+	$(call build_object, $(CC), $@, $<)
+
+$(lib_output)/%.cpp.o : %.cpp _force
+	$(call build_object, $(CXX), $@, $<)
+
+clean:
+	if [ -d $(lib_output) ]; then rm -rf $(lib_output); fi
+
+distclean: clean
+	if [ -e $(build-y) ]; then rm -f $(build-y); fi
+
+debug:
+	@echo '==========>' $(obj-y)
+	@echo '++++++++++>' $(src-y)
+
+# end of file

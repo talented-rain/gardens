@@ -13,7 +13,7 @@
 /*!< The includes */
 #include <configs/configs.h>
 #include <asm/armv7/gcc_config.h>
-#include <asm/zynq7/zynq7_periph.h>
+#include <zynq7/zynq7_periph.h>
 #include <common/time.h>
 #include <common/api_string.h>
 
@@ -2559,7 +2559,7 @@ kint32_t DisplayChangeFrameBuffer(DisplayCtrl *sprt_disp, kuint32_t FrameAddr, k
     index = sprt_disp->curFrame;
     sprt_disp->framePtr[index] = (kuint8_t *)FrameAddr;
     sprt_disp->vdmaConfig.FrameStoreStartAddr[index] = FrameAddr;
-    Xil_DCacheFlushRange(FrameAddr, FrameSize);
+//  Xil_DCacheFlushRange(FrameAddr, FrameSize);
 
     Status = XAxiVdma_DmaSetBufferAddr(sprt_disp->vdma, XAXIVDMA_READ, 
                                     sprt_disp->vdmaConfig.FrameStoreStartAddr);

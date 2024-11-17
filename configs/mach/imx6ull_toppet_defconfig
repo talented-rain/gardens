@@ -18,6 +18,8 @@ CONFIG_COMPILER_PATH = "/usr/local/arm/gcc-linaro-5.3-2016.02-x86_64_arm-linux-g
 
 CONFIG_ARCH_ARMV7 = y
 CONFIG_LITTILE_ENDIAN = y
+
+CONFIG_VFP = y
 # ---------------------------------------------------------------
 
 # Clock */
@@ -33,8 +35,10 @@ CONFIG_RTC_FREQ_CLK = (32768)
 CONFIG_RAM_DDR_ORIGIN = (0x80000000)
 CONFIG_RAM_DDR_LENTH = (0x20000000)
 
+# boot
+# ---------------------------------------------------------------
 # RAM(->DDR) Configuration
-# ------------------------------------------------------------------------
+# ---------------------------------------------------------------
 # 0x80000000 ~ 0x801FFFFF: 2MB, reserved
 # 0x80200000 ~ 0x805FFFFF: 4MB, early stack and params(global_data)
 # 0x80600000 ~ 0x807FFFFF: 2MB, malloc len (early pool)
@@ -48,31 +52,35 @@ CONFIG_RAM_DDR_LENTH = (0x20000000)
 # 0x82480800 ~ 0x82C807FF: 8MB, heap
 # 0x82C80800 ~ 0x83C807FF: 16MB, memory pool
 # 0x83C80700 ~ 0x85FFFFFF: reserved
-# 0x86000000 ~ 0x87FFFFFF: 32MB, device tree
+# 0x86000000 ~ 0x863FFFFF: 4MB, device tree
+# 0x86400000 ~ 0x87BFFFFF: 24MB, fixed data (such as fontlib, logo, ...)
+# 0x87C00000 ~ 0x87FFFFFF: 4MB, reserved
 
 CONFIG_PROGRAM_BASE = (0x88000000)
-CONFIG_DEVICE_TREE_BASE = (0x86000000)
-CONFIG_MEMORY_BASE = (0x82000000)
-# ---------------------------------------------------------------
 
-# boot
-# ---------------------------------------------------------------
 CONFIG_BOARD_SP_ADDR = (0x80800000)
 CONFIG_BOOT_MALLOC_LEN = (2 * 1024 * 1024)
+
+CONFIG_B2K_PARAM_BASE = (CONFIG_BOARD_SP_ADDR)
+CONFIG_B2K_PARAM_SIZE = (24 * 1024 * 1024)
+
+CONFIG_DEVICE_TREE_BASE = (0x86000000)
+CONFIG_FDT_MAX_SIZE = (4 * 1024 * 1024)
+
+CONFIG_B2K_FIXDATA_BASE = (0x86400000)
+CONFIG_B2K_FIXDATA_SIZE = (24 * 1024 * 1024)
 # ---------------------------------------------------------------
 
 # kernel
 # ---------------------------------------------------------------
-CONFIG_FDT_MAX_SIZE = (32 * 1024 * 1024)
 CONFIG_SYS_STACK_SIZE = (2 * 1024 * 1024)
 CONFIG_SVC_STACK_SIZE = (2 * 1024 * 1024)
 CONFIG_ABT_STACK_SIZE = (1 * 1024)
 CONFIG_IRQ_STACK_SIZE = (256 * 1024)
 CONFIG_FIQ_STACK_SIZE = (256 * 1024)
 CONFIG_UND_STACK_SIZE = (1 * 1024)
-CONFIG_MEMPOOL_SIZE = (16 * 1024 * 1024)
-CONFIG_FBUFFER_SIZE = (24 * 1024 * 1024)
 
+CONFIG_STACK_BASE 	  = (CONFIG_BOARD_SP_ADDR 	+ CONFIG_B2K_PARAM_SIZE)
 CONFIG_UND_STACK_BASE = (CONFIG_MEMORY_BASE     + CONFIG_UND_STACK_SIZE)
 CONFIG_FIQ_STACK_BASE = (CONFIG_UND_STACK_BASE  + CONFIG_FIQ_STACK_SIZE)
 CONFIG_IRQ_STACK_BASE = (CONFIG_FIQ_STACK_BASE  + CONFIG_IRQ_STACK_SIZE)
@@ -96,6 +104,8 @@ CONFIG_I2C = y
 CONFIG_INPUTDEV = y
 CONFIG_VIDEO = y
 CONFIG_USB = y
+
+CONFIG_FB_MULTI_SUPPORT = n
 # ---------------------------------------------------------------
 
 # drivers

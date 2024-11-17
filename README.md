@@ -31,15 +31,18 @@
     17) support virtual file system (kset, kobject and inode) and operations, such as virt_open/virt_close, ...;
     18) support touchscreen driver of "tsc2007", environment sensor driver "ap3216c", eeprom driver "at24c02";
     19) support cpu zynq7 (boot and running);
-    20) support configure resources freely by "configs/mach/xxxx_defconfig', and generate auto.conf and autoconf.h 
+    20) support configure resources freely by "configs/mach/xxxx_defconfig', and generate auto.conf and autoconf.h
     
 # Methods:
     make:           build the whole project;
+    make all:       the same as "make"
     make dtbs:      build device-tree only;
     make clean:     delete all the .o and .d;
     make distclean: delete the ./objects/* and .elf, .dis, .img and so on;
     make config:    generate auto.conf and autoconf.h, maybe you can input: make CONFIGS=xxxx_defconfig config
-    make info:      get this project information
+    make info:      get this project information;
+    make libs:      build "lib/" only;
+    make local:     build but not include dtbs and libs
     
     or using cmake:
     mkdir -p ./build
@@ -74,6 +77,11 @@
 
 # Readme:
 # -----------------------------------------------------------------------
+# 2024.11.17
+    author: Yang Yujun
+    commit: 
+        1) add third-party library "lvgl";
+        2) adjust the compilation method of third-party libs (linked to main project with static libraries)
 
 # 2024.11.09
     author: Yang Yujun

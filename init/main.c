@@ -31,8 +31,62 @@
 #include <fs/fs_fatfs.h>
 
 /*!< The globals */
+static struct tag_params *sprt_tag_params;
+
+/*!< The defines */
+#define mrt_tag_params_get()    \
+({    \
+    struct tag_params *sprt_param;  \
+    __asm__ __volatile__ (  \
+        " str r2, [%0]  \n\t"   \
+        : \
+        : "r"(&sprt_param)   \
+        : "cc","memory" \
+    );  \
+    sprt_param; \
+})
 
 /*!< API functions */
+/*!
+ * @brief  populate params
+ * @param  sprt_params
+ * @retval none
+ * @note   none
+ */
+void setup_tag_params(struct tag_params *sprt_params)
+{
+    while (sprt_params->sgrt_hdr.type != (-1))
+    {
+        switch (sprt_params->sgrt_hdr.type)
+        {
+            case TAG_PARAM_VIDEO:
+                sprt_fwk_video_params = &sprt_params->u.sgrt_vdp;
+                break;
+            case TAG_PARAM_FDT:
+                sprt_fwk_fdt_params = &sprt_params->u.sgrt_fdt;
+                break;
+
+            default: break;
+        }
+
+        sprt_params = TAG_PARAM_NEXT(sprt_params);
+    }
+}
+
+/*!
+ * @brief  setup machine
+ * @param  none
+ * @retval none
+ * @note   cpu param populate
+ */
+void setup_machine(struct tag_params *sprt_params)
+{
+    setup_tag_params(sprt_params);
+
+    /*!< build device-tree */
+    setup_machine_fdt(sprt_fwk_fdt_params);
+}
+
 /*!
  * @brief  start_kernel
  * @param  none
@@ -43,13 +97,14 @@ void start_kernel(void)
 {
     /*!< disable interrupt */
     mrt_disable_cpu_irq();
+    sprt_tag_params = mrt_tag_params_get();
 
     /*!< initial memory pool */
     fwk_mempool_initial();
     print_info("\nstart kernel ...... \n");
 
-    /*!< build device-tree */
-    setup_machine_fdt(mrt_nullptr);
+    /*!< populate params from bootloader */
+    setup_machine(sprt_tag_params);
 
     /*!< board initcall */
     if (run_machine_initcall())

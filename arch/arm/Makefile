@@ -13,6 +13,7 @@
 all:
 
 include $(CONF_MAKEFILE)
+include $(EXT_LIB_DIRS)/Makefile.include
 
 obj-y		+=	cpu/
 obj-y		+=	kernel/
@@ -40,13 +41,18 @@ depd-objs	:=	$(wildcard $(depd-objs))
 include $(depd-objs)
 endif
 
+ifneq ($(lib-y),)
+LIBS		+=	$(patsubst lib%.a,-l%, $(notdir $(lib-y)))
+LIBS_PATH	+=	-L $(EXT_LIB_EXEC)
+endif
+
 define arch_build
 	if [ ! -d $(arch_output) ]; then mkdir -p $(arch_output); fi
 	$(1) -Wp,-MD,$@.d -c $(BUILD_CFLAGS) $(MACROS) $(INCLUDE_DIRS) $(EXTRA_FLAGS) -o $(2) $(3)
 endef
 
 force:
-.PHONY: all clean distclean
+.PHONY: all clean distclean debug
 
 all: $(TARGET_BINY) force
 $(TARGET_BINY) : $(TARGET_EXEC) force
@@ -69,8 +75,7 @@ $(arch_output)/%.o : %.cpp force
 clean:
 	rm -rf $(head-objs) $(depd-objs)
 
-distclean:
-	rm -rf $(head-objs) $(depd-objs)
+distclean: clean
 	rm -rf $(TARGET_EXEC) $(TARGET_BINY) $(TARGET_IMGE) 
 	rm -rf $(TARGET_NASM) $(TARGET_LASM) $(TARGET_MMAP)
 

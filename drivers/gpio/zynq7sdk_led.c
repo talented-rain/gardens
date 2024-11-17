@@ -22,8 +22,8 @@
 #include <platform/fwk_uaccess.h>
 #include <platform/gpio/fwk_gpiodesc.h>
 
-#include <asm/zynq7/zynq7_periph.h>
-#include <asm/zynq7/xparameters.h>
+#include <zynq7/zynq7_periph.h>
+#include <zynq7/xparameters.h>
 
 /*!< The defines */
 struct sdk_led_drv_data

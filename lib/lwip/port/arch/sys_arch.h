@@ -64,7 +64,6 @@
 #ifndef __ARCH_SYS_ARCH_H__
 #define __ARCH_SYS_ARCH_H__
 
-#include "fsl_debug_console.h"
 #include "lwip/opt.h"
 #include "arch/cc.h"
 

@@ -131,6 +131,10 @@ void *alloc_spare_simple_memory(void *ptr_head, kusize_t size)
 
                 sprt_block->lenth = offset;
                 sprt_block->remain -= sprt_new->lenth;
+
+                if (sprt_block->sprt_next)
+                	sprt_block->sprt_next->sprt_prev = sprt_new;
+                
                 sprt_block->sprt_next = sprt_new;
             }
             else
@@ -191,7 +195,7 @@ void free_employ_simple_memory(void *ptr_head, void *ptr_mem)
 
     /*!< Point to the head of info */
     sprt_block = check_employ_simple_memory(ptr_head, ptr_mem);
-    if (!isValid(sprt_block))
+    if (!sprt_block)
         return;
 
     sprt_prev = sprt_block->sprt_prev;
@@ -205,20 +209,22 @@ void free_employ_simple_memory(void *ptr_head, void *ptr_mem)
         /*!< Check if the current memory block is idle, if yes, merge into the last neighboring memory block */
         sprt_prev->lenth += sprt_block->lenth;
         sprt_prev->remain += sprt_block->remain;
-        sprt_prev->sprt_next = sprt_block->sprt_next;
+        sprt_prev->sprt_next = sprt_next;
 
         sprt_block = sprt_prev;
     }
 
     if (isValid(sprt_next))
     {
-        /*!< Check if the next neighboring memory block is idle, if yes, the idle memory block should be merged */
-        if (sprt_next->lenth == sprt_next->remain)
-        {
-            sprt_block->sprt_next = sprt_next->sprt_next;
-            sprt_block->lenth += sprt_next->lenth;
-            sprt_block->remain = sprt_next->remain;
-        }
+//      /*!< Check if the next neighboring memory block is idle, if yes, the idle memory block should be merged */
+//      if (sprt_next->lenth == sprt_next->remain)
+//      {
+//          sprt_block->sprt_next = sprt_next->sprt_next;
+//          sprt_block->lenth += sprt_next->lenth;
+//          sprt_block->remain += sprt_next->remain;
+//      }
+
+        sprt_next->sprt_prev = sprt_block;
     }
 }
 

@@ -21,7 +21,7 @@
 #include <platform/irq/fwk_irq_domain.h>
 #include <platform/irq/fwk_irq_types.h>
 
-#include <asm/imx6/imx6ull_periph.h>
+#include <imx6/imx6ull_periph.h>
 
 /*!< The defines */
 typedef struct imx_gpio_port

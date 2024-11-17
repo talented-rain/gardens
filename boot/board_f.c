@@ -68,7 +68,7 @@ kint32_t board_init_malloc_space(void)
 
     sprt_gd = board_get_gd();
 
-    retval = memory_block_self_defines(sprt_gd->malloc_addr, sprt_gd->malloc_len);
+    retval = memory_block_self_defines(-1, sprt_gd->malloc_addr, sprt_gd->malloc_len);
     return (retval) ? RET_BOOT_PASS : RET_BOOT_ERR;
 }
 

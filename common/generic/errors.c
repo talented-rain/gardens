@@ -27,6 +27,7 @@
 void deal_assert_fail(const kchar_t *__assertion, const kchar_t *__file,
                                kuint32_t __line, const kchar_t *__function)
 {
+#ifdef CONFIG_DEBUG_JTAG
     print_err("\n");
     print_err("Program Aborted. Here is Error Information:\n");
 
@@ -63,11 +64,11 @@ void deal_assert_fail(const kchar_t *__assertion, const kchar_t *__file,
 
     print_err("\n");
     print_err("Please check for errors in time !\n");
+#endif
 
     /*!< quit program */
     while (true)
     {}
 }
-
 
 /* end of file */

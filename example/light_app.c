@@ -46,8 +46,7 @@ static void *light_app_entry(void *args)
     kbool_t status = 0;
     kint32_t fd;
     struct mailbox *sprt_mb = &sgrt_light_app_mailbox;
-    struct mail sgrt_mail = {};
-    kint32_t retval;
+    struct mail *sprt_mail;
 
     mailbox_init(&sgrt_light_app_mailbox, mrt_current->tid, "light-app-mailbox");
 
@@ -59,14 +58,14 @@ static void *light_app_entry(void *args)
         if (fd < 0)
             goto END1;
         
-        retval = mail_recv(sprt_mb, &sgrt_mail, 0);
-        if (retval < 0)
+        sprt_mail = mail_recv(sprt_mb, 0);
+        if (!isValid(sprt_mail))
             goto END2;
 
-        status = *sgrt_mail.sprt_msg->buffer;
+        status = *sprt_mail->sprt_msg->buffer;
         virt_write(fd, &status, 1);
 
-        mail_recv_finish(&sgrt_mail);
+        mail_recv_finish(sprt_mail);
 
 END2:
         virt_close(fd);

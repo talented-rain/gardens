@@ -17,7 +17,7 @@
 #include <common/generic.h>
 #include <common/io_stream.h>
 #include <configs/configs.h>
-#include <asm/zynq7/zynq7_periph.h>
+#include <zynq7/zynq7_periph.h>
 
 /*!< The functions */
 TARGET_EXT void zynq7_led_init(void);

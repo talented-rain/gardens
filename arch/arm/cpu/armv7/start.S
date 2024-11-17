@@ -49,10 +49,12 @@ _reset:
 	orr	r1, r1, #(0xf << 20)                        @ enable full access for p10 & p11
 	mcr	p15, 0, r1, c1, c0, 2                       @ write back into CACR
 
+#if (defined(CONFIG_VFP) && (CONFIG_VFP))
     /*!< enable vfp */
 	fmrx r1, fpexc                                  @ read the exception register
 	orr r1, r1, #0x40000000                         @ set VFP enable bit, leave the others in orig state
 	fmxr fpexc, r1                                  @ write back the exception register
+#endif
 
     b _main                                         @ jump to crt0.S
 

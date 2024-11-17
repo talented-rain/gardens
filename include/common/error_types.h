@@ -75,12 +75,7 @@ TARGET_EXT void deal_assert_fail(const kchar_t *__assertion, const kchar_t *__fi
 								__THROW __attribute__ ((__noreturn__));
 /*!< The defines */
 #define mrt_void()									((void)(0))
-
-#ifndef	CONFIG_DEBUG_JTAG
-#define mrt_assert(x)								do { } while (0)
-#else
 #define mrt_assert(x)								((x) ? mrt_void() : deal_assert_fail(#x, __FILE__, __LINE__, __ASSERT_FUNCTION))
-#endif
 
 #define mrt_jump_to(label, run_codes)	\
 	do {	\
