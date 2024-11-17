@@ -46,25 +46,26 @@ static void *light_app_entry(void *args)
     kbool_t status = 0;
     kint32_t fd;
     struct mailbox *sprt_mb = &sgrt_light_app_mailbox;
-    struct mail sgrt_mail = {};
-    kint32_t retval;
+    struct mail *sprt_mail;
 
     mailbox_init(&sgrt_light_app_mailbox, mrt_current->tid, "light-app-mailbox");
 
     for (;;)
     {       
+//      print_info("%s is running, which tid is: %d\n", __FUNCTION__, mrt_current->tid);
+        
         fd = virt_open("/dev/ledgpio", O_RDWR);
         if (fd < 0)
             goto END1;
         
-        retval = mail_recv(sprt_mb, &sgrt_mail, 0);
-        if (retval < 0)
+        sprt_mail = mail_recv(sprt_mb, 0);
+        if (!isValid(sprt_mail))
             goto END2;
 
-        status = *sgrt_mail.sprt_msg->buffer;
+        status = *sprt_mail->sprt_msg->buffer;
         virt_write(fd, &status, 1);
 
-        mail_recv_finish(&sgrt_mail);
+        mail_recv_finish(sprt_mail);
 
 END2:
         virt_close(fd);
@@ -99,7 +100,10 @@ kint32_t light_app_init(void)
 
     /*!< register thread */
     retval = real_thread_create(&g_light_app_tid, sprt_attr, light_app_entry, mrt_nullptr);
-    return (retval < 0) ? retval : 0;
+    if (!retval)
+        real_thread_set_name(g_light_app_tid, "light_app_entry");
+
+    return retval;
 }
 
 /*!< end of file */

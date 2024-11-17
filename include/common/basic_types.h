@@ -74,6 +74,8 @@ typedef                 int     kint32_t;
 typedef unsigned        int     kuint32_t;
 typedef          long   long    kint64_t;
 typedef unsigned long   long    kuint64_t;
+typedef                 float   kfloat_t;
+typedef                 double  kdouble_t;
 
 /*!< super types */
 typedef                 char    kchar_t;

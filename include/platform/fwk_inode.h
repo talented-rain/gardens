@@ -17,6 +17,7 @@
 #include <platform/fwk_basic.h>
 #include <platform/fwk_fs.h>
 #include <platform/fwk_cdev.h>
+#include <platform/block/fwk_gendisk.h>
 #include <platform/fwk_kobj.h>
 
 /*!< The defines */
@@ -38,6 +39,7 @@ struct fwk_inode
 	union
 	{
 		struct fwk_cdev *sprt_cdev;
+		struct fwk_block_device *sprt_blkdev;
 	};
 };
 
@@ -57,5 +59,6 @@ TARGET_EXT kint32_t fwk_inode_set_ops(struct fwk_inode *sprt_inode, kuint32_t ty
 TARGET_EXT struct fwk_inode *fwk_mk_inode(struct fwk_kobject *sprt_kobj, kuint32_t type, kint32_t devNum);
 TARGET_EXT void fwk_rm_inode(struct fwk_inode *sprt_inode);
 TARGET_EXT struct fwk_inode *fwk_inode_find(kchar_t *name);
+TARGET_EXT struct fwk_inode *fwk_inode_find_disk(const kchar_t *name);
 
 #endif /*!< __FWK_INODE_H_ */

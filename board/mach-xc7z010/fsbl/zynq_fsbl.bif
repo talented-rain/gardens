@@ -1,0 +1,7 @@
+//arch = zynq; split = false; format = BIN
+the_ROM_image:
+{
+	[bootloader]/home/ubuntu/ProgramWorks/MyDesign/HeavenFox/board/mach-xc7z010/fsbl/zynq_fsbl.elf
+	/home/ubuntu/ProgramWorks/MyDesign/HeavenFox/board/mach-xc7z010/hw_platform_0/Main_wrapper.bit
+	/home/ubuntu/ProgramWorks/MyDesign/HeavenFox/boot/image/HeavenFox.elf
+}

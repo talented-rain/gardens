@@ -26,6 +26,7 @@ kint32_t board_init_console(void)
 	zynq7_console_init();
 
     /*!< Output Board Information */
+    print_info("\n");
     print_info("Console Initial Finished ...\n");
     print_info("Welcome to Use HeavenFox OS!\n");
 
@@ -40,6 +41,8 @@ kint32_t board_init_console(void)
  */
 kint32_t board_init_systick(void)
 {
+    zynq7_systick_init();
+
     return RET_BOOT_PASS;
 }
 
@@ -52,6 +55,7 @@ kint32_t board_init_systick(void)
 kint32_t board_init_sdmmc(void)
 {
 	zynq7_sdmmc_init();
+//	zynq7_hdmi_init();
 
     return RET_BOOT_PASS;
 }

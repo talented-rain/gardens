@@ -76,7 +76,7 @@
 #define mrt_ret_max2(a, b)								mrt_cmp_gt(a, b, a, b)
 #define mrt_ret_min2(a, b)								mrt_cmp_lt(a, b, a, b)
 
-#define mrt_abs(a)										((typeof(a))((a) < 0 ? -(a) : (a)))
+#define mrt_abs(a)										((typeof(a))(((a) < 0) ? -(a) : (a)))
 #define mrt_usub(a, b)	\
 ({	\
 	const typeof(a) _a = (a);	\
@@ -101,6 +101,8 @@
 #define mrt_ptr_align(p, mask)							((typeof(p))mrt_align((kuaddr_t)(p), (kuaddr_t)(mask)))
 #define mrt_num_align4(x)								mrt_num_align((x), 4)
 #define mrt_ptr_align4(p)								mrt_ptr_align((p), 4)
+#define mrt_num_align8(x)								mrt_num_align((x), 8)
+#define mrt_ptr_align8(p)								mrt_ptr_align((p), 8)
 
 #define mrt_ralign(x, mask)								((x) & (~((mask) - 1)))
 

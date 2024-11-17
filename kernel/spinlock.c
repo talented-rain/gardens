@@ -176,7 +176,7 @@ void spin_unlock_irqrestore(struct spin_lock *sprt_lock)
     mrt_barrier();
 
     /*!< bit4 ~ bit0 is mode bit, which are not equaled to 0 */
-    if (sprt_lock->flag & CPSR_BIT_I)
+    if (!(sprt_lock->flag & CPSR_BIT_I))
         mrt_enable_cpu_irq();
 
     sprt_lock->flag = 0;

@@ -9,6 +9,12 @@
 # Copyright (c) 2024   Yang Yujun <yujiantianhu@163.com>
 #
 
+# 'all' must be the first target
+all:
+
+include $(CONF_MAKEFILE)
+include $(EXT_LIB_DIRS)/Makefile.include
+
 obj-y		+=	cpu/
 obj-y		+=	kernel/
 obj-y		+=	lib/
@@ -35,28 +41,45 @@ depd-objs	:=	$(wildcard $(depd-objs))
 include $(depd-objs)
 endif
 
-all: $(TARGET_IMGE)
+ifneq ($(lib-y),)
+LIBS		+=	$(patsubst lib%.a,-l%, $(notdir $(lib-y)))
+LIBS_PATH	+=	-L $(EXT_LIB_EXEC)
+endif
 
-$(TARGET_IMGE) : $(TARGET_EXEC)
+define arch_build
+	if [ ! -d $(arch_output) ]; then mkdir -p $(arch_output); fi
+	$(1) -Wp,-MD,$@.d -c $(BUILD_CFLAGS) $(MACROS) $(INCLUDE_DIRS) $(EXTRA_FLAGS) -o $(2) $(3)
+endef
+
+force:
+.PHONY: all clean distclean debug
+
+all: $(TARGET_BINY) force
+$(TARGET_BINY) : $(TARGET_EXEC) force
 	$(OBJCOPY) -O binary -S $(TARGET_EXEC) $@
 	$(OBJDUMP) -D -m $(ARCH) $(TARGET_EXEC) > $(TARGET_NASM)
+	$(OBJDUMP) -D -m $(ARCH) -S -l $(TARGET_EXEC) > $(TARGET_LASM)
 
-$(TARGET_EXEC) : $(head-objs) $(OBJECT_EXEC)
-	$(CC) -T$(LINK_SCRIPT) $(BUILD_CFLAGS) $(OUTPUT_FLAGS) -o $@ $^ $(LIBS_PATH) $(LIBS)
+$(TARGET_EXEC) : $(head-objs) force
+	$(CC) -T$(LINK_SCRIPT) $(BUILD_CFLAGS) $(EXTRA_FLAGS) -Wl,-Map=$(TARGET_MMAP) -o $@ $(head-objs) $(OBJECT_EXEC) $(LIBS_PATH) $(LIBS)
 
-$(arch_output)/%.o : %.c
-	if [ ! -d $(arch_output) ]; then mkdir -p $(arch_output); fi
-	$(CC) -Wp,-MD,$@.d -c $(BUILD_CFLAGS) $(MACROS) $(INCLUDE_DIRS) $(OUTPUT_FLAGS) -o $@ $<
+$(arch_output)/%.o : %.S force
+	$(call arch_build, $(CC), $@, $<)
 
-$(arch_output)/%.o : %.S
-	if [ ! -d $(arch_output) ]; then mkdir -p $(arch_output); fi
-	$(CC) -Wp,-MD,$@.d -c $(BUILD_CFLAGS) $(MACROS) $(INCLUDE_DIRS) $(OUTPUT_FLAGS) -o $@ $<
+$(arch_output)/%.o : %.c force
+	$(call arch_build, $(CC), $@, $<)
+
+$(arch_output)/%.o : %.cpp force
+	$(call arch_build, $(CXX), $@, $<)
 
 clean:
 	rm -rf $(head-objs) $(depd-objs)
 
-distclean:
-	rm -rf $(head-objs) $(depd-objs)
-	rm -rf $(TARGET_EXEC) $(TARGET_IMGE) $(TARGET_NASM)
+distclean: clean
+	rm -rf $(TARGET_EXEC) $(TARGET_BINY) $(TARGET_IMGE) 
+	rm -rf $(TARGET_NASM) $(TARGET_LASM) $(TARGET_MMAP)
+
+debug:
+	@echo '==========>' $(head-objs)
 
 # end of file

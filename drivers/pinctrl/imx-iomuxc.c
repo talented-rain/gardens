@@ -22,7 +22,7 @@
 #include <platform/fwk_uaccess.h>
 #include <platform/fwk_pinctrl.h>
 
-#include <asm/imx6/imx6ull_pins.h>
+#include <imx6/imx6ull_pins.h>
 
 /*!< The defines */
 #define IMX6UL_MUX_PIN_PER_LENTH                            (IMX6UL_MUX_CONF_SIZE)

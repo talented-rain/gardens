@@ -9,6 +9,6 @@
 # Copyright (c) 2024   Yang Yujun <yujiantianhu@163.com>
 #
 
-obj-y	+=	extkey.o
+obj-$(CONFIG_INPUT_IMX_KEY)	+=	extkey.o
 
 # end of file

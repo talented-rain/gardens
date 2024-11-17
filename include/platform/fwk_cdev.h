@@ -21,13 +21,13 @@
 /*!< The defines */
 struct fwk_cdev
 {
-	kuint32_t devNum;
-	kuint32_t count;
+    kuint32_t devNum;
+    kuint32_t count;
 
-	struct fwk_file_oprts *sprt_oprts;
-	struct fwk_cdev *sprt_next;
+    struct fwk_file_oprts *sprt_oprts;
+    struct fwk_cdev *sprt_next;
 
-	void *privData;
+    void *privData;
 };
 
 /*!< The functions */

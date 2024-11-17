@@ -23,8 +23,8 @@
 #include <kernel/mutex.h>
 #include <kernel/wait.h>
 
-#include <asm/imx6/imx6ull_pins.h>
-#include <asm/imx6/imx6ull_periph.h>
+#include <imx6/imx6ull_pins.h>
+#include <imx6/imx6ull_periph.h>
 
 /*!< The defines */
 typedef struct imx_i2c_drv_data

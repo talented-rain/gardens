@@ -20,8 +20,58 @@
 #include <platform/clk/fwk_clk_gate.h>
 
 /*!< The defines */
+typedef struct zynq7_clks_data
+{
+    struct fwk_device_node *sprt_clkc;
+    struct fwk_device_node *sprt_sclr;
+
+    void *sclr_base;
+    void *clkc_base;
+
+} srt_zynq7_clks_data_t;
+
+typedef struct zynq7_clk_grp
+{
+    kuint32_t number;
+    const kchar_t *name;
+
+} srt_zynq7_clk_grp_t;
+
+typedef struct zynq7_sclr
+{
+    kuint32_t ARMPLL_CTRL;          /*!< 0x00 */
+    kuint32_t DDRPLL_CTRL;          /*!< 0x04 */
+    kuint32_t IOPLL_CTRL;           /*!< 0x08 */
+    kuint32_t PLL_STATUS;           /*!< 0x0c */
+    kuint32_t RSVD1[4];             /*!< 0x10 ~ 0x1f*/
+    kuint32_t ARM_CLK_CTRL;         /*!< 0x20 */
+    kuint32_t DDR_CLK_CTRL;         /*!< 0x24 */
+    kuint32_t DCI_CLK_CTRL;         /*!< 0x28 */
+    kuint32_t APER_CLK_CTRL;        /*!< 0x2c */
+    kuint32_t RSVD2[4];             /*!< 0x30 ~ 0x3f */
+    kuint32_t GEM0_CLK_CTRL;        /*!< 0x40 */
+    kuint32_t GEM1_CLK_CTRL;        /*!< 0x44 */
+    kuint32_t SMC_CLK_CTRL;         /*!< 0x48 */
+    kuint32_t LQSPI_CLK_CTRL;       /*!< 0x4c */
+    kuint32_t SDIO_CLK_CTRL;        /*!< 0x50 */
+    kuint32_t UART_CLK_CTRL;        /*!< 0x54 */
+    kuint32_t SPI_CLK_CTRL;         /*!< 0x58 */
+    kuint32_t CAN_CLK_CTRL;         /*!< 0x5c */
+    kuint32_t CAN_MIOCLK_CTRL;      /*!< 0x60 */
+    kuint32_t DBG_CLK_CTRL;         /*!< 0x64 */
+    kuint32_t PCAP_CLK_CTRL;        /*!< 0x68 */
+    kuint32_t RSVD3;                /*!< 0x6c */
+    kuint32_t FPGA0_CLK_CTRL;       /*!< 0x70 */
+    kuint32_t RSVD4[20];            /*!< 0x74 ~ 0xc3 */
+    kuint32_t SLCR_621_TRUE;        /*!< 0xc4 */
+    kuint32_t RSVD5[79];            /*!< 0xc8 ~ 0x203 */
+    kuint32_t SWDT_CLK_SEL;         /*!< 0x204 */
+
+} srt_zynq7_sclr_t;
 
 /*!< The globals */
+static struct zynq7_clks_data sgrt_zynq7_clks_data;
+
 /*!< device id for device-tree */
 static struct fwk_of_device_id sgrt_zynq7_clks_driver_ids[] =
 {
@@ -29,42 +79,59 @@ static struct fwk_of_device_id sgrt_zynq7_clks_driver_ids[] =
 	{},
 };
 
-static kchar_t *g_zynq7_clks_gate_name[] =
+#define ZYNQ7_CLKS(num, sym)        [num] = { .number = num, .name = sym }
+static const struct zynq7_clk_grp sgrt_zynq7_clks_gate_name[] =
 {
-    "armpll",       "ddrpll",       "iopll",    
-    "cpu_6or4x",    "cpu_3or2x",    "cpu_2x",       "cpu_1x",   
-    "ddr2x",        "ddr3x",        "dci",          "lqspi",    
-    "smc",          "pcap",         "gem0",         "gem1",     
-    "fclk0",        "fclk1",        "fclk2",        "fclk3", 
-    "can0",         "can1",         "sdio0",        "sdio1", 
-    "uart0",        "uart1",        "spi0",         "spi1",
-    "dma",          "usb0_aper",    "usb1_aper", 
-    "gem0_aper",    "gem1_aper",    "sdio0_aper",   "sdio1_aper",
-    "spi0_aper",    "spi1_aper",    "can0_aper",    "can1_aper",
-    "i2c0_aper",    "i2c1_aper",    "uart0_aper",   "uart1_aper",
-    "gpio_aper",    "lqspi_aper",   "smc_aper",     "swdt",
-    "dbg_trc",      "dbg_apb"
+    ZYNQ7_CLKS(0,  "armpll"),
+    ZYNQ7_CLKS(1,  "ddrpll"),
+    ZYNQ7_CLKS(2,  "iopll"),
+    ZYNQ7_CLKS(3,  "cpu_6or4x"),
+    ZYNQ7_CLKS(4,  "cpu_3or2x"),
+    ZYNQ7_CLKS(5,  "cpu_2x"),
+    ZYNQ7_CLKS(6,  "cpu_1x"),
+    ZYNQ7_CLKS(7,  "ddr2x"),
+    ZYNQ7_CLKS(8,  "ddr3x"),
+    ZYNQ7_CLKS(9,  "dci"),
+    ZYNQ7_CLKS(10, "lqspi"),
+    ZYNQ7_CLKS(11, "smc"),
+    ZYNQ7_CLKS(12, "pcap"),
+    ZYNQ7_CLKS(13, "gem0"),
+    ZYNQ7_CLKS(14, "gem1"),
+    ZYNQ7_CLKS(15, "fclk0"),
+    ZYNQ7_CLKS(16, "fclk1"),
+    ZYNQ7_CLKS(17, "fclk2"),
+    ZYNQ7_CLKS(18, "fclk3"),
+    ZYNQ7_CLKS(19, "can0"),
+    ZYNQ7_CLKS(20, "can1"),
+    ZYNQ7_CLKS(21, "sdio0"),
+    ZYNQ7_CLKS(22, "sdio1"),
+    ZYNQ7_CLKS(23, "spi1"),
+    ZYNQ7_CLKS(24, "uart0"),
+    ZYNQ7_CLKS(25, "uart1"),
+    ZYNQ7_CLKS(26, "spi0"),
+    ZYNQ7_CLKS(27, "dma"),
+    ZYNQ7_CLKS(28, "usb0_aper"),
+    ZYNQ7_CLKS(29, "usb1_aper"),
+    ZYNQ7_CLKS(30, "gem0_aper"),
+    ZYNQ7_CLKS(31, "gem1_aper"),
+    ZYNQ7_CLKS(32, "sdio0_aper"),
+    ZYNQ7_CLKS(33, "sdio1_aper"),
+    ZYNQ7_CLKS(34, "spi0_aper"),
+    ZYNQ7_CLKS(35, "spi1_aper"),
+    ZYNQ7_CLKS(36, "can0_aper"),
+    ZYNQ7_CLKS(37, "can1_aper"),
+    ZYNQ7_CLKS(38, "i2c0_aper"),
+    ZYNQ7_CLKS(39, "i2c1_aper"),
+    ZYNQ7_CLKS(40, "uart0_aper"),
+    ZYNQ7_CLKS(41, "uart1_aper"),
+    ZYNQ7_CLKS(42, "gpio_aper"),
+    ZYNQ7_CLKS(43, "lqspi_aper"),
+    ZYNQ7_CLKS(44, "smc_aper"),
+    ZYNQ7_CLKS(45, "swdt"),
+    ZYNQ7_CLKS(46, "dbg_trc"),
+    ZYNQ7_CLKS(47, "dbg_apb"),
 };
-
-enum __ERT_ZYNQ7_CLKS_NUMBER
-{
-    NR_ZYNQ7_CLK_ARMPLL = 0U,
-    NR_ZYNQ7_CLK_DDRPLL,
-    NR_ZYNQ7_CLK_IOPLL,
-
-    NR_ZYNQ7_CLK_CPU_6OR4X,     NR_ZYNQ7_CLK_CPU_3OR2X,     NR_ZYNQ7_CLK_CPU_2X,        NR_ZYNQ7_CLK_CPU_1X,
-    NR_ZYNQ7_CLK_DDR2X,         NR_ZYNQ7_CLK_DDR3X,         NR_ZYNQ7_CLK_DCI,           NR_ZYNQ7_CLK_LQSPI,
-    NR_ZYNQ7_CLK_SMC,           NR_ZYNQ7_CLK_PCAP,          NR_ZYNQ7_CLK_GEM0,          NR_ZYNQ7_CLK_GEM1,
-    NR_ZYNQ7_CLK_FCLK0,         NR_ZYNQ7_CLK_FCLK1,         NR_ZYNQ7_CLK_FCLK2,         NR_ZYNQ7_CLK_FCLK3,
-    NR_ZYNQ7_CLK_CAN0,          NR_ZYNQ7_CLK_CAN1,          NR_ZYNQ7_CLK_SDIO0,         NR_ZYNQ7_CLK_SDIO1,
-    NR_ZYNQ7_CLK_UART0,         NR_ZYNQ7_CLK_UART1,         NR_ZYNQ7_CLK_SPI0,          NR_ZYNQ7_CLK_SPI1,      
-    NR_ZYNQ7_CLK_DMA,           NR_ZYNQ7_CLK_USB0_APER,     NR_ZYNQ7_CLK_USB1_APER, 
-    NR_ZYNQ7_CLK_GEM0_APER,     NR_ZYNQ7_CLK_GEM1_APER,     NR_ZYNQ7_CLK_SDIO0_APER,    NR_ZYNQ7_CLK_SDIO1_APER,
-    NR_ZYNQ7_CLK_SPI0_APER,     NR_ZYNQ7_CLK_SPI1_APER,     NR_ZYNQ7_CLK_CAN0_APER,     NR_ZYNQ7_CLK_CAN1_APER,
-    NR_ZYNQ7_CLK_I2C0_APER,     NR_ZYNQ7_CLK_I2C1_APER,     NR_ZYNQ7_CLK_UART0_APER,    NR_ZYNQ7_CLK_UART1_APER,
-    NR_ZYNQ7_CLK_GPIO_APER,     NR_ZYNQ7_CLK_LQSPI_APER,    NR_ZYNQ7_CLK_SMC_APER,      NR_ZYNQ7_CLK_SWDT,
-    NR_ZYNQ7_CLK_DBG_TRC,       NR_ZYNQ7_CLK_DBG_APB
-};
+#undef ZYNQ7_CLKS
 
 /*!< API function */
 /*!
@@ -105,7 +172,7 @@ static void	zynq7_clks_gate_disable(struct fwk_clk_hw *sprt_hw)
 static kint32_t zynq7_clks_gate_is_enabled(struct fwk_clk_hw *sprt_hw)
 {
     struct fwk_clk_gate *sprt_gate;
-    kuint32_t value;
+    kuint32_t value = 0;
 
     sprt_gate = mrt_container_of(sprt_hw, struct fwk_clk_gate, sgrt_hw);
 
@@ -128,7 +195,11 @@ static const struct fwk_clk_ops sgrt_zynq7_clks_gate_oprts =
  */
 static kint32_t zynq7_clks_driver_of_init(struct zynq7_clks_data *sprt_data)
 {
+    struct zynq7_sclr *sprt_zsclr;
 
+    sprt_zsclr = (struct zynq7_sclr *)sprt_data->sclr_base;
+
+    return 0;
 }
 
 /*!
@@ -139,8 +210,41 @@ static kint32_t zynq7_clks_driver_of_init(struct zynq7_clks_data *sprt_data)
  */
 kint32_t __fwk_init zynq7_clks_driver_init(void)
 {
+    struct zynq7_clks_data *sprt_data;
+    struct fwk_device_node *sprt_clkc, *sprt_sclr;
+    struct zynq7_clk_grp *sprt_grps;
+    kuint32_t grps_size;
+    kuaddr_t clkc_reg, sclr_reg;
+    kuint32_t index;
 
-    return ER_NORMAL;
+    sprt_data = &sgrt_zynq7_clks_data;
+    sprt_grps = (struct zynq7_clk_grp *)sgrt_zynq7_clks_gate_name;
+    grps_size = ARRAY_SIZE(sgrt_zynq7_clks_gate_name);
+
+    /*!< check */
+    for (index = 0; index < grps_size; index++)
+    {
+        if (index != sprt_grps[index].number)
+        {
+            print_err("array sgrt_zynq7_clks_gate_name[%d] is unvalid!\n", index);
+            return -ER_UNVALID;
+        }
+    }
+
+    sprt_clkc = fwk_of_find_matching_node_and_match(mrt_nullptr, sgrt_zynq7_clks_driver_ids, mrt_nullptr);
+    if (!isValid(sprt_clkc))
+        return -ER_NOTFOUND;
+
+    sprt_sclr = fwk_of_get_parent(sprt_clkc);
+    sclr_reg  = (kuaddr_t)fwk_of_iomap(sprt_sclr, 0);
+    clkc_reg  = sclr_reg + (kuaddr_t)fwk_of_iomap(sprt_clkc, 0);
+
+    sprt_data->sprt_clkc = sprt_clkc;
+    sprt_data->sprt_sclr = sprt_sclr;
+    sprt_data->clkc_base = fwk_io_remap((void *)clkc_reg);
+    sprt_data->sclr_base = fwk_io_remap((void *)sclr_reg);
+
+    return zynq7_clks_driver_of_init(sprt_data);
 }
 
 /*!

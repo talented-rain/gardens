@@ -20,16 +20,24 @@
 /*!< The defines */
 #define MEMORY_POOL_MAGIC                                   (0xdfa69fe3)
 
+typedef struct m_area
+{
+    void *base;
+    kusize_t size;
+    kuaddr_t offset;
+
+} srt_m_area_t;
+
 /*!< memory block */
 typedef struct mem_block
 {
     kuint32_t magic;                                        /*!< magic number, it should be set to "MEMORY_POOL_MAGIC" */
-	kuaddr_t base;											/*!< current start address */
-	kusize_t lenth;										    /*!< current block total lenth(unit: byte), including header of memory info */
-	kusize_t remain;										/*!< the lenth of remaining usable memoty(unit: byte) */
+    kuaddr_t base;											/*!< current start address */
+    kusize_t lenth;										    /*!< current block total lenth(unit: byte), including header of memory info */
+    kusize_t remain;										/*!< the lenth of remaining usable memoty(unit: byte) */
 
-	struct mem_block *sprt_prev;						    /*!< the first address of last memory block */
-	struct mem_block *sprt_next;						    /*!< the first address of next memory block */
+    struct mem_block *sprt_prev;						    /*!< the first address of last memory block */
+    struct mem_block *sprt_next;						    /*!< the first address of next memory block */
 
 #define IS_MEMORYPOOL_VALID(this)                           ((this)->magic == MEMORY_POOL_MAGIC)
 
@@ -38,10 +46,11 @@ typedef struct mem_block
 /*!< memory information of global management */
 typedef struct mem_info
 {
-	kuaddr_t base;                                          
-	kusize_t lenth;
+    kuaddr_t base;                                          
+    kusize_t lenth;
+    
+    struct mem_block *sprt_mem;
 
-	struct mem_block *sprt_mem;
 } srt_mem_info_t;
 
 #define MEM_BLOCK_HEADER_SIZE								(mrt_num_align4(sizeof(struct mem_block)))
@@ -56,6 +65,11 @@ TARGET_EXT void free_employ_simple_memory(void *ptr_head, void *ptr_mem);
 TARGET_EXT kbool_t malloc_block_initial(void);
 TARGET_EXT kbool_t malloc_block_self_defines(kuaddr_t base, kusize_t size);
 TARGET_EXT void malloc_block_destroy(void);
+
+/*!< assembly */
+TARGET_EXT kuaddr_t __memset_ex(kuaddr_t _start, kuaddr_t _end, kuint32_t data);
+
+TARGET_EXT void *memset_ex(void *__s, unsigned int __c, size_t __n);
 
 /*!< API function */
 /*!
@@ -110,6 +124,51 @@ static inline void memory_set(void *dest, kuint8_t data, kusize_t size)
         : "cc", "memory"
     );
 
+#endif
+}
+
+/*!
+ * @brief   memory_compat_set
+ * @param   dest, data, size
+ * @retval  none
+ * @note    "memset" just allow set 1-byte data, but this func can set 4-bytes
+ */
+static inline void memory_compat_set(void *dest, kuint32_t data, kusize_t size)
+{
+    kuaddr_t start_addr, end_addr;
+//  kuaddr_t result;
+
+    if (!dest)
+        return;
+    
+    start_addr = (kuaddr_t)dest;
+    end_addr   = (kuaddr_t)(start_addr + size);
+
+    /*!< address must be 4 bytes alignment */
+    if ((start_addr & 0x3) ||
+        (end_addr & 0x3))
+    {
+        memory_set(dest, data, size);
+        return;
+    }
+
+#if 0
+    __asm__ __volatile__ (
+        "   ldr %0, [%1]        \n\t"
+        " 1:                    \n\t"
+        "   cmp %0, %2          \n\t"
+        "   bhs 2f              \n\t"
+        "   str %3, [%0]        \n\t"
+        "   add %0, #4          \n\t"
+        "   b 1b                \n\t"
+        " 2:                    \n\t"
+        "   str %0, [%1]        \n\t"
+        : "=&r"(result)
+        : "r"(&start_addr), "r"(end_addr), "r"(data)
+        : "cc", "memory"
+    );
+#else
+    __memset_ex((kuaddr_t)&start_addr, end_addr, data);
 #endif
 }
 

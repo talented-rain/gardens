@@ -66,6 +66,7 @@ g_asm_context_info: .word 0x00000000
     add r0, r1, #ARCH_OFFSET_R1                     @ pointer to r1
     ldmia r0, { r1 - r12 }                          @ pop r1 ~ r12
     sub r0, #ARCH_OFFSET_R1
+    ldr lr, [r0, #ARCH_OFFSET_LR]
     ldr r0, [r0]
 .endm
 
@@ -124,11 +125,11 @@ _switch_restore:
     ldr r2, [r7]                                    @ if r2 == 0, current thread is scheduled by "start_kernel"
 
 1:
-    push { r0 - r2, r7 }                            @ r1: next sp; r2: first; r7: address of [first]
+    push { r0 - r3, r7 }                            @ r1: next sp; r2: first; r7: address of [first]
     ldr r1, =__real_thread_init_before              @ init thread before running
     blx r1
 
-    pop { r0 - r2, r7 }
+    pop { r0 - r3, r7 }
     cmp r2, #0                                      @ check if is scheduled for the first time
     beq 4f
 
@@ -149,10 +150,9 @@ _switch_restore:
 
     pop { r3 }                                      @ lr_svc will be abandoned
     push { r5, r6 }                                 @ r5 = lr, r6 = spsr
+    _context_restore_params                         @ restore context
 
     _set_preempt_cnt sub
-
-    _context_restore_params                         @ restore context
     b _schedule_over                                @ case 2: scheduling is from IRQ, need to return to IRQ;
 
 3:

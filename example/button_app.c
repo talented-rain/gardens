@@ -117,7 +117,10 @@ kint32_t button_app_init(void)
 
     /*!< register thread */
     retval = real_thread_create(&g_button_app_tid, sprt_attr, button_app_entry, mrt_nullptr);
-    return (retval < 0) ? retval : 0;
+    if (!retval)
+        real_thread_set_name(g_button_app_tid, "button_app_entry");
+
+    return retval;
 }
 
 /*!< end of file */

@@ -31,6 +31,8 @@ struct fwk_kobject
 	struct fwk_inode *sprt_inode;
 
 	kbool_t is_dir;
+	kbool_t is_disk;
+	
 	struct spin_lock sgrt_lock;
 };
 
@@ -97,6 +99,7 @@ TARGET_EXT kint32_t fwk_kset_register(struct fwk_kset *sprt_kset);
 TARGET_EXT struct fwk_kset *fwk_kset_create_and_register(const kchar_t *name, struct fwk_kobject *sprt_parent);
 TARGET_EXT void fwk_kset_unregister(struct fwk_kset *sprt_kset);
 TARGET_EXT void fwk_kset_kobject_remove(struct fwk_kobject *sprt_kobj);
+TARGET_EXT struct fwk_kset *fwk_kset_get_root(void);
 
 /*!< API functions */
 /*!

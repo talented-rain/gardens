@@ -9,7 +9,7 @@
 # Copyright (c) 2024   Yang Yujun <yujiantianhu@163.com>
 #
 
-obj-y	+=	imx-clks.o
-obj-y	+=	zynq7-clks.o
+obj-$(CONFIG_CLOCK_IMX6)	+=	imx-clks.o
+obj-$(CONFIG_CLOCK_ZYNQ)	+=	zynq7-clks.o
 
 # end of file

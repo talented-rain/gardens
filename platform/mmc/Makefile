@@ -10,6 +10,5 @@
 #
 
 obj-y	+=	fwk_sdcard.o
-obj-y	+=	fwk_sdfatfs.o
 
 # end of file

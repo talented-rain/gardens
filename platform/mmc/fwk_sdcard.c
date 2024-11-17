@@ -1309,6 +1309,27 @@ __weak void *host_sdmmc_card_initial(struct fwk_sdcard *sprt_card)
 }
 
 /*!
+ * @brief   check if card is inserted
+ * @param   sprt_card
+ * @retval  1: insert; 0: none
+ * @note    card detection
+ */
+kbool_t fwk_sdcard_is_insert(struct fwk_sdcard *sprt_card)
+{
+    struct fwk_sdcard_if *sprt_if;
+    struct fwk_sdcard_host *sprt_host;
+
+    if (!isValid(sprt_card))
+        return false;
+
+    sprt_if = &sprt_card->sgrt_if;
+    sprt_host = sprt_if->sprt_host;
+
+    /*!< if card is not inserted, wait a loop */
+    return sprt_if->is_insert(sprt_host);
+}
+
+/*!
  * @brief   fwk_sdcard_allocate_device
  * @param   none
  * @retval  sprt_card
@@ -1673,8 +1694,8 @@ kbool_t fwk_sdcard_rw_blocks(struct fwk_sdcard *sprt_card, void *ptrBuffer,
         return false;
 
     sprt_host = sprt_card->sgrt_if.sprt_host;
-    if ((!sprt_host->maxBlockCount) || ((iBlockStart + iBlockCount) > sprt_host->maxBlockCount))
-        return false;
+//  if ((!sprt_host->maxBlockCount) || ((iBlockStart + iBlockCount) > sprt_host->maxBlockCount))
+//      return false;
 
     ptrNextBuffer = (kuint8_t *)ptrBuffer;
     iBlockTrans = 0U;

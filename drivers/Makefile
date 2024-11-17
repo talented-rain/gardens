@@ -10,13 +10,14 @@
 #
 
 obj-y	+=	base/
-
 obj-y	+=	clk/
-obj-y	+=	pinctrl/
+
+obj-$(CONFIG_PINCTRL)	+=	pinctrl/
 obj-y	+=	gpio/
-obj-y	+=	input/
-obj-y	+=	i2c/
-obj-y	+=	usb/
-obj-y	+=	video/
+
+obj-$(CONFIG_INPUTDEV)	+=	input/
+obj-$(CONFIG_I2C)	+=	i2c/
+obj-$(CONFIG_USB)	+=	usb/
+obj-$(CONFIG_VIDEO)	+=	video/
 
 # end of file

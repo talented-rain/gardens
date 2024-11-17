@@ -16,10 +16,10 @@
 /*!< The includes */
 #include <common/generic.h>
 #include <common/io_stream.h>
-#include <asm/imx6/imx6ull_clocks.h>
-#include <asm/imx6/imx6ull_pins.h>
-#include <asm/imx6/imx6ull_periph.h>
-#include <asm/imx6/imx6ull_irqvector.h>
+#include <imx6/imx6ull_clocks.h>
+#include <imx6/imx6ull_pins.h>
+#include <imx6/imx6ull_periph.h>
+#include <imx6/imx6ull_irqvector.h>
 
 /*!< The functions */
 TARGET_EXT void imx6ull_led_init(void);

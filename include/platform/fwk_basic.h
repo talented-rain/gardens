@@ -111,6 +111,44 @@ enum __ERT_CHRDEV_MAJOR
 #define FWK_IOC_TYPE(nr)   							(((nr) >> FWK_IOC_TYPESHIFT) & FWK_IOC_TYPEMASK)
 #define FWK_IOC_NR(nr)   							(((nr) >> FWK_IOC_NRSHIFT) & FWK_IOC_NRMASK)
 
+/*!< params saved for kernel */
+#define TAG_PARAM_VIDEO         0
+struct video_params
+{
+    struct m_area sgrt_hz12x12;
+    struct m_area sgrt_hz16x16;
+    struct m_area sgrt_hz32x32;
+};
+
+#define TAG_PARAM_FDT			1
+struct fdt_params
+{
+	struct m_area sgrt_fdt;
+};
+
+struct tag_header
+{
+    kint32_t type;
+    kusize_t size;
+};
+
+struct tag_params
+{
+    struct tag_header sgrt_hdr;
+
+    union
+    {
+        struct video_params sgrt_vdp;
+		struct fdt_params sgrt_fdt;
+    } u;
+};
+#define TAG_PARAM_NEXT(tag) \
+            (struct tag_params *)((void *)(tag) + (tag)->sgrt_hdr.size)
+
+/*!< The globals */
+TARGET_EXT struct video_params *sprt_fwk_video_params;
+TARGET_EXT struct fdt_params *sprt_fwk_fdt_params;
+
 /*!< API functions */
 /*!
  * @brief   get mapped address

@@ -34,13 +34,9 @@
 #define CONFIG_ROLL_POLL                        (0)
 #endif
 
-#if defined(CONFIG_ARCH_NUMBER)
-
 /*!< armv7 */
-#if (__IS_ARCH_ARMV7(CONFIG_ARCH_NUMBER))
+#if defined(CONFIG_ARCH_ARMV7)
     #include <asm/armv7/arch_common.h>
 #endif
-#endif
-
 
 #endif /* __CONFIGS_H */

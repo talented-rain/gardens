@@ -64,6 +64,50 @@ void io_putstr(const kubyte_t *msgs, kusize_t size)
 
     sprt_uart = &sgrt_ps7_xuart_ps_data;
     XUartPs_Send(sprt_uart, (kuint8_t *)msgs, size);
+    mrt_delay_nop();
+}
+
+/*!
+ * @brief   io_getc
+ * @param   ch
+ * @retval  none
+ * @note    character read
+ */
+kubyte_t io_getc(kubyte_t *ch)
+{
+    XUartPs *sprt_uart;
+    kubyte_t val;
+
+    sprt_uart = &sgrt_ps7_xuart_ps_data;
+    if (XUartPs_Recv(sprt_uart, &val, 1) < 0)
+        return 0;
+
+    if (ch)
+        *ch = val;
+
+    return val;
+}
+
+/*!
+ * @brief   io_getstr
+ * @param   string
+ * @retval  none
+ * @note    string read
+ */
+kssize_t io_getstr(kubyte_t *msgs, kusize_t size)
+{
+    XUartPs *sprt_uart;
+    kssize_t retval;
+    
+    if (!msgs || !size)
+        return 0;
+
+    sprt_uart = &sgrt_ps7_xuart_ps_data;
+    retval = XUartPs_Recv(sprt_uart, msgs, size - 1);
+    if (retval > 0)
+        *(msgs + retval) = '\0';
+
+    return retval;
 }
 
 /* end of file*/

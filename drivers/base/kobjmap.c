@@ -42,7 +42,7 @@ void __fwk_exit kobjmap_exit(void)
 	fwk_kobjmap_del();
 }
 
-IMPORT_PLATFORM_INIT(kobjmap_init);
-IMPORT_PLATFORM_EXIT(kobjmap_exit);
+IMPORT_EARLY_INIT(kobjmap_init);
+IMPORT_EARLY_EXIT(kobjmap_exit);
 
 /*!< end of file */

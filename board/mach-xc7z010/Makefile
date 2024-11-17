@@ -12,7 +12,10 @@
 obj-y	+=	zynq7_common.o
 obj-y	+=	zynq7_led.o
 obj-y	+=	zynq7_console.o
+obj-y	+=	zynq7_systick.o
 obj-y	+=	zynq7_sdmmc.o
+
+#obj-y	+=	zynq7_hdmi.o
 
 obj-y	+=	board_init.o
 

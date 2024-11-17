@@ -9,6 +9,7 @@
 # Copyright (c) 2024   Yang Yujun <yujiantianhu@163.com>
 #
 
-obj-y	+=	imx-fbdev.o
+obj-$(CONFIG_VIDEO_FB_IMX6)   +=  imx-fbdev.o
+obj-$(CONFIG_SDK_HDMI_ZYNQ)   +=  zynq7sdk_hdmi.o
 
 # end of file

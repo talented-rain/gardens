@@ -22,7 +22,7 @@
 
 /*!< Traverse all child nodes under the head (starting with child, get the sibling nodes of child) */
 #define FOREACH_CHILD_OF_DT_NODE(head, list)	\
-	foreach_list_odd((head)->child, list, sibling)
+    foreach_list_odd((head)->child, list, sibling)
 
 /*!< The following node identities are all represented in processor architecture patterns (big-endian/little-endian) */
 /*!< magic number */
@@ -42,10 +42,10 @@
 
 enum __ERT_DT_NODE_FLGAS
 {
-	/*!< The node has been converted */
-	NR_OfNodePopulated	= mrt_bit(0),
-	/*!< The child nodes have also been converted */
-	NR_OfNodePopulatedBus = mrt_bit(1),
+    /*!< The node has been converted */
+    NR_OfNodePopulated	= mrt_bit(0),
+    /*!< The child nodes have also been converted */
+    NR_OfNodePopulatedBus = mrt_bit(1),
 };
 
 /*!< This file structure object is derived from the Linux kernel definition */
@@ -71,16 +71,16 @@ typedef struct fwk_of_device_id
     const kchar_t *compatible;
 
     const void 	*data;
-	
+    
 } srt_fwk_of_device_id_t;
 
 #define FWK_OF_MAX_PHANDLE_ARGS 				(16)
 typedef struct fwk_of_phandle_args 
 {
-	struct fwk_device_node *sprt_node;
-	kuint32_t args_count;
-	kuint32_t args[FWK_OF_MAX_PHANDLE_ARGS];
-	
+    struct fwk_device_node *sprt_node;
+    kuint32_t args_count;
+    kuint32_t args[FWK_OF_MAX_PHANDLE_ARGS];
+    
 } srt_fwk_of_phandle_args_t;
 
 /*!< The gloabls */
@@ -97,11 +97,13 @@ TARGET_EXT struct fwk_device_node *fwk_of_find_node_by_name(struct fwk_device_no
 TARGET_EXT struct fwk_device_node *fwk_of_find_node_by_type(struct fwk_device_node *sprt_from, const kchar_t *ptr_type);
 TARGET_EXT struct fwk_device_node *fwk_of_find_node_by_phandle(struct fwk_device_node *sprt_from, kuint32_t phandle);
 TARGET_EXT struct fwk_device_node *fwk_of_find_compatible_node(struct fwk_device_node *sprt_from,
-											const kchar_t *ptr_type, const kchar_t *ptr_compat);
+                                            const kchar_t *ptr_type, const kchar_t *ptr_compat);
 TARGET_EXT struct fwk_device_node *fwk_of_node_try_matches(struct fwk_device_node *sprt_node,
-							const struct fwk_of_device_id *sprt_matches, struct fwk_of_device_id **sprt_match);
+                            const struct fwk_of_device_id *sprt_matches, struct fwk_of_device_id **sprt_match);
 TARGET_EXT struct fwk_device_node *fwk_of_find_matching_node_and_match(struct fwk_device_node *sprt_from,
-											const struct fwk_of_device_id *sprt_matches, struct fwk_of_device_id **sprt_match);
+                                            const struct fwk_of_device_id *sprt_matches, struct fwk_of_device_id **sprt_match);
+TARGET_EXT struct fwk_device_node *fwk_of_find_matching_child_and_match(struct fwk_device_node *sprt_parent,
+                                            const struct fwk_of_device_id *sprt_matches, struct fwk_of_device_id **sprt_match);
 TARGET_EXT struct fwk_device_node *fwk_of_get_parent(struct fwk_device_node *sprt_node);
 TARGET_EXT struct fwk_device_node *fwk_of_get_next_child(struct fwk_device_node *sprt_node, struct fwk_device_node *ptr_prev);
 TARGET_EXT kuint32_t fwk_of_get_child_count(struct fwk_device_node *sprt_node);
@@ -123,8 +125,8 @@ TARGET_EXT kint32_t fwk_of_modalias_node(struct fwk_device_node *sprt_node, kcha
  */
 static inline kbool_t fwk_early_init_dt_verify(void *ptr_dt)
 {
-	struct fwk_fdt_header *sprt_fdt_header = (struct fwk_fdt_header *)ptr_dt;
-	return ((FDT_MAGIC_VERIFY == FDT_TO_ARCH_ENDIAN32(sprt_fdt_header->magic)) ? true : false);
+    struct fwk_fdt_header *sprt_fdt_header = (struct fwk_fdt_header *)ptr_dt;
+    return ((FDT_MAGIC_VERIFY == FDT_TO_ARCH_ENDIAN32(sprt_fdt_header->magic)) ? true : false);
 }
 
 /*!
@@ -135,7 +137,7 @@ static inline kbool_t fwk_early_init_dt_verify(void *ptr_dt)
  */
 static inline void fwk_of_node_set_flag(struct fwk_device_node *sprt_node, kuint32_t flags)
 {
-	sprt_node->flags |= flags;
+    sprt_node->flags |= flags;
 }
 
 /*!
@@ -146,7 +148,7 @@ static inline void fwk_of_node_set_flag(struct fwk_device_node *sprt_node, kuint
  */
 static inline kbool_t fwk_of_node_check_flag(struct fwk_device_node *sprt_node, kuint32_t flags)
 {
-	return (((sprt_node->flags & flags) == flags) ? true : false);
+    return (((sprt_node->flags & flags) == flags) ? true : false);
 }
 
 /*!
@@ -157,17 +159,17 @@ static inline kbool_t fwk_of_node_check_flag(struct fwk_device_node *sprt_node, 
  */
 static inline struct fwk_device_node *fwk_of_node_root(void)
 {
-	return mrt_fwk_fdt_node_header();
+    return mrt_fwk_fdt_node_header();
 }
 
 /*!< get each node */
 #define foreach_fwk_of_dt_node(np, head)	\
-	for (np = (isValid(head) ? head : fwk_of_node_root()); isValid(np); np = (np)->allnext)
+    for (np = (isValid(head) ? head : fwk_of_node_root()); isValid(np); np = (np)->allnext)
 
 #define foreach_fwk_of_child(parent, np)	\
-	for (np = fwk_of_get_next_child(parent, mrt_nullptr); np; np = fwk_of_get_next_child(parent, np))
+    for (np = fwk_of_get_next_child(parent, mrt_nullptr); np; np = fwk_of_get_next_child(parent, np))
 
 #define foreach_fwk_of_parent(np, child)	\
-	for (np = child; np; np = fwk_of_get_parent(np))
+    for (np = child; np; np = fwk_of_get_parent(np))
 
 #endif /*!< __FWK_OF_H_ */

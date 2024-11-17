@@ -23,7 +23,7 @@
 #include <platform/fwk_uaccess.h>
 #include <platform/video/fwk_fbmem.h>
 
-#include <asm/imx6/imx6ull_periph.h>
+#include <imx6/imx6ull_periph.h>
 
 /*!< The defines */
 struct imx_fbdev_trigger

@@ -45,6 +45,28 @@ __weak void io_putstr(const kubyte_t *msgs, kusize_t size)
 }
 
 /*!
+ * @brief   io_getc
+ * @param   ch
+ * @retval  none
+ * @note    character read
+ */
+__weak kubyte_t io_getc(kubyte_t *ch)
+{
+    return 0;
+}
+
+/*!
+ * @brief   io_getstr
+ * @param   string
+ * @retval  none
+ * @note    string read
+ */
+__weak kssize_t io_getstr(kubyte_t *msgs, kusize_t size)
+{
+    return 0;
+}
+
+/*!
  * @brief   printk
  * @param   ptr_fmt
  * @retval  none

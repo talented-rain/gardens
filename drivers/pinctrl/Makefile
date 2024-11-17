@@ -9,6 +9,6 @@
 # Copyright (c) 2024   Yang Yujun <yujiantianhu@163.com>
 #
 
-obj-y	+=	imx-iomuxc.o
+obj-$(CONFIG_PINCTRL_IMX6)	+=	imx-iomuxc.o
 
 # end of file

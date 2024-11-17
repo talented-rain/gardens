@@ -13,23 +13,15 @@
 #ifndef __MACH_CONFIGS_H
 #define __MACH_CONFIGS_H
 
-/*!< The defines */
-/*!< Configure */
-#define CONFIG_STACK_WITH_LDS                   (1)                 /*!< configure stack by .lds */
+#include "autoconf.h"
 
-#define CONFIG_OF                               (1)
-#define CONFIG_HZ                               (100UL)             /*!< timer interrupt per 10ms*/
-
-#define CONFIG_USE_AMP                          (0)
-
-/*!< The includes */
-/*!< Board Configuration */
-#if defined(CONFIG_MACH_AM4378_MYIR)
-    #include "mach/am4378_myir_config.h"
-#elif defined(CONFIG_MACH_IMX6ULL_TOPPET)
-    #include "mach/imx6ull_toppet_config.h"
-#elif defined(CONFIG_MACH_XC7Z010_MICROPHASE)
-    #include "mach/zynq7_microphase_config.h"
+#if defined(CONFIG_ARCH_ARMV7)
+#include <asm/armv7/asm_config.h>
 #endif
+#include <board/board_config.h>
+
+/*!< The defines */
+#define CONFIG_HZ                               (100UL)             /*!< timer interrupt per 10ms*/
+#define CONFIG_USE_AMP                          (0)
 
 #endif /* __MACH_CONFIGS_H */

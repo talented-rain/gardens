@@ -121,7 +121,10 @@ kint32_t env_monitor_init(void)
 
     /*!< register thread */
     retval = real_thread_create(&g_env_monitor_tid, sprt_attr, env_monitor_entry, mrt_nullptr);
-    return (retval < 0) ? retval : 0;
+    if (!retval)
+        real_thread_set_name(g_env_monitor_tid, "env_monitor_entry");
+
+    return retval;
 }
 
 /*!< end of file */

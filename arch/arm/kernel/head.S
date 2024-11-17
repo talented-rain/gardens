@@ -67,12 +67,12 @@ ENTRY(_kernel_reset)
 _kernel_reset:
     cps #ARCH_IRQ_MODE                              @ set the cpu to IRQ mode
     ldr sp, _IRQ_MODE_STACK_BASE                    @ set IRQ mode stack
-#   mrs r0, cpsr                                    @ read cpsr register to r0
-#   bic r0, r0, #CPSR_BIT_E                         @ set to littile endian
-#   msr spsr_fsxc, r0
+    mrs r0, cpsr                                    @ read cpsr register to r0
+    bic r0, r0, #CPSR_BIT_E                         @ set to littile endian
+    msr spsr_fsxc, r0
 
     /*!< Jtag can not run with another mode */
-#if !defined(CONFIG_DEBUG_JTAG)
+@#if !defined(CONFIG_DEBUG_JTAG)
 
     cps #ARCH_FIQ_MODE                              @ set the cpu to FIQ mode
     ldr sp, _FIQ_MODE_STACK_BASE                    @ set FIQ mode stack
@@ -92,7 +92,7 @@ _kernel_reset:
     bic r0, r0, #CPSR_BIT_E                         @ set to littile endian
     msr spsr_fsxc, r0
 
-#endif
+@#endif
 
     cps #ARCH_ABT_MODE                              @ set the cpu to ABT mode
     ldr sp, _ABT_MODE_STACK_BASE                    @ set ABT mode stack
@@ -107,6 +107,7 @@ _kernel_reset:
     mrs r0, cpsr                                    @ read cpsr register to r0
     bic r0, r0, #CPSR_BIT_E                         @ set to littile endian
     bic r0, r0, #CPSR_BIT_A                         @ enable abort
+@   orr r0, r0, #CPSR_BIT_A                         @ disable abort
     msr cpsr, r0
 
     READ_CP15_SCTLR(r0)

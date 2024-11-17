@@ -43,7 +43,7 @@ void exec_irq_handler(void)
     hardirq = local_irq_acknowledge();
 
     /*!< find system soft IRQn, and excute IRQ handler */
-    softIrq = fwk_gic_to_gpc_irq(hardirq);
+    softIrq = fwk_gic_to_actual_irq(hardirq);
     fwk_do_irq_handler(softIrq);
 
     /*!< write IAR, disable IRQ */

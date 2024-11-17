@@ -9,6 +9,6 @@
 # Copyright (c) 2024   Yang Yujun <yujiantianhu@163.com>
 #
 
-obj-y	+=	mach-$(VENDOR)/
+obj-y	+=	mach-$(CPU)/
 
 # end of file

@@ -78,12 +78,12 @@ kutype_t dec_to_hex(kchar_t *buf, kutype_t number, kbool_t mode)
 {
 	kchar_t temp[(sizeof(kutype_t) << 1) + 4];
 	kchar_t result = 0;
-	kint16_t count, idx;
+	kint16_t count = 0, idx;
 
 	do
 	{
-		result = udiv_remainder(number, 16);
-		number = udiv_integer(number, 16);
+		result = number - ((number >> 4) << 4);
+		number = number >> 4;
 
 		if (result >= 10)
 			temp[count] = result - 10 + (mode ? 'A' : 'a');
@@ -117,12 +117,12 @@ kutype_t dec_to_binary(kchar_t *buf, kutype_t number)
 {
 	kchar_t temp[(sizeof(kutype_t) << 3) + 4];
 	kchar_t result = 0;
-	kint16_t count, idx;
+	kint16_t count = 0, idx;
 
 	do
 	{
-		result = udiv_remainder(number, 2);
-		number = udiv_integer(number, 2);
+		result = number - ((number >> 1) << 1);
+		number = number >> 1;
 
 		temp[count++] = result + '0';
 		
