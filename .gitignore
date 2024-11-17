@@ -15,7 +15,6 @@
 .git/
 build/
 objects/
-boot/image/
 
 # ignore files
 # .gitignore
@@ -27,7 +26,6 @@ boot/image/
 **/*.dis
 **/*.lst
 **/*.map
-**/*.img
 **/*.bin
 **/*.lst
 **/*.map
@@ -39,6 +37,7 @@ boot/image/
 !**/*.so
 !.gitignore
 !**/fsbl/*
+!**/*.img
 
 # end of file
 
