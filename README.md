@@ -1,7 +1,10 @@
 # HeavenFox Operation System
 # 
+
+**English** | [中文](./README_zh.md)
+
 ## Note
-    HeavenFox OS aims to `simplify the Linux kernel` by refering to the kernel mechanism,
+    HeavenFox OS aims to simplify the Linux kernel by refering to the kernel mechanism,
     which is convenient for the developers to research and apply, and the project follows
     the GPL license and is open source for life.
 
@@ -34,15 +37,15 @@
     20) support configure resources freely by "configs/mach/xxxx_defconfig', and generate auto.conf and autoconf.h
     
 ## Methods
-    `make`:             build the whole project;
-    `make all`:         the same as "make"
-    `make dtbs`:        build device-tree only;
-    `make clean`:       delete all the .o and .d;
-    `make distclean`:   delete the ./objects/* and .elf, .dis, .img and so on;
-    `make config`:      generate auto.conf and autoconf.h, maybe you can input: make CONFIGS=xxxx_defconfig config
-    `make info`:        get this project information;
-    `make libs`:        build "lib/" only;
-    `make local`:       build but not include dtbs and libs
+    make:           build the whole project;
+    make all:       the same as "make"
+    make dtbs:      build device-tree only;
+    make clean:     delete all the .o and .d;
+    make distclean: delete the ./objects/* and .elf, .dis, .img and so on;
+    make config:    generate auto.conf and autoconf.h, maybe you can input: make CONFIGS=xxxx_defconfig config
+    make info:      get this project information;
+    make libs:      build "lib/" only;
+    make local:     build but not include dtbs and libs
     
     or using cmake:
     mkdir -p ./build
@@ -62,7 +65,6 @@
     scripts/:       some tools for compiling or debugging, such as dtc, jlink scripts, ..., and Makefile.build;
     objects/:       when you build the project, the generated intermediate files will be stored here;
     
-    application/:   for users (reserved);
     arch/:          cpu architecture related files, contain chip-startup, vector table and register definitions for each cpu, ...;
     board/:         specific board related files, contain direct operations on board resources;
     common/:        the generic definitions and functions, which are applied to all files;
@@ -154,18 +156,18 @@
     author: Yang Yujun
     commit: change project name to "gardens"
 
-### 2024.04.15:
+### 2024.04.15
     author: Yang Yujun
     commit: 
         01) fix the issue that the first thread scheduling register was overwritten;
         02) add display generic APIs
         03) optimize code
 
-### 2024.04.13:
+### 2024.04.13
     author: Yang Yujun
     commit: makefile optimization, supporting selective compilation of source files
 
-### 2024.04.07:
+### 2024.04.07
     author: Yang Yujun
     commit:
         01) support multithreading (time slice, priority preemption, and delayed sleep);
@@ -179,6 +181,6 @@
         09) support platform: bus - device - driver framework;
         10) provide APIs such as open/close/read/write, access hardware through “fd” and “file_operations”.
 
-### 2023.12.21:
+### 2023.12.21
     author: Yang Yujun
     commit: create README.md first
