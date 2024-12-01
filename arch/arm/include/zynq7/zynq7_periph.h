@@ -26,6 +26,22 @@
 #include "xaxivdma_hw.h"
 
 /*!< The defines */
+typedef kuaddr_t UINTPTR;
+typedef kint32_t LONG;
+
+#define XIL_COMPONENT_IS_READY              0x11111111U     /**< In device drivers, This macro will be
+                                                                assigend to "IsReady" member of driver
+												                instance to indicate that driver
+												                instance is initialized and ready to use. */
+#define XIL_COMPONENT_IS_STARTED            0x22222222U     /**< In device drivers, This macro will be assigend to
+                                                                "IsStarted" member of driver instance
+												                to indicate that driver instance is
+												                started and it can be enabled. */
+
+#define xil_printf                          print_debug
+#define ULONG64_HI_MASK	                    0xFFFFFFFF00000000U
+#define ULONG64_LO_MASK	                    (~ULONG64_HI_MASK)
+
 #define XSdPs_WriteReg8(addr, offset, data) \
                                             mrt_writeb(data, (addr) + (offset))
 #define XSdPs_WriteReg16(addr, offset, data)    \
@@ -1342,6 +1358,9 @@ TARGET_EXT kint32_t DisplayInitialize(DisplayCtrl *sprt_disp, XAxiVdma *sprt_vdm
 TARGET_EXT kint32_t DisplayChangeFrameBuffer(DisplayCtrl *sprt_disp, kuint32_t FrameAddr, kusize_t FrameSize);
 TARGET_EXT kint32_t DisplayStart(DisplayCtrl *sprt_disp);
 TARGET_EXT kint32_t DisplayStop(DisplayCtrl *sprt_dispctrl);
+
+/*!< EmacPs */
+
 
 #ifdef __cplusplus
     }

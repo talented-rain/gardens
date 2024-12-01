@@ -16,17 +16,16 @@
 /*!< The defines */
 
 /*!< The globals */
-real_thread_init_t g_real_thread_init_tables[] =
+real_thread_init_t g_thread_init_tables[] =
 {
-    console_app_init,
-    light_app_init,
-    button_app_init,
-//  display_app_init,
-    tsc_app_init,
-    env_monitor_init,
+    /*!< test app */
+    mrt_test_app_list,
     
+    /*!< applications */
     lvgl_task_init,
+    lwip_task_init,
     
+    /*!< end */
     mrt_nullptr,
 };
 

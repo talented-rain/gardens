@@ -26,7 +26,7 @@
 /*!< The globals */
 
 /*!< The functions */
-TARGET_EXT void lvgl_task_startup(struct fwk_disp_ctrl *sprt_dctrl);
+TARGET_EXT void lvgl_task_startup(void *args);
 TARGET_EXT void lvgl_task(void *args);
 
 #endif /* __LVGL_APP_H_ */

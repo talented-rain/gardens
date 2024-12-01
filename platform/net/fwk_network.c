@@ -1,0 +1,228 @@
+/*
+ * NetWork Interface
+ *
+ * File Name:   fwk_network.c
+ * Author:      Yang Yujun
+ * E-mail:      <yujiantianhu@163.com>
+ * Created on:  2024.11.23
+ *
+ * Copyright (c) 2024   Yang Yujun <yujiantianhu@163.com>
+ *
+ */
+
+/*!< The includes */
+#include <platform/fwk_basic.h>
+#include <platform/fwk_fcntl.h>
+#include <platform/net/fwk_if.h>
+
+/*!< The defines */
+
+
+/*!< The globals */
+static struct fwk_network_object *sgrt_network_objects[NETWORK_SOCKETS_NUM];
+struct fwk_network_if_ops *sprt_fwk_network_if_oprts = mrt_nullptr;
+static DECLARE_LIST_HEAD(sgrt_fwk_network_nodes);
+
+/*!< API functions */
+struct fwk_network_if *network_find_node(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip)
+{
+    struct fwk_network_if *sprt_if;
+
+    foreach_list_next_entry(sprt_if, &sgrt_fwk_network_nodes, sgrt_link)
+    {
+        if (name && (!strcmp(sprt_if->ifname, name)))
+            return sprt_if;
+
+        if ((sprt_ip) && 
+            (sprt_if->sgrt_ip.sin_addr.s_addr == sprt_ip->sin_addr.s_addr))
+            return sprt_if;
+    }
+
+    return mrt_nullptr;
+}
+
+kint32_t network_link_up(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip, 
+                    struct fwk_sockaddr_in *sprt_gw, struct fwk_sockaddr_in *sprt_mask)
+{
+    struct fwk_network_if *sprt_if;
+    kchar_t device_name[32];
+    kint32_t fd;
+    struct fwk_network_if_ops *sprt_ops;
+
+    sprt_ops = sprt_fwk_network_if_oprts;
+
+    if ((!sprt_ops) || 
+        (!sprt_ops->link_up) ||
+        (!sprt_ops->link_down) ||
+        (!sprt_ops->recv) ||
+        (!sprt_ops->send))
+        return -ER_NSUPPORT;
+
+    if (network_find_node(name, sprt_ip))
+        return -ER_EXISTED;
+
+    memset(device_name, 0, sizeof(device_name));
+    sprintk(device_name, "/dev/%s", name);
+
+    sprt_if = kzalloc(sizeof(*sprt_if) + strlen(name) + 1, GFP_KERNEL);
+    if (!isValid(sprt_if))
+        return PTR_ERR(sprt_if);
+
+    fd = virt_open((const kchar_t *)device_name, O_RDWR);
+    if (fd < 0)
+        goto fail1;
+
+    if (sprt_ip)
+        memcpy(&sprt_if->sgrt_ip, sprt_ip, sizeof(*sprt_ip));
+    if (sprt_gw)
+        memcpy(&sprt_if->sgrt_gw, sprt_gw, sizeof(*sprt_gw));
+    if (sprt_mask)
+        memcpy(&sprt_if->sgrt_netmask, sprt_mask, sizeof(*sprt_mask));
+
+    sprt_if->device_id = fd;
+    strcpy(sprt_if->ifname, name);
+    sprt_if->sprt_oprts = sprt_ops;
+
+    if (sprt_if->sprt_oprts->link_up(sprt_if))
+        goto fail2;
+
+    list_head_add_tail(&sgrt_fwk_network_nodes, &sprt_if->sgrt_link);
+    return ER_NORMAL;
+
+fail2:
+    virt_close(fd);
+fail1:
+    kfree(sprt_if);
+    return -ER_FAILD;
+}
+
+kint32_t network_set_ip(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip)
+{
+    struct fwk_network_if *sprt_if;
+
+    if ((!name) || (!sprt_ip))
+        return -ER_UNVALID;
+
+    sprt_if = network_find_node(name, mrt_nullptr);
+    if (!sprt_if)
+        return -ER_NODEV;
+
+    if (network_find_node(mrt_nullptr, sprt_ip))
+        return -ER_EXISTED;
+
+    memcpy(&sprt_if->sgrt_ip, sprt_ip, sizeof(*sprt_ip));
+    return ER_NORMAL;
+}
+
+kint32_t network_link_down(const kchar_t *name)
+{
+    struct fwk_network_if *sprt_if;
+
+    sprt_if = network_find_node(name, mrt_nullptr);
+    if (!sprt_if)
+        return -ER_NODEV;
+
+    if (sprt_if->sprt_oprts->link_down(sprt_if))
+        return -ER_FAILD;
+
+    virt_close(sprt_if->device_id);
+    list_head_del(&sprt_if->sgrt_link);
+    kfree(sprt_if);
+
+    return ER_NORMAL;
+}
+
+kint32_t network_socket(kint32_t domain, kint32_t type, kint32_t protocol)
+{
+    struct fwk_network_object **sprt_objs, *sprt_obj;
+    struct fwk_network_com *sprt_socket;
+    kint32_t index;
+
+    sprt_objs = &sgrt_network_objects[0];
+    for (index = 0; index < NETWORK_SOCKETS_NUM; index++)
+    {
+        if (!sprt_objs[index])
+            break;
+    }
+
+    if (index == NETWORK_SOCKETS_NUM)
+        return -ER_FULL;
+
+    sprt_obj = kzalloc(sizeof(*sprt_obj), GFP_KERNEL);
+    if (!isValid(sprt_obj))
+        return PTR_ERR(sprt_obj);
+
+    sprt_socket = &sprt_obj->sgrt_socket;
+    
+    sprt_socket->domain = domain;
+    sprt_socket->type = type;
+    sprt_socket->protocol = protocol;
+
+    sprt_objs[index] = sprt_obj;
+
+    return index;
+}
+
+void network_close(kint32_t sockfd)
+{
+    struct fwk_network_object **sprt_obj;
+    struct fwk_network_if *sprt_if;
+
+    if ((sockfd < 0) ||
+        (sockfd >= NETWORK_SOCKETS_NUM))
+        return;
+
+    sprt_obj = &sgrt_network_objects[sockfd];
+    if (*sprt_obj)
+    {
+        sprt_if = (*sprt_obj)->sprt_if;
+
+        if (sprt_if && sprt_if->sprt_oprts->exit)
+           sprt_if->sprt_oprts->exit(&(*sprt_obj)->sgrt_socket);
+
+        kfree(*sprt_obj);
+        *sprt_obj = mrt_nullptr;
+    }
+}
+
+kint32_t network_bind(kint32_t sockfd, const struct fwk_sockaddr *sprt_addr, fwk_socklen_t addrlen)
+{
+    struct fwk_network_object *sprt_obj;
+    struct fwk_network_if *sprt_if;
+    struct fwk_network_com *sprt_socket;
+    struct fwk_sockaddr_in *sprt_sin;
+
+    if ((sockfd < 0) ||
+        (sockfd >= NETWORK_SOCKETS_NUM))
+        return -ER_UNVALID;
+
+    sprt_obj = sgrt_network_objects[sockfd];
+    if (!sprt_obj)
+        return -ER_EMPTY;
+
+    sprt_sin = (struct fwk_sockaddr_in *)sprt_addr;
+    sprt_if = network_find_node(mrt_nullptr, sprt_sin);
+    if (!sprt_if)
+        return -ER_IOERR;
+
+    sprt_obj->sprt_if = sprt_if;
+    sprt_socket = &sprt_obj->sgrt_socket;
+    if (sprt_socket->domain != sprt_sin->sin_family)
+        return -ER_CHECKERR;
+
+    memcpy(&sprt_socket->sgrt_sin, sprt_sin, addrlen);
+
+    if (sprt_if->sprt_oprts->init)
+        sprt_if->sprt_oprts->init(sprt_socket);
+
+    return 0;
+}
+
+kint32_t network_accept(kint32_t sockfd, struct fwk_sockaddr *sprt_addr, fwk_socklen_t *addrlen)
+{
+    return 0;
+}
+
+
+
+/*!< end of file */

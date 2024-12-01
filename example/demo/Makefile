@@ -10,5 +10,6 @@
 #
 
 obj-y   +=  lvgl/
+obj-y   +=  lwip/
 
 # end of file

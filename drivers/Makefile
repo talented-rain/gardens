@@ -20,4 +20,6 @@ obj-$(CONFIG_I2C)	+=	i2c/
 obj-$(CONFIG_USB)	+=	usb/
 obj-$(CONFIG_VIDEO)	+=	video/
 
+obj-y	+=	net/
+
 # end of file

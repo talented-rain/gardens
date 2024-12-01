@@ -21,7 +21,7 @@
 typedef kint32_t (*real_thread_init_t)(void);
 
 /*!< The globals */
-TARGET_EXT real_thread_init_t g_real_thread_init_tables[];
+TARGET_EXT real_thread_init_t g_thread_init_tables[];
 
 /*!< The functions */
 TARGET_EXT kint32_t rest_init(void);
@@ -41,7 +41,7 @@ static inline void init_real_thread_table(void)
 {
     const real_thread_init_t *pFunc_init;
     
-    for (pFunc_init = g_real_thread_init_tables; (*pFunc_init); pFunc_init++)
+    for (pFunc_init = g_thread_init_tables; (*pFunc_init); pFunc_init++)
     {
         /*!< ignore returns error */
         (*pFunc_init)();

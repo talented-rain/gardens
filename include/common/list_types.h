@@ -169,6 +169,18 @@ typedef struct list_head srt_list_head_t;
 
 /*!< API functions */
 /*!
+ * @brief   initialize list
+ * @param   sprt_list
+ * @retval  none
+ * @note    none
+ */
+static inline void init_list_head(struct list_head *sprt_list)
+{
+	sprt_list->sprt_next = sprt_list;
+	sprt_list->sprt_prev = sprt_list;
+}
+
+/*!
  * @brief   check if the member is existed in target list
  * @param   sprt_head, sprt_list
  * @retval  errno
@@ -266,6 +278,8 @@ static inline void list_head_del(struct list_head *sprt_list)
 
 	ptr_prev->sprt_next	= ptr_next;
 	ptr_next->sprt_prev	= ptr_prev;
+
+	init_list_head(sprt_list);
 }
 
 /*!
@@ -283,20 +297,9 @@ static inline void list_head_del_safe(struct list_head *sprt_head, struct list_h
 	{
 		ptr_prev->sprt_next	= ptr_next;
 		ptr_next->sprt_prev	= ptr_prev;
+
+		init_list_head(sprt_list);
 	}
 }
-
-/*!
- * @brief   initialize list
- * @param   sprt_list
- * @retval  none
- * @note    none
- */
-static inline void init_list_head(struct list_head *sprt_list)
-{
-	sprt_list->sprt_next = sprt_list;
-	sprt_list->sprt_prev = sprt_list;
-}
-
 
 #endif  /* __LIST_TYPES_H */

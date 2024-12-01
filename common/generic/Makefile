@@ -16,5 +16,6 @@ obj-y	+=	io_stream.o
 obj-y	+=	time.o
 obj-y	+=	trie_tree.o
 obj-y	+=	radix_tree.o
+obj-y	+=	queue.o
 
 # end of file

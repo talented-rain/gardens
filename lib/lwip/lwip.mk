@@ -10,7 +10,9 @@
 #
 
 LWIP_DIRS	:=	$(shell pwd)
-src-y		+=	$(shell find -L $(LWIP_DIRS) -type f -name "*.c" -o -name "*.cpp" -o -name "*.S")
+
+LWIP_SRCS	:=	$(shell find -L $(LWIP_DIRS) -name "*.c" -o -name "*.cpp" -o -name "*.S")
+src-y		+=	$(filter-out $(LWIP_DIRS)/src/apps/%, $(LWIP_SRCS))
 
 inc-y		+=	-I $(LWIP_DIRS)/src/include
 inc-y		+=	-I $(LWIP_DIRS)/port

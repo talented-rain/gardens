@@ -12,7 +12,7 @@
 all:
 
 dir-y	:=
-include Makefile.include
+include Makefile.lib
 
 dir-y	+=	$(patsubst lib%.a,%, $(lib-y))
 

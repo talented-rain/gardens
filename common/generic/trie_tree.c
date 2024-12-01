@@ -27,7 +27,7 @@
  * @retval  none
  * @note    for example: ch == '9', the location is 9
  */
-__weak kint32_t get_trie_node_branch(kint8_t ch)
+__weak kint32_t get_trie_node_branch(kchar_t ch)
 {
     if (!ch)
         return -1;

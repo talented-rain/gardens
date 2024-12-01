@@ -48,7 +48,7 @@ typedef struct fwk_device
 	struct fwk_kobject sgrt_kobj;
 
 	struct fwk_device_node *sprt_node;
-	void (*release)	(struct fwk_device *sprt_dev);
+	kint32_t (*release)	(struct fwk_device *sprt_dev);
 
 	struct fwk_pinctrl_dev_info *sprt_pctlinfo;
 	void *privData;

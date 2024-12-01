@@ -66,6 +66,8 @@ struct fwk_platdev
 /*!< The functions */
 TARGET_EXT kint32_t fwk_device_add(struct fwk_device *sprt_dev);
 TARGET_EXT kint32_t fwk_device_del(struct fwk_device *sprt_dev);
+TARGET_EXT struct fwk_platdev *fwk_platdevice_alloc(const kchar_t *name, kint32_t id);
+TARGET_EXT kint32_t fwk_platdevice_add(struct fwk_platdev *sprt_platdev);
 TARGET_EXT kint32_t fwk_register_platdevice(struct fwk_platdev *sprt_platdev);
 TARGET_EXT kint32_t fwk_unregister_platdevice(struct fwk_platdev *sprt_platdev);
 

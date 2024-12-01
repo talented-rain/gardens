@@ -135,17 +135,17 @@ static inline kuint32_t jiffies_to_secs(const kutime_t j)
 
 static inline kuint32_t jiffies_to_msecs(const kutime_t j)
 {
-    return ((j / TICK_HZ) * 1000);
+    return ((j * 1000) / TICK_HZ);
 }
 
 static inline kuint32_t jiffies_to_usecs(const kutime_t j)
 {
-    return ((j / TICK_HZ) * 1000 * 1000);
+    return ((j * 1000 * 1000) / TICK_HZ);
 }
 
 static inline kuint64_t jiffies_to_nsecs(const kutime_t j)
 {
-    return ((j / TICK_HZ) * 1000 * 1000 * 1000);
+    return ((j * 1000 * 1000 * 1000) / TICK_HZ);
 }
 
 static inline kutime_t secs_to_jiffies(const kuint32_t s)
@@ -155,17 +155,17 @@ static inline kutime_t secs_to_jiffies(const kuint32_t s)
 
 static inline kutime_t msecs_to_jiffies(const kuint32_t m)
 {
-    return ((m * TICK_HZ) / 1000);
+    return m ? (((m * TICK_HZ) / 1000) + 1) : 0;
 }
 
 static inline kutime_t usecs_to_jiffies(const kuint32_t u)
 {
-    return ((u * TICK_HZ) / 1000 / 1000);
+    return u ? (((u * TICK_HZ) / 1000 / 1000) + 1) : 0;
 }
 
 static inline kutime_t nsecs_to_jiffies(kuint64_t n)
 {
-    return ((n * TICK_HZ) / 1000 / 1000 / 1000);
+    return n ? (((n * TICK_HZ) / 1000 / 1000 / 1000) + 1) : 0;
 }
 
 static inline kutime_t time_spec_to_msecs(struct time_spec *sprt_tm)

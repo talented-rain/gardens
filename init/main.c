@@ -137,7 +137,6 @@ void start_kernel(void)
         goto fail;
 
     rest_init();
-
     print_info("initial system finished, start scheduler now\n");
 
     /*!< start */

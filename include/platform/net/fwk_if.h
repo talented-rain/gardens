@@ -30,53 +30,115 @@
 #define NET_PROTO_ETH_P_RARP  									0x8035		/*!< Reverse Address Resolution Protocol */
 #define NET_PROTO_ETH_P_IPV6  									0x86DD		/*!< IPV6 Protocol */
 
+typedef kuint16_t fwk_sa_family_t;
+typedef kssize_t fwk_socklen_t;
+
 struct fwk_sockaddr
 {
-	kint8_t sa_data[14];													/*!< Address data.  */
+    fwk_sa_family_t sa_family;
+    kint8_t sa_data[14];													/*!< Address data.  */
+
+#define FWK_SOCKADDR_SIZE                                       (16)
 };
 
-#if NET_UAPI_DEF_IF_IFMAP
+struct fwk_in_addr
+{
+    kuint32_t s_addr;
+};
+
+struct fwk_sockaddr_in 
+{
+    fwk_sa_family_t	sin_family;                                             /*!< Address family */
+    kuint16_t		sin_port;                                               /*!< Port number */
+    struct fwk_in_addr sin_addr;                                            /*!< Internet address */
+
+    /*!< Pad to size of `struct sockaddr'. */
+    kuint8_t zero[FWK_SOCKADDR_SIZE - sizeof(fwk_sa_family_t) - sizeof(kuint16_t) - sizeof(struct fwk_in_addr)];
+};
+
+struct fwk_network_if
+{
+    kint32_t device_id;
+
+    struct fwk_sockaddr_in sgrt_ip;
+    struct fwk_sockaddr_in sgrt_gw;
+    struct fwk_sockaddr_in sgrt_netmask;
+
+    struct fwk_network_if_ops *sprt_oprts;
+
+    struct list_head sgrt_link;
+    void *private_data;
+    
+    kchar_t ifname[];
+};
+
+struct fwk_network_com
+{
+    kint32_t domain;
+    kint32_t type;
+    kint32_t protocol;
+
+    struct fwk_sockaddr_in sgrt_sin;
+    void *private_data;
+};
+
+struct fwk_network_object
+{
+    struct fwk_network_com sgrt_socket;
+    struct fwk_network_if *sprt_if;
+
+#define NETWORK_SOCKETS_NUM                     				(128)
+};
+
+struct fwk_network_if_ops
+{
+    kint32_t (*init)(struct fwk_network_com *sprt_socket);
+    void (*exit)(struct fwk_network_com *sprt_socket);
+    kssize_t (*send)(struct fwk_network_com *sprt_socket, const void *buf, kssize_t size);
+    kssize_t (*recv)(struct fwk_network_com *sprt_socket, void *buf, kssize_t size);
+
+    kint32_t (*link_up)(struct fwk_network_if *sprt_if);
+    kint32_t (*link_down)(struct fwk_network_if *sprt_if);
+};
+
 struct fwk_ifmap
 {
-	kuaddr_t mem_start;
-	kuaddr_t mem_end;
-	kuint16_t base_addr;
-	kuint8_t irq;
-	kuint8_t dma;
-	kuint8_t port;
-	/*!< 3 bytes spare */
+    kuaddr_t mem_start;
+    kuaddr_t mem_end;
+    kuint16_t base_addr;
+    kuint8_t irq;
+    kuint8_t dma;
+    kuint8_t port;
+    /*!< 3 bytes spare */
 };
-#endif /*!< NET_UAPI_DEF_IF_IFMAP */
 
-#if NET_UAPI_DEF_IF_IFREQ
 struct fwk_ifreq
 {
 #define IFHWADDRLEN	6
-	union
-	{
-		kint8_t ifrn_name[NET_IFNAME_SIZE];									/*!< if name, e.g. "en0" */
+    union
+    {
+        kchar_t ifrn_name[NET_IFNAME_SIZE];									/*!< if name, e.g. "en0" */
 
-	} urt_fwk_ifr_ifrn;
+    } urt_fwk_ifr_ifrn;
 
-	union
-	{
-		struct fwk_sockaddr ifru_addr;
-		struct fwk_sockaddr ifru_dstaddr;
-		struct fwk_sockaddr ifru_broadaddr;
-		struct fwk_sockaddr ifru_netmask;
-		struct fwk_sockaddr ifru_hwaddr;
-		kint16_t ifru_flags;
-		kint32_t ifru_ivalue;
-		kint32_t ifru_mtu;
-		struct fwk_ifmap ifru_map;
-		kint8_t ifru_slave[NET_IFNAME_SIZE];								/*!< Just fits the size */
-		kint8_t ifru_newname[NET_IFNAME_SIZE];
-		void *ifru_data;
+    union
+    {
+        struct fwk_sockaddr ifru_addr;
+        struct fwk_sockaddr ifru_dstaddr;
+        struct fwk_sockaddr ifru_broadaddr;
+        struct fwk_sockaddr ifru_netmask;
+        struct fwk_sockaddr ifru_hwaddr;
+        kint16_t ifru_flags;
+        kint32_t ifru_ivalue;
+        kint32_t ifru_mtu;
+        struct fwk_ifmap ifru_map;
+        kint8_t ifru_slave[NET_IFNAME_SIZE];								/*!< Just fits the size */
+        kchar_t ifru_newname[NET_IFNAME_SIZE];
+        void *ifru_data;
 //		struct if_settings ifru_settings;
 
-	} urt_fwk_ifr_ifru;
+    } urt_fwk_ifr_ifru;
 };
-#endif /*!< NET_UAPI_DEF_IF_IFREQ */
 
 #define mrt_ifr_name			urt_fwk_ifr_ifrn.ifrn_name					/*!< interface name */
 #define mrt_ifr_hwaddr			urt_fwk_ifr_ifru.ifru_hwaddr				/*!< MAC address */
@@ -96,5 +158,42 @@ struct fwk_ifreq
 #define mrt_ifr_newname			urt_fwk_ifr_ifru.ifru_newname				/*!< New name	*/
 // #define mrt_ifr_settings		urt_fwk_ifr_ifru.ifru_settings				/*!< Device/proto settings */
 
+enum __ERT_NETWORK_IFR
+{
+    NR_NETWORK_IFR_NAME = 0,
+    NR_NETWORK_IFR_HWADDR,
+    NR_NETWORK_IFR_ADDR,
+    NR_NETWORK_IFR_DSTADDR,
+    NR_NETWORK_IFR_BROADADDR,
+    NR_NETWORK_IFR_NETMASK,
+    NR_NETWORK_IFR_FLAGS,
+    NR_NETWORK_IFR_METRIC,
+    NR_NETWORK_IFR_MTU,
+    NR_NETWORK_IFR_MAP,
+    NR_NETWORK_IFR_SLAVE,
+    NR_NETWORK_IFR_DATA,
+    NR_NETWORK_IFR_IFINDEX,
+    NR_NETWORK_IFR_BANDWIDTH,
+    NR_NETWORK_IFR_QLEN,
+};
+
+#define NETWORK_IFR_GET_NAME    FWK_IOR('n', NR_NETWORK_IFR_NAME, struct fwk_ifreq)
+#define NETWORK_IFR_GET_HWADDR  FWK_IOR('n', NR_NETWORK_IFR_HWADDR, struct fwk_ifreq)
+#define NETWORK_IFR_GET_MTU     FWK_IOR('n', NR_NETWORK_IFR_MTU, struct fwk_ifreq)
+
+/*!< The globals */
+TARGET_EXT struct fwk_network_if_ops *sprt_fwk_network_if_oprts;
+
+/*!< The functions */
+TARGET_EXT struct fwk_network_if *network_find_node(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip);
+TARGET_EXT kint32_t network_link_up(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip, 
+                            struct fwk_sockaddr_in *sprt_gw, struct fwk_sockaddr_in *sprt_mask);
+TARGET_EXT kint32_t network_link_down(const kchar_t *name);
+TARGET_EXT kint32_t network_set_ip(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip);
+
+TARGET_EXT kint32_t network_socket(kint32_t domain, kint32_t type, kint32_t protocol);
+TARGET_EXT void network_close(kint32_t sockfd);
+TARGET_EXT kint32_t network_bind(kint32_t sockfd, const struct fwk_sockaddr *addr, fwk_socklen_t addrlen);
+TARGET_EXT kint32_t network_accept(kint32_t sockfd, struct fwk_sockaddr *addr, fwk_socklen_t *addrlen);
 
 #endif /*!< _FWK_MAC_H_ */

@@ -1063,7 +1063,7 @@ kint32_t fwk_of_get_alias_id(struct fwk_device_node *sprt_node)
     struct fwk_of_property *sprt_prop;
     kuint32_t lenth;
     kint32_t id, index;
-    kint8_t ch;
+    kchar_t ch;
     kchar_t *str;
 
     sprt_alias = fwk_of_find_node_by_name(mrt_nullptr, "aliases");

@@ -9,8 +9,9 @@
 # Copyright (c) 2024   Yang Yujun <yujiantianhu@163.com>
 #
 
-lib-y	+=  libfatfs.a
-lib-y	+=  liblvgl.a
-#lib-y	+=  liblwip.a
+LIB_CUR_PATH	:=	$(EXT_LIB_DIRS)
+
+inc-y	+=	$(LIB_CUR_PATH)/lwip/port
+inc-y	+=	$(LIB_CUR_PATH)/lwip/src/include
 
 # end of file

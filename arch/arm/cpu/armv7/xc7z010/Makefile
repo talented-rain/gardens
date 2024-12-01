@@ -11,6 +11,8 @@
 
 obj-y	+=	zynq7_periph.o
 obj-y	+=	zynq7_axivtc.o
+obj-y	+=	zynq7_emacps.o
+
 obj-y	+=	board.o
 
 # end of file

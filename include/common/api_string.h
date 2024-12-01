@@ -33,8 +33,8 @@ typedef struct
 TARGET_EXT kusize_t get_integrater_lenth(kuint64_t value);
 TARGET_EXT kusize_t get_string_lenth(const void *ptr_src);
 TARGET_EXT void do_string_split(void *ptr_dst, kuint32_t offset, const void *ptr_src);
-TARGET_EXT kint8_t *do_string_copy(void *ptr_dst, const void *ptr_src);
-TARGET_EXT kint8_t *do_string_n_copy(void *ptr_dst, const void *ptr_src, kuint32_t size);
+TARGET_EXT kchar_t *do_string_copy(void *ptr_dst, const void *ptr_src);
+TARGET_EXT kchar_t *do_string_n_copy(void *ptr_dst, const void *ptr_src, kuint32_t size);
 TARGET_EXT kuint32_t do_string_n_copy_safe(void *ptr_dst, const void *ptr_src, kuint32_t size);
 TARGET_EXT kbool_t do_string_compare(void *ptr_dst, const void *ptr_src);
 TARGET_EXT kbool_t do_string_n_compare(void *ptr_dst, const void *ptr_src, kuint32_t size);

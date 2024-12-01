@@ -36,36 +36,11 @@
 #ifndef __LWIPOPTS_H__
 #define __LWIPOPTS_H__
 
+#define LWIP_IGMP                0
+#define LWIP_IPV6                0
 
-#if USE_RTOS
+#define LWIP_HAVE_SLIPIF         1
 
-/**
- * SYS_LIGHTWEIGHT_PROT==1: if you want inter-task protection for certain
- * critical regions during buffer allocation, deallocation and memory
- * allocation and deallocation.
- */
-#define SYS_LIGHTWEIGHT_PROT    1
-
-/**
- * NO_SYS==0: Use RTOS
- */
-#define NO_SYS                  0
-/**
- * LWIP_NETCONN==1: Enable Netconn API (require to use api_lib.c)
- */
-#define LWIP_NETCONN            1
-/**
- * LWIP_SOCKET==1: Enable Socket API (require to use sockets.c)
- */
-#define LWIP_SOCKET             1
-
-/**
- * LWIP_SO_RCVTIMEO==1: Enable receive timeout for sockets/netconns and
- * SO_RCVTIMEO processing.
- */
-#define LWIP_SO_RCVTIMEO        1
-
-#else
 /**
  * NO_SYS==1: Bare metal lwIP
  */
@@ -79,7 +54,6 @@
  */
 #define LWIP_SOCKET             0
 
-#endif
 /* ---------- Memory options ---------- */
 /**
  * MEM_ALIGNMENT: should be set to the alignment of the CPU

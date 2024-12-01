@@ -28,7 +28,6 @@
 };
 
 &axi_ethernet_0 {
-	local-mac-address = [00 0a 35 00 01 22];
 	phy-handle = <&phy1>;
 	xlnx,has-mdio = <0x1>;
 	phy-mode = "mii";
@@ -41,6 +40,8 @@
 	        compatible = "realtek,rtl8201", "ethernet-phy-id001c.c816";
 	        device_type = "ethernet-phy";
 	        reg = <0>;
+
+			local-mac-address = [00 0a 35 00 01 22];
 	    };
 	};
 };

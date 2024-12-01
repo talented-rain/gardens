@@ -30,7 +30,7 @@ struct fwk_i2c_device_id
 
 struct fwk_i2c_board_info
 {
-	kint8_t type[FWK_I2C_NAME_SIZE];	     				/*!< device name */
+	kchar_t type[FWK_I2C_NAME_SIZE];	     				/*!< device name */
 	kuint16_t flags;				 						/*!< property */
 	kuint16_t addr;											/*!< device slave address */
 	void *ptr_platform_data;								/*!< device private data */
@@ -44,7 +44,7 @@ struct fwk_i2c_client
 	kuint16_t flags;										/*!< div., see below */
 	kuint16_t addr;											/*!< chip address - NOTE: 7bit */
 															/*!< addresses are stored in the _LOWER_ 7 bits */
-	kint8_t name[FWK_I2C_NAME_SIZE];
+	kchar_t name[FWK_I2C_NAME_SIZE];
 	struct fwk_i2c_adapter *sprt_adapter;					/*!< the adapter we sit on */
 	struct fwk_i2c_driver *sprt_driver;						/*!< and our access routines */
 	struct fwk_device sgrt_dev;		    					/*!< the device structure */

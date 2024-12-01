@@ -10,5 +10,8 @@
 #
 
 obj-y	+=	fwk_netdev.o
+obj-y	+=	fwk_network.o
+
+obj-y	+=	fwk_lwip.o
 
 # end of file

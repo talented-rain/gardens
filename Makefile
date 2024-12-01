@@ -9,7 +9,7 @@
 # Copyright (c) 2023   Yang Yujun <yujiantianhu@163.com>
 #
 
-all:
+build:
 
 TARGET			:=	HeavenFox
 PROJECT_DIR		:=	$(shell pwd)
@@ -132,6 +132,9 @@ MACROS			:=	-DCONFIG_DEBUG_JTAG
 
 OBJECT_PATH		:=	$(PROJECT_DIR)/objects
 
+EXT_LIB_DIRS    :=  $(PROJECT_DIR)/lib
+EXT_LIB_EXEC	:=	$(PROJECT_DIR)/lib/objects
+
 OUTPUT_PATH		:=	$(PROJECT_DIR)/boot
 IMAGE_PATH		:=	$(OUTPUT_PATH)/image
 LINK_SCRIPT		:=	$(PROJECT_DIR)/arch/$(ARCH)/cpu/$(TYPE)/$(CPU)/cpu_ramboot.lds
@@ -151,8 +154,13 @@ INCLUDE_DIRS	:= 	$(PROJECT_DIR)/	\
 					$(PROJECT_DIR)/board/mach-$(CPU)	\
 					$(PROJECT_DIR)/lib
 
-EXT_LIB_DIRS    :=  $(PROJECT_DIR)/lib
-EXT_LIB_EXEC	:=	$(PROJECT_DIR)/lib/objects
+inc-y			:=
+include $(PROJECT_DIR)/lib/Makefile.include
+
+ifneq ($(inc-y),)
+INCLUDE_DIRS	+=	$(sort $(inc-y))
+inc-y			:=
+endif
 
 ARCH_DIRS       :=  arch/$(ARCH)/
 COMMON_DIRS     :=  common/
@@ -167,7 +175,7 @@ INIT_DIRS       :=  example/ init/
 OBJECT_EXEC		:=	$(OBJECT_PATH)/built-in.o
 SOURCE_DIRS		:=	$(ARCH_DIRS) $(COMMON_DIRS) $(BOOT_DIRS) $(BOARD_DIRS) $(PLATFORM_DIRS)	\
 					$(KERNEL_DIRS) $(ROOTFS_DIRS) $(DRIVER_DIRS) $(INIT_DIRS)
-INCLUDE_DIRS	:= 	$(patsubst %, -I %, $(INCLUDE_DIRS))
+INCLUDE_DIRS	:= 	$(patsubst %, -I%, $(INCLUDE_DIRS))
 
 export ARCH TYPE CLASS CPU VENDOR CC CXX LD AR OBJDUMP OBJCOPY READELF
 export LIBS_PATH LIBS EXTRA_FLAGS BUILD_CFLAGS MACROS CONF_MAKEFILE
@@ -181,10 +189,10 @@ VPATH			:= 	$(SOURCE_DIRS)
 # *********************************************************************
 
 force:
-.PHONY:			all local clean distclean config dtbs libs info debug
+.PHONY:			all build clean distclean config dtbs libs info debug
 
-all : dtbs libs local force
-local: $(OBJECT_EXEC) force
+all : dtbs libs build force
+build: $(OBJECT_EXEC) force
 	$(Q)$(MAKE) -C $(ARCH_DIRS) all
 
 $(OBJECT_EXEC): force

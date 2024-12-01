@@ -28,10 +28,10 @@ obj-y	+=	i2c/
 
 obj-y	+=	chardev/
 obj-y	+=	block/
-obj-y	+=	net_device/
 
 obj-y	+=	framebuffer/
 obj-y	+=	mmc/
 obj-y	+=	usb/
+obj-y	+=	net/
 
 # end of file

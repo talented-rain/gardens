@@ -22,7 +22,7 @@ struct fwk_char_device
 	kuint32_t major;
 	kuint32_t baseminor;
 	kuint32_t count;
-	kint8_t name[DEVICE_NAME_LEN];
+	kchar_t name[DEVICE_NAME_LEN];
 
 	/*!< All devices with the same primary device number form a list */
 	struct fwk_char_device *sprt_next;

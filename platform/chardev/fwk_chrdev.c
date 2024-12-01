@@ -76,8 +76,8 @@ static struct fwk_char_device *__fwk_register_chrdev(kuint32_t major, kuint32_t 
 {
     struct fwk_char_device *sprt_chrdev;
     struct fwk_char_device **sprt_Dst;
-    kuint32_t  index;
-    kusize_t  chrdevMax;
+    kuint32_t index;
+    kusize_t chrdevMax;
     kint32_t i;
 
     if (!count)

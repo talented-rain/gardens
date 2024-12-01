@@ -30,8 +30,10 @@
  * @retval none
  * @note   none
  */
-void lvgl_task_startup(struct fwk_disp_ctrl *sprt_dctrl)
+void lvgl_task_startup(void *args)
 {
+    struct fwk_disp_ctrl *sprt_dctrl = (struct fwk_disp_ctrl *)args;
+
     lv_init();
     lv_port_disp_init(sprt_dctrl);
 

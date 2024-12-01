@@ -23,7 +23,7 @@ struct fwk_gendisk;
 /*!< The defines */
 struct fwk_block_device
 {
-    kint8_t name[DEVICE_NAME_LEN];
+    kchar_t name[DEVICE_NAME_LEN];
     kuint32_t major;
 
     struct fwk_inode *sprt_inode;

@@ -82,7 +82,7 @@ void do_string_split(void *ptr_dst, kuint32_t offset, const void *ptr_src)
  * @retval  none
  * @note    copy string to another string
  */
-kint8_t *do_string_copy(void *ptr_dst, const void *ptr_src)
+kchar_t *do_string_copy(void *ptr_dst, const void *ptr_src)
 {
     kuint8_t *ptr_ch;
     kuint8_t *ptr_buf;
@@ -96,7 +96,7 @@ kint8_t *do_string_copy(void *ptr_dst, const void *ptr_src)
 
     } while ('\0' != *ptr_ch);
 
-    return (kint8_t *)ptr_dst;
+    return (kchar_t *)ptr_dst;
 }
 
 /*!
@@ -105,7 +105,7 @@ kint8_t *do_string_copy(void *ptr_dst, const void *ptr_src)
  * @retval  none
  * @note    copy n char to another string
  */
-kint8_t *do_string_n_copy(void *ptr_dst, const void *ptr_src, kuint32_t size)
+kchar_t *do_string_n_copy(void *ptr_dst, const void *ptr_src, kuint32_t size)
 {
     kuint8_t *ptr_ch;
     kuint8_t *ptr_buf;
@@ -116,7 +116,7 @@ kint8_t *do_string_n_copy(void *ptr_dst, const void *ptr_src, kuint32_t size)
     while ('\0' != *ptr_ch && (size--))
         *(ptr_buf++) = *(ptr_ch++);
 
-    return (kint8_t *)ptr_dst;
+    return (kchar_t *)ptr_dst;
 }
 
 /*!

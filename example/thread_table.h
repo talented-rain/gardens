@@ -20,47 +20,14 @@
 #include <common/list_types.h>
 #include <kernel/instance.h>
 
+#include "test/test_app.h"
+
 /*!< The defines */
 
 /*!< The globals */
 
 /*!< The functions */
-#ifdef CONFIG_LIGHT_APP
-TARGET_EXT kint32_t light_app_init(void);
-#else
-static inline kint32_t light_app_init(void) { return 0; }
-#endif
-
-#ifdef CONFIG_BUTTON_APP
-TARGET_EXT kint32_t button_app_init(void);
-#else
-static inline kint32_t button_app_init(void) { return 0; }
-#endif
-
-#ifdef CONFIG_DISPLAY_APP
-TARGET_EXT kint32_t display_app_init(void);
-#else
-static inline kint32_t display_app_init(void) { return 0; }
-#endif
-
-#ifdef CONFIG_TSC_APP
-TARGET_EXT kint32_t tsc_app_init(void);
-#else
-static inline kint32_t tsc_app_init(void) { return 0; }
-#endif
-
-#ifdef CONFIG_ENV_MONITOR_APP
-TARGET_EXT kint32_t env_monitor_init(void);
-#else
-static inline kint32_t env_monitor_init(void) { return 0; }
-#endif
-
-#ifdef CONFIG_CONSOLE_APP
-TARGET_EXT kint32_t console_app_init(void);
-#else
-static inline kint32_t console_app_init(void) { return 0; }
-#endif
-
 TARGET_EXT kint32_t lvgl_task_init(void);
+TARGET_EXT kint32_t lwip_task_init(void);
 
 #endif /* __THREAD_TABLE_H_ */

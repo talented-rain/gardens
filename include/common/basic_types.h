@@ -66,7 +66,7 @@ typedef ert_bool_t              kbool_t;
 #define mrt_to_kbool(x)         ((x) ? NR_TRUE : NR_FALSE)
 
 /*!< basic types */
-typedef                 char    kint8_t;
+typedef signed          char    kint8_t;
 typedef unsigned        char    kuint8_t;
 typedef                 short   kint16_t;
 typedef unsigned        short   kuint16_t;
@@ -88,6 +88,13 @@ typedef	unsigned 	    int		kusize_t;
 typedef unsigned        long    kuaddr_t;
 typedef unsigned        long    kutype_t;
 typedef                 long    kstype_t;
+
+typedef kint8_t                 s8;
+typedef kuint8_t                u8;
+typedef kint16_t                s16;
+typedef kuint16_t               u16;
+typedef kint32_t                s32;
+typedef kuint32_t               u32;
 
 #define __used		            __attribute__((used))
 #define __weak                  __attribute__((weak))

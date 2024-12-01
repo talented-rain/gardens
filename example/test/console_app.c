@@ -23,7 +23,7 @@
 #include <kernel/mutex.h>
 #include <kernel/mailbox.h>
 
-#include "../thread_table.h"
+#include "test_app.h"
 
 /*!< The defines */
 #define CONSOLE_APP_THREAD_STACK_SIZE                       REAL_THREAD_STACK_HALF(1)    /*!< 1/2 page (1kbytes) */

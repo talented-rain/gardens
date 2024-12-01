@@ -33,7 +33,7 @@ typedef struct fwk_i2c_adapter
 	struct fwk_device sgrt_dev;		         			/*!< the adapter device */
 
 	kint32_t nr;
-	kint8_t name[48];
+	kchar_t name[48];
 
 	struct list_head sgrt_clients;
 

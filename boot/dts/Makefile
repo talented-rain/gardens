@@ -23,8 +23,8 @@ INCLUDES		:=	$(DT_DIRS)/	\
 					$(DT_DIRS)/$(CPU)/	\
 					$(DT_DIRS)/dt-bindings/
 
-DTC_INCLUDES	:= 	$(patsubst %, -i %, $(INCLUDES))
-CXX_INCLUDES	:=	$(patsubst %, -I %, $(INCLUDES))
+DTC_INCLUDES	:= 	$(patsubst %, -i%, $(INCLUDES))
+CXX_INCLUDES	:=	$(patsubst %, -I%, $(INCLUDES))
 
 DTC				:=	$(PROJECT_DIR)/scripts/dtc/dtc
 DTB				:=	$(DT_NAME)/$(TARGET).dtb

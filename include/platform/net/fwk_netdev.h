@@ -14,6 +14,7 @@
 #define __FWK_NETDEV_H_
 
 /*!< The includes */
+#include <platform/fwk_basic.h>
 #include <platform/net/fwk_if.h>
 #include <platform/net/fwk_skbuff.h>
 #include <platform/fwk_platform.h>
@@ -124,9 +125,7 @@ TARGET_EXT struct fwk_net_device *fwk_alloc_netdev_mq(kint32_t sizeof_priv, cons
 													void (*setup) (struct fwk_net_device *sprt_dev), kuint32_t queue_count);
 TARGET_EXT void fwk_free_netdev(struct fwk_net_device *sprt_dev);
 
-
 #define fwk_alloc_netdev(sizeof_priv, name, setup)	\
-		fwk_alloc_netdev_mq(sizeof_priv, name, setup, 1)
-
+				fwk_alloc_netdev_mq(sizeof_priv, name, setup, 1)
 
 #endif /*!< __FWK_NETDEV_H_ */

@@ -54,7 +54,7 @@ local_built	:= 	$(obj_path)/built-in.o
 local_cmd	:= 	$(obj_path)/build-in.o.cmd
 
 VPATH			+= $(cur_path)
-INCLUDE_DIRS 	+= $(inc-y)
+INCLUDE_DIRS 	+= $(sort $(inc-y))
 
 define build_object
 	$(1) -Wp,-MD,$@.d -c $(BUILD_CFLAGS) $(MACROS) $(INCLUDE_DIRS) $(EXTRA_FLAGS) -o $(2) $(3)
@@ -112,7 +112,7 @@ _distclean: _clean
 	
 _debug:
 	$(call build_recusion, _debug);
-	@echo '==========>' $(src-y)
-	@echo '++++++++++>' $(VPATH)
+	@echo '==========>' $(output-obj)
+	@echo '++++++++++>' $(obj-y)
 
 # end of file

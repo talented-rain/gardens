@@ -13,7 +13,7 @@
 all:
 
 include $(CONF_MAKEFILE)
-include $(EXT_LIB_DIRS)/Makefile.include
+include $(EXT_LIB_DIRS)/Makefile.lib
 
 obj-y		+=	cpu/
 obj-y		+=	kernel/

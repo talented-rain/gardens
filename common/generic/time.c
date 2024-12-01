@@ -173,7 +173,8 @@ void setup_timer(struct timer_list *sprt_timer, void (*entry)(kuint32_t), kuint3
  */
 void add_timer(struct timer_list *sprt_timer)
 {
-	if (!isValid(sprt_timer))
+	if ((!isValid(sprt_timer)) || 
+		(!sprt_timer->expires))
 		return;
 
 	list_head_add_tail(&sgrt_global_timer_list, &sprt_timer->sgrt_link);
@@ -226,7 +227,11 @@ void mod_timer(struct timer_list *sprt_timer, kutime_t expires)
 
 	sprt_timer->expires = expires;
 	
+#if 0
 	if (!find_timer(sprt_timer))
+#else
+	if (mrt_list_head_empty(&sprt_timer->sgrt_link))
+#endif
 		add_timer(sprt_timer);
 }
 
