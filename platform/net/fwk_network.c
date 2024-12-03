@@ -14,14 +14,22 @@
 #include <platform/fwk_basic.h>
 #include <platform/fwk_fcntl.h>
 #include <platform/net/fwk_if.h>
+#include <platform/net/fwk_inet.h>
+#include <platform/net/fwk_network.h>
+#include <kernel/mutex.h>
 
 /*!< The defines */
 
-
 /*!< The globals */
-static struct fwk_network_object *sgrt_network_objects[NETWORK_SOCKETS_NUM];
 struct fwk_network_if_ops *sprt_fwk_network_if_oprts = mrt_nullptr;
+
+static struct mutex_lock sgrt_socket_mutex = MUTEX_LOCK_INIT();
 static DECLARE_LIST_HEAD(sgrt_fwk_network_nodes);
+static DECLARE_RADIX_TREE(sgrt_sockets_radix_tree, default_malloc, kfree);
+static kuint32_t g_allocated_sockets[mrt_align(NETWORK_SOCKETS_MAX, RET_BITS_PER_INT) / RET_BITS_PER_INT] = { 0 };
+
+#define mrt_socket_to_object(sockfd)    \
+            radix_tree_next_entry(&sgrt_sockets_radix_tree, struct fwk_network_object, sgrt_radix, sockfd)
 
 /*!< API functions */
 struct fwk_network_if *network_find_node(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip)
@@ -45,8 +53,6 @@ kint32_t network_link_up(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip,
                     struct fwk_sockaddr_in *sprt_gw, struct fwk_sockaddr_in *sprt_mask)
 {
     struct fwk_network_if *sprt_if;
-    kchar_t device_name[32];
-    kint32_t fd;
     struct fwk_network_if_ops *sprt_ops;
 
     sprt_ops = sprt_fwk_network_if_oprts;
@@ -61,15 +67,11 @@ kint32_t network_link_up(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip,
     if (network_find_node(name, sprt_ip))
         return -ER_EXISTED;
 
-    memset(device_name, 0, sizeof(device_name));
-    sprintk(device_name, "/dev/%s", name);
-
     sprt_if = kzalloc(sizeof(*sprt_if) + strlen(name) + 1, GFP_KERNEL);
     if (!isValid(sprt_if))
         return PTR_ERR(sprt_if);
 
-    fd = virt_open((const kchar_t *)device_name, O_RDWR);
-    if (fd < 0)
+    if (fwk_netif_open(name))
         goto fail1;
 
     if (sprt_ip)
@@ -79,7 +81,6 @@ kint32_t network_link_up(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip,
     if (sprt_mask)
         memcpy(&sprt_if->sgrt_netmask, sprt_mask, sizeof(*sprt_mask));
 
-    sprt_if->device_id = fd;
     strcpy(sprt_if->ifname, name);
     sprt_if->sprt_oprts = sprt_ops;
 
@@ -90,7 +91,7 @@ kint32_t network_link_up(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip,
     return ER_NORMAL;
 
 fail2:
-    virt_close(fd);
+    fwk_netif_close(name);
 fail1:
     kfree(sprt_if);
     return -ER_FAILD;
@@ -125,7 +126,7 @@ kint32_t network_link_down(const kchar_t *name)
     if (sprt_if->sprt_oprts->link_down(sprt_if))
         return -ER_FAILD;
 
-    virt_close(sprt_if->device_id);
+    fwk_netif_close(name);
     list_head_del(&sprt_if->sgrt_link);
     kfree(sprt_if);
 
@@ -134,54 +135,76 @@ kint32_t network_link_down(const kchar_t *name)
 
 kint32_t network_socket(kint32_t domain, kint32_t type, kint32_t protocol)
 {
-    struct fwk_network_object **sprt_objs, *sprt_obj;
+    struct fwk_network_object *sprt_obj;
     struct fwk_network_com *sprt_socket;
+    struct radix_tree *sprt_rtree;
     kint32_t index;
 
-    sprt_objs = &sgrt_network_objects[0];
-    for (index = 0; index < NETWORK_SOCKETS_NUM; index++)
+    mutex_lock(&sgrt_socket_mutex);
+    index = bitmap_find_first_zero_bit(g_allocated_sockets, 0, NETWORK_SOCKETS_NUM);
+    if (index < 0)
     {
-        if (!sprt_objs[index])
-            break;
+        mutex_unlock(&sgrt_socket_mutex);
+        return -ER_FULL;
     }
 
-    if (index == NETWORK_SOCKETS_NUM)
-        return -ER_FULL;
+    bitmap_set_nr_bit_valid(g_allocated_sockets, index, NETWORK_SOCKETS_NUM, 1);
+    mutex_unlock(&sgrt_socket_mutex);
 
     sprt_obj = kzalloc(sizeof(*sprt_obj), GFP_KERNEL);
     if (!isValid(sprt_obj))
-        return PTR_ERR(sprt_obj);
+    {
+        mutex_lock(&sgrt_socket_mutex);
+        bitmap_set_nr_bit_zero(g_allocated_sockets, index, NETWORK_SOCKETS_NUM, 1);
+        mutex_unlock(&sgrt_socket_mutex);
 
+        return PTR_ERR(sprt_obj);
+    }
+
+    sprt_rtree  = &sgrt_sockets_radix_tree;
     sprt_socket = &sprt_obj->sgrt_socket;
     
     sprt_socket->domain = domain;
     sprt_socket->type = type;
     sprt_socket->protocol = protocol;
 
-    sprt_objs[index] = sprt_obj;
-
-    return index;
+    spin_lock(&sprt_rtree->sgrt_lock);
+    radix_tree_add(sprt_rtree, index, &sprt_obj->sgrt_radix);
+    spin_unlock(&sprt_rtree->sgrt_lock);
+    
+    return (index + NETWORK_SOCKETS_BASE);
 }
 
 void network_close(kint32_t sockfd)
 {
-    struct fwk_network_object **sprt_obj;
+    struct fwk_network_object *sprt_obj;
     struct fwk_network_if *sprt_if;
+    struct radix_tree *sprt_rtree;
+    kint32_t index;
 
-    if ((sockfd < 0) ||
-        (sockfd >= NETWORK_SOCKETS_NUM))
+    index = sockfd - NETWORK_SOCKETS_BASE;
+    if ((index < 0) ||
+        (index >= NETWORK_SOCKETS_NUM))
         return;
 
-    sprt_obj = &sgrt_network_objects[sockfd];
-    if (*sprt_obj)
+    sprt_obj = mrt_socket_to_object(index);
+    if (sprt_obj)
     {
-        sprt_if = (*sprt_obj)->sprt_if;
+        sprt_if = sprt_obj->sprt_if;
+        sprt_rtree = &sgrt_sockets_radix_tree;
 
         if (sprt_if && sprt_if->sprt_oprts->exit)
-           sprt_if->sprt_oprts->exit(&(*sprt_obj)->sgrt_socket);
+           sprt_if->sprt_oprts->exit(&sprt_obj->sgrt_socket);
 
-        kfree(*sprt_obj);
-        *sprt_obj = mrt_nullptr;
+        spin_lock(&sprt_rtree->sgrt_lock);
+        radix_tree_del(&sgrt_sockets_radix_tree, index);
+        spin_unlock(&sprt_rtree->sgrt_lock);
+
+        mutex_lock(&sgrt_socket_mutex);
+        bitmap_set_nr_bit_zero(g_allocated_sockets, index, NETWORK_SOCKETS_NUM, 1);
+        mutex_unlock(&sgrt_socket_mutex);
+
+        kfree(sprt_obj);
     }
 }
 
@@ -191,12 +214,14 @@ kint32_t network_bind(kint32_t sockfd, const struct fwk_sockaddr *sprt_addr, fwk
     struct fwk_network_if *sprt_if;
     struct fwk_network_com *sprt_socket;
     struct fwk_sockaddr_in *sprt_sin;
+    kint32_t index;
 
-    if ((sockfd < 0) ||
-        (sockfd >= NETWORK_SOCKETS_NUM))
+    index = sockfd - NETWORK_SOCKETS_BASE;
+    if ((index < 0) ||
+        (index >= NETWORK_SOCKETS_NUM))
         return -ER_UNVALID;
 
-    sprt_obj = sgrt_network_objects[sockfd];
+    sprt_obj = mrt_socket_to_object(index);
     if (!sprt_obj)
         return -ER_EMPTY;
 
@@ -220,6 +245,13 @@ kint32_t network_bind(kint32_t sockfd, const struct fwk_sockaddr *sprt_addr, fwk
 
 kint32_t network_accept(kint32_t sockfd, struct fwk_sockaddr *sprt_addr, fwk_socklen_t *addrlen)
 {
+    kint32_t index;
+
+    index = sockfd - NETWORK_SOCKETS_BASE;
+    if ((index < 0) ||
+        (index >= NETWORK_SOCKETS_NUM))
+        return -ER_UNVALID;
+
     return 0;
 }
 

@@ -22,18 +22,7 @@
 #define FWK_IRQ_DESC_MAX					(1024)
 
 /*!< The globals */
-/*!
- * @brief   malloc for radix_node
- * @param   size
- * @retval  none
- * @note    none
- */
-static void *fwk_irq_radix_node_malloc(kusize_t size)
-{
-	return kmalloc(size, GFP_KERNEL);
-}
-
-static DECLARE_RADIX_TREE(sgrt_fwk_irq_radix_tree, fwk_irq_radix_node_malloc, kfree);
+static DECLARE_RADIX_TREE(sgrt_fwk_irq_radix_tree, default_malloc, kfree);
 static kuint32_t g_fwk_allocated_irqs[mrt_num_align(FWK_IRQ_DESC_MAX, RET_BITS_PER_INT) / RET_BITS_PER_INT] = { 0 };
 
 /*!< API functions */

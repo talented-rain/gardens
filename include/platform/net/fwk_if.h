@@ -58,8 +58,6 @@ struct fwk_sockaddr_in
 
 struct fwk_network_if
 {
-    kint32_t device_id;
-
     struct fwk_sockaddr_in sgrt_ip;
     struct fwk_sockaddr_in sgrt_gw;
     struct fwk_sockaddr_in sgrt_netmask;
@@ -87,7 +85,7 @@ struct fwk_network_object
     struct fwk_network_com sgrt_socket;
     struct fwk_network_if *sprt_if;
 
-#define NETWORK_SOCKETS_NUM                     				(128)
+    struct radix_link sgrt_radix;
 };
 
 struct fwk_network_if_ops
@@ -186,14 +184,5 @@ TARGET_EXT struct fwk_network_if_ops *sprt_fwk_network_if_oprts;
 
 /*!< The functions */
 TARGET_EXT struct fwk_network_if *network_find_node(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip);
-TARGET_EXT kint32_t network_link_up(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip, 
-                            struct fwk_sockaddr_in *sprt_gw, struct fwk_sockaddr_in *sprt_mask);
-TARGET_EXT kint32_t network_link_down(const kchar_t *name);
-TARGET_EXT kint32_t network_set_ip(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip);
-
-TARGET_EXT kint32_t network_socket(kint32_t domain, kint32_t type, kint32_t protocol);
-TARGET_EXT void network_close(kint32_t sockfd);
-TARGET_EXT kint32_t network_bind(kint32_t sockfd, const struct fwk_sockaddr *addr, fwk_socklen_t addrlen);
-TARGET_EXT kint32_t network_accept(kint32_t sockfd, struct fwk_sockaddr *addr, fwk_socklen_t *addrlen);
 
 #endif /*!< _FWK_MAC_H_ */

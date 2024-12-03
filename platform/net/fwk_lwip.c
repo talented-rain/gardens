@@ -13,8 +13,10 @@
 /*!< The includes */
 #include <platform/fwk_basic.h>
 #include <platform/net/fwk_if.h>
-#include <platform/net/fwk_netdev.h>
 #include <platform/fwk_fcntl.h>
+#include <platform/net/fwk_netdev.h>
+#include <platform/net/fwk_network.h>
+#include <platform/net/fwk_inet.h>
 
 #include <lwip/port/lwipopts.h>
 #include <lwip/netif.h>
@@ -45,6 +47,7 @@ static err_t lwip_lowlevel_output(struct netif *sprt_netif, struct pbuf *sprt_bu
 {
     struct fwk_network_if *sprt_if;
     struct fwk_lwip_data *sprt_data;
+    struct fwk_sk_buff sgrt_skb;
     kssize_t size;
 
     sprt_if = (struct fwk_network_if *)sprt_netif->state;
@@ -55,7 +58,8 @@ static err_t lwip_lowlevel_output(struct netif *sprt_netif, struct pbuf *sprt_bu
     if (!sprt_buf->tot_len)
         return ERR_OK;
 
-    size = virt_write(sprt_if->device_id, sprt_data->tx_buffer, sprt_buf->tot_len);
+    sgrt_skb.ptr_data = sprt_data->tx_buffer;
+    size = fwk_dev_queue_xmit(&sgrt_skb);
     if (size <= 0)
         return ERR_IF;
 
@@ -67,13 +71,14 @@ static err_t lwip_lowlevel_input(struct netif *sprt_netif)
     struct fwk_network_if *sprt_if;
     struct fwk_lwip_data *sprt_data;
     struct pbuf *sprt_buf;
-    kssize_t size;
+    struct pq_queue *sprt_pq;
+    kssize_t size = 0;
 
     sprt_if = (struct fwk_network_if *)sprt_netif->state;
     sprt_data = (struct fwk_lwip_data *)sprt_if->private_data;
 
-    size = virt_read(sprt_if->device_id, sprt_data->rx_buffer, sizeof(sprt_data->rx_buffer));
-    if (size <= 0)
+    sprt_pq = fwk_dev_queue_poll();
+    if (!sprt_pq)
         return ERR_IF;
 
     sprt_buf = pbuf_alloc(PBUF_RAW, size, PBUF_POOL);
@@ -93,9 +98,11 @@ static err_t lwip_lowlevel_input(struct netif *sprt_netif)
 static err_t lwip_enet_init(struct netif *sprt_netif)
 {
     struct fwk_network_if *sprt_if;
-    struct fwk_ifreq sgrt_ifreq;
+    struct fwk_ifreq sgrt_ifr;
+    kint32_t sockfd;
     kint32_t retval;
 
+    sockfd = NETWORK_SOCKETS_GENERIC;
     sprt_if = (struct fwk_network_if *)sprt_netif->state;
 
     sprt_netif->name[0] = 'e';
@@ -110,18 +117,19 @@ static err_t lwip_enet_init(struct netif *sprt_netif)
     sprt_netif->output_ip6 = ethip6_output;
 #endif
 
-    retval = virt_ioctl(sprt_if->device_id, NETWORK_IFR_GET_HWADDR, &sgrt_ifreq);
+    strcpy(sgrt_ifr.mrt_ifr_name, sprt_if->ifname);
+    retval = virt_ioctl(sockfd, NETWORK_IFR_GET_HWADDR, &sgrt_ifr);
     if (retval)
         return ERR_IF;
 
     sprt_netif->hwaddr_len = sizeof(sprt_netif->hwaddr);
-    memcpy(&sprt_netif->hwaddr[0], &sgrt_ifreq.mrt_ifr_hwaddr, sprt_netif->hwaddr_len);
+    memcpy(&sprt_netif->hwaddr[0], &sgrt_ifr.mrt_ifr_hwaddr, sprt_netif->hwaddr_len);
 
-    retval = virt_ioctl(sprt_if->device_id, NETWORK_IFR_GET_MTU, &sgrt_ifreq);
+    retval = virt_ioctl(sockfd, NETWORK_IFR_GET_MTU, &sgrt_ifr);
     if (retval)
         return ERR_IF;
 
-    sprt_netif->mtu = sgrt_ifreq.mrt_ifr_mtu;
+    sprt_netif->mtu = sgrt_ifr.mrt_ifr_mtu;
     sprt_netif->flags |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_LINK_UP;
 
     netif_set_link_up(sprt_netif);

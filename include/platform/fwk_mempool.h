@@ -48,6 +48,7 @@ TARGET_EXT void *kmalloc(size_t __size, ert_fwk_mempool_t flags);
 TARGET_EXT void *kcalloc(size_t __size, size_t __n, ert_fwk_mempool_t flags);
 TARGET_EXT void *kzalloc(size_t __size, ert_fwk_mempool_t flags);
 TARGET_EXT void kfree(void *__ptr);
+TARGET_EXT void *default_malloc(kusize_t size);
 
 TARGET_EXT kbool_t memory_block_self_defines(kint32_t flags, kuaddr_t base, kusize_t size);
 TARGET_EXT void memory_block_self_destroy(kint32_t flags);

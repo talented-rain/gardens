@@ -12,6 +12,7 @@
 
 /*!< The includes */
 #include <common/generic.h>
+#include <common/io_stream.h>
 
 /*!< API function */
 /*!
@@ -139,6 +140,73 @@ kutype_t dec_to_binary(kchar_t *buf, kutype_t number)
 	
 END:
 	return (count + 2);
+}
+
+/*!
+ * @brief   convert string to number
+ * @param   str
+ * @retval  number
+ * @note    such as: "160"/"0xA0"/"0xa0"/"0b10100000" ===> 160
+ */
+kutype_t ascii_to_dec(const kchar_t *str)
+{
+    kchar_t *p;
+    kutype_t val = 0;
+    kchar_t type = -1;
+
+    for (p = (kchar_t *)str; p && (*p != '\0'); p++) 
+	{
+        if (p == str) 
+		{
+            if ((*(p) == '0') && 
+                ((*(p + 1) == 'X') || (*(p + 1) == 'x')))
+                type = 16;
+            else if ((*(p) == '0') && 
+                ((*(p + 1) == 'B') || (*(p + 1) == 'b')))
+                type = 2;
+            else
+                type = 10;
+
+            if (type != 10)
+                p += 2;
+        }
+
+        switch (type) 
+		{
+            case 2:
+                if ((*p != '0') && (*p != '1'))
+                    goto fail;
+
+                val = (val << 1) + (*p) - '0';
+                break;
+
+            case 10:
+                if ((*p < '0') || (*p > '9'))
+                    goto fail;
+
+                val = (val << 1) + (val << 3) + (*p) - '0';
+                break;
+
+            case 16:
+                if ((*p >= '0') && (*p <= '9'))
+                    val = (val << 4) + (*p) - '0';
+                else if ((*p >= 'a') && (*p <= 'z'))
+                    val = (val << 4) + (*p) - 'a' + 10;
+                else if ((*p >= 'A') && (*p <= 'Z'))
+                    val = (val << 4) + (*p) - 'A' + 10;
+                else
+                    goto fail;
+                break;
+
+            default: goto fail;
+        }
+    }
+
+    return val;
+
+fail:
+    print_err("%s: input argument error!\n", __FUNCTION__);
+    return 0;
 }
 
 /* end of file */

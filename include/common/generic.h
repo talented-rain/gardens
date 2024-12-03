@@ -154,8 +154,8 @@
 )
 
 /*!< bits of per byte */
-#define RET_BITS_PER_INT								(32)
-#define RET_BITS_PER_LONG								(64)
+#define RET_BITS_PER_INT								((kutype_t)32U)
+#define RET_BITS_PER_LONG								((kutype_t)64U)
 
 /*!< bytes of per type */
 #define RET_BYTES_PER_INT								(RET_BITS_PER_INT  >> 3)
@@ -187,6 +187,7 @@ TARGET_EXT kstype_t sdiv_integer(kstype_t divied, kstype_t div);
 TARGET_EXT kutype_t udiv_remainder(kutype_t divied, kutype_t div);
 TARGET_EXT kutype_t dec_to_hex(kchar_t *buf, kutype_t number, kbool_t mode);
 TARGET_EXT kutype_t dec_to_binary(kchar_t *buf, kutype_t number);
+TARGET_EXT kutype_t ascii_to_dec(const kchar_t *str);
 
 #define mrt_udiv(divied, div)	\
 ({	\

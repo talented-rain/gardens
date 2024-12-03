@@ -12,10 +12,6 @@
 
 /*!< The includes */
 #include <platform/fwk_basic.h>
-#include <platform/fwk_cdev.h>
-#include <platform/fwk_chrdev.h>
-#include <platform/fwk_inode.h>
-#include <platform/fwk_fs.h>
 #include <platform/of/fwk_of.h>
 #include <platform/of/fwk_of_device.h>
 #include <platform/fwk_platdev.h>
@@ -23,6 +19,7 @@
 #include <platform/fwk_uaccess.h>
 
 #include <platform/net/fwk_if.h>
+#include <platform/net/fwk_netdev.h>
 
 #include <zynq7/zynq7_periph.h>
 #include <zynq7/xemac/xemacpsif.h>
@@ -35,83 +32,103 @@ struct xsdk_gem_drv_data
     void *base;
     kint32_t irq;
 
-    kuint32_t major;
-    kuint32_t minor;
-    struct fwk_cdev *sprt_cdev;
-    struct fwk_device *sprt_idev;
-
     xemacpsif_s *sprt_emacif;
     XEmacPs_Config *sprt_config;
 };
 
-#define XSDK_GEM_DRIVER_NAME								"gem0"
+#define XSDK_GEM_DRIVER_NAME                        "gem0"
 
 /*!< The globals */
 
 /*!< The functions */
 
 /*!< API function */
-/*!
- * @brief   xsdk_gem_driver_open
- * @param   sprt_inode, sprt_file
- * @retval  errno
- * @note    none
- */
-static kint32_t xsdk_gem_driver_open(struct fwk_inode *sprt_inode, struct fwk_file *sprt_file)
+static kint32_t xsdk_gem_ndo_init(struct fwk_net_device *sprt_ndev)
 {
-    struct xsdk_gem_drv_data *sprt_data;
-
-    sprt_data = sprt_inode->sprt_cdev->privData;
-    sprt_file->private_data = sprt_data;
-
-
-
-    return 0;
+    return ER_NORMAL;
 }
 
-/*!
- * @brief   xsdk_gem_driver_close
- * @param   sprt_inode, sprt_file
- * @retval  errno
- * @note    none
- */
-static kint32_t xsdk_gem_driver_close(struct fwk_inode *sprt_inode, struct fwk_file *sprt_file)
+static void xsdk_gem_ndo_uninit(struct fwk_net_device *sprt_ndev)
 {
-    sprt_file->private_data = mrt_nullptr;
 
-    return 0;
 }
 
-/*!
- * @brief   xsdk_gem_driver_write
- * @param   sprt_file, ptrBuffer, size
- * @retval  errno
- * @note    none
- */
-static kssize_t xsdk_gem_driver_write(struct fwk_file *sprt_file, const kbuffer_t *ptrBuffer, kssize_t size)
+static kint32_t xsdk_gem_ndo_open(struct fwk_net_device *sprt_ndev)
+{
+    return ER_NORMAL;
+}
+
+static kint32_t xsdk_gem_ndo_stop(struct fwk_net_device *sprt_ndev)
+{
+    return ER_NORMAL;
+}
+
+static netdev_tx_t xsdk_gem_ndo_start_xmit(struct fwk_sk_buff *sprt_skb, struct fwk_net_device *sprt_ndev)
 {
     return 0;
 }
 
-/*!
- * @brief   xsdk_gem_driver_read
- * @param   sprt_file, ptrBuffer, size
- * @retval  errno
- * @note    none
- */
-static kssize_t xsdk_gem_driver_read(struct fwk_file *sprt_file, kbuffer_t *ptrBuffer, kssize_t size)
+static void xsdk_gem_ndo_set_rx_mode(struct fwk_net_device *sprt_ndev)
 {
-    return 0;
+    
 }
 
-/*!< driver operation */
-const struct fwk_file_oprts sgrt_xsdk_gem_driver_oprts =
+static kint32_t xsdk_gem_ndo_set_mac_address(struct fwk_net_device *sprt_ndev, void *ptr_addr)
 {
-    .open	= xsdk_gem_driver_open,
-    .close	= xsdk_gem_driver_close,
-    .write	= xsdk_gem_driver_write,
-    .read	= xsdk_gem_driver_read,
+    return ER_NORMAL;
+}
+
+static kint32_t xsdk_gem_ndo_do_ioctl(struct fwk_net_device *sprt_ndev, struct fwk_ifreq *sprt_ifr, kint32_t cmd)
+{
+    return ER_NORMAL;
+}
+
+static void xsdk_gem_ndo_tx_timeout(struct fwk_net_device *sprt_ndev)
+{
+
+}
+
+static struct fwk_netdev_stats *xsdk_gem_ndo_get_stats(struct fwk_net_device *sprt_ndev)
+{
+    return mrt_nullptr;
+}
+
+static kint32_t xsdk_gem_ndo_add_slave(struct fwk_net_device *sprt_ndev, struct fwk_net_device *sprt_slave_dev)
+{
+    return ER_NORMAL;
+}
+
+static kint32_t xsdk_gem_ndo_del_slave(struct fwk_net_device *sprt_ndev, struct fwk_net_device *sprt_slave_dev)
+{
+    return ER_NORMAL;
+}
+
+static kint32_t xsdk_gem_ndo_set_tx_maxrate(struct fwk_net_device *sprt_ndev, kint32_t queue_index, kuint32_t maxrate)
+{
+    return ER_NORMAL;
+}
+
+static const struct fwk_netdev_ops sgrt_xsdk_gem_drv_oprts =
+{
+    .ndo_init = xsdk_gem_ndo_init,
+    .ndo_uninit = xsdk_gem_ndo_uninit,
+    .ndo_open = xsdk_gem_ndo_open,
+    .ndo_stop = xsdk_gem_ndo_stop,
+    .ndo_start_xmit = xsdk_gem_ndo_start_xmit,
+    .ndo_set_rx_mode = xsdk_gem_ndo_set_rx_mode,
+    .ndo_set_mac_address = xsdk_gem_ndo_set_mac_address,
+    .ndo_do_ioctl = xsdk_gem_ndo_do_ioctl,
+    .ndo_tx_timeout = xsdk_gem_ndo_tx_timeout,
+    .ndo_get_stats = xsdk_gem_ndo_get_stats,
+    .ndo_add_slave = xsdk_gem_ndo_add_slave,
+    .ndo_del_slave = xsdk_gem_ndo_del_slave,
+    .ndo_set_tx_maxrate = xsdk_gem_ndo_set_tx_maxrate,
 };
+
+static void xsdk_gem_driver_setup(struct fwk_net_device *sprt_ndev)
+{
+
+}
 
 static irq_return_t xsdk_gem_driver_isr(void *args)
 {
@@ -124,7 +141,7 @@ static irq_return_t xsdk_gem_driver_isr(void *args)
  * @retval  errno
  * @note    none
  */
-static kint32_t xsdk_gem_probe_dt(struct fwk_platdev *sprt_pdev, struct xsdk_gem_drv_data *sprt_data)
+static kint32_t xsdk_gem_driver_probe_dt(struct fwk_platdev *sprt_pdev, struct xsdk_gem_drv_data *sprt_data)
 {
     struct fwk_device_node *sprt_node, *sprt_phy;
     struct fwk_platdev *sprt_platnew;
@@ -163,65 +180,40 @@ static kint32_t xsdk_gem_probe_dt(struct fwk_platdev *sprt_pdev, struct xsdk_gem
 static kint32_t xsdk_gem_driver_probe(struct fwk_platdev *sprt_pdev)
 {
     struct xsdk_gem_drv_data *sprt_data;
-    struct fwk_cdev *sprt_cdev;
-    struct fwk_device *sprt_idev;
-    kuint32_t devnum;
+    struct fwk_net_device *sprt_ndev;
     kint32_t retval;
 
-    retval = fwk_alloc_chrdev(&devnum, 0, 1, XSDK_GEM_DRIVER_NAME);
-    if (retval)
+    sprt_ndev = fwk_alloc_netdev(sizeof(*sprt_data), "eth%d", xsdk_gem_driver_setup);
+    if (!isValid(sprt_ndev))
         return -ER_FAILD;
-
-    sprt_cdev = fwk_cdev_alloc(&sgrt_xsdk_gem_driver_oprts);
-    if (!isValid(sprt_cdev))
+    
+    sprt_data = (struct xsdk_gem_drv_data *)fwk_netdev_priv(sprt_ndev);
+    if (!isValid(sprt_data))
         goto fail1;
 
-    retval = fwk_cdev_add(sprt_cdev, devnum, 1);
-    if (retval < 0)
+    sprt_ndev->sprt_netdev_oprts = &sgrt_xsdk_gem_drv_oprts;
+    if (xsdk_gem_driver_probe_dt(sprt_pdev, sprt_data))
+        goto fail1;
+
+    fwk_platform_set_drvdata(sprt_pdev, sprt_data);
+    retval = fwk_request_irq(sprt_data->irq, xsdk_gem_driver_isr, 0, XSDK_GEM_DRIVER_NAME, sprt_ndev);
+    if (retval)
         goto fail2;
 
-    sprt_idev = fwk_device_create(NR_TYPE_CHRDEV, devnum, XSDK_GEM_DRIVER_NAME);
-    if (!isValid(sprt_idev))
-        goto fail3;
-    
-    sprt_data = (struct xsdk_gem_drv_data *)kzalloc(sizeof(struct xsdk_gem_drv_data), GFP_KERNEL);
-    if (!isValid(sprt_data))
-        goto fail4;
-
-    sprt_data->major = GET_DEV_MAJOR(devnum);
-    sprt_data->minor = GET_DEV_MINOR(devnum);
-    sprt_data->sprt_cdev = sprt_cdev;
-    sprt_data->sprt_idev = sprt_idev;
-    sprt_idev->sprt_parent = &sprt_pdev->sgrt_dev;
-
-    if (xsdk_gem_probe_dt(sprt_pdev, sprt_data))
-        goto fail5;
-
-    sprt_cdev->privData = sprt_data;
-    fwk_platform_set_drvdata(sprt_pdev, sprt_data);
-
-    retval = fwk_request_irq(sprt_data->irq, xsdk_gem_driver_isr, 0, XSDK_GEM_DRIVER_NAME, sprt_data);
-    if (retval)
-        goto fail6;
-
     fwk_disable_irq(sprt_data->irq);
-    print_info("register a new chardevice (GEM)\n");
+    retval = fwk_register_netdevice(sprt_ndev);
+    if (retval)
+        goto fail3;
 
+    print_info("register a new netdevice (GEM)\n");
     return ER_NORMAL;
 
-fail6:
-    fwk_platform_set_drvdata(sprt_pdev, mrt_nullptr);
-fail5:
-    kfree(sprt_data);
-fail4:
-    fwk_device_destroy(sprt_idev);
 fail3:
-    fwk_cdev_del(sprt_cdev);
+    fwk_free_irq(sprt_data->irq, sprt_ndev);
 fail2:
-    kfree(sprt_cdev);
+    fwk_platform_set_drvdata(sprt_pdev, mrt_nullptr);
 fail1:
-    fwk_unregister_chrdev(devnum, 1);
-
+    fwk_free_netdev(sprt_ndev);
     return -ER_FAILD;
 }
 
@@ -233,22 +225,19 @@ fail1:
  */
 static kint32_t xsdk_gem_driver_remove(struct fwk_platdev *sprt_pdev)
 {
+    struct fwk_net_device *sprt_ndev;
     struct xsdk_gem_drv_data *sprt_data;
-    kuint32_t devnum;
 
-    sprt_data = (struct xsdk_gem_drv_data *)fwk_platform_get_drvdata(sprt_pdev);
-    if (!isValid(sprt_data))
+    sprt_ndev = (struct fwk_net_device *)fwk_platform_get_drvdata(sprt_pdev);
+    if (!isValid(sprt_ndev))
         return -ER_NULLPTR;
 
-    devnum = MKE_DEV_NUM(sprt_data->major, sprt_data->minor);
+    sprt_data = (struct xsdk_gem_drv_data *)fwk_netdev_priv(sprt_ndev);
 
-    fwk_device_destroy(sprt_data->sprt_idev);
-    fwk_cdev_del(sprt_data->sprt_cdev);
-    kfree(sprt_data->sprt_cdev);
-    fwk_unregister_chrdev(devnum, 1);
-
-    kfree(sprt_data);
+    fwk_unregister_netdevice(sprt_ndev);
+    fwk_free_irq(sprt_data->irq, sprt_ndev);
     fwk_platform_set_drvdata(sprt_pdev, mrt_nullptr);
+    fwk_free_netdev(sprt_ndev);
 
     return ER_NORMAL;
 }

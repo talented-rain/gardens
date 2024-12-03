@@ -270,6 +270,17 @@ __weak void *kzalloc(size_t __size, ert_fwk_mempool_t flags)
 }
 
 /*!
+ * @brief   default malloc
+ * @param   size
+ * @retval  none
+ * @note    none
+ */
+void *default_malloc(kusize_t size)
+{
+	return kmalloc(size, GFP_KERNEL);
+}
+
+/*!
  * @brief   kfree
  * @param   __ptr
  * @retval  none
