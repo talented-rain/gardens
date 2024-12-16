@@ -102,16 +102,16 @@ struct scheduler_table
 /*!< The functions */
 TARGET_EXT struct real_thread *get_current_thread(void);
 TARGET_EXT struct list_head *get_ready_thread_table(void);
-TARGET_EXT struct real_thread *get_thread_handle(real_thread_t tid);
-TARGET_EXT void real_thread_set_name(real_thread_t tid, const kchar_t *name);
+TARGET_EXT struct real_thread *get_thread_handle(tid_t tid);
+TARGET_EXT void real_thread_set_name(tid_t tid, const kchar_t *name);
 TARGET_EXT void real_thread_set_self_name(const kchar_t *name);
 TARGET_EXT void real_thread_set_state(struct real_thread *sprt_thread, kuint32_t state);
 TARGET_EXT struct spin_lock *scheduler_lock(void);
-TARGET_EXT real_thread_t get_unused_tid_from_scheduler(kuint32_t i_start, kuint32_t count);
+TARGET_EXT tid_t get_unused_tid_from_scheduler(kuint32_t i_start, kuint32_t count);
 TARGET_EXT kuint64_t scheduler_stats_get(void);
 TARGET_EXT void schedule_self_suspend(void);
-TARGET_EXT kint32_t schedule_thread_suspend(real_thread_t tid);
-TARGET_EXT kint32_t schedule_thread_wakeup(real_thread_t tid);
+TARGET_EXT kint32_t schedule_thread_suspend(tid_t tid);
+TARGET_EXT kint32_t schedule_thread_wakeup(tid_t tid);
 
 TARGET_EXT kbool_t is_ready_thread_empty(void);
 TARGET_EXT kbool_t is_suspend_thread_empty(void);
@@ -120,15 +120,16 @@ TARGET_EXT struct real_thread *get_first_ready_thread(void);
 TARGET_EXT struct real_thread *get_first_suspend_thread(void);
 TARGET_EXT struct real_thread *get_first_sleep_thread(void);
 
-TARGET_EXT kint32_t schedule_thread_switch(real_thread_t tid);
-TARGET_EXT kint32_t register_new_thread(struct real_thread *sprt_thread, real_thread_t tid);
+TARGET_EXT kint32_t schedule_thread_switch(tid_t tid);
+TARGET_EXT kint32_t register_new_thread(struct real_thread *sprt_thread, tid_t tid);
 TARGET_EXT void __real_thread_init_before(void);
 TARGET_EXT struct scheduler_context *__schedule_thread(void);
 TARGET_EXT void schedule_thread(void);
 
 /*!< The defines */
-#define mrt_current                             ({ struct real_thread *sprt_current = get_current_thread(); sprt_current; })
+#define mrt_current                             get_current_thread()
 #define mrt_tid_handle(tid)                     get_thread_handle(tid)
+#define mrt_tid_attr(tid)                       real_thread_attr_get(tid)
 
 /*!< API functions */
 /*!

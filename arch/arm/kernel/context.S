@@ -116,10 +116,14 @@ _switch_restore:
     moveq sp, r1                                    @ first schedule, sp = frame register base    
 
     ldr r2, [r0]                                    @ address of entry
+    mov r7, #0                                      @ initial
+
     ldr r3, [r1, #ARCH_OFFSET_PC]                   @ r3: reload lr, lr = entry
     cmp r3, #0
-    ldreq r3, [r2]                                  @ first schedule, lr = entry
-    push { r3 }                                     @ push for pc
+    itt eq
+    ldr r3, [r2]                                    @ first schedule, lr = entry
+    mov r7, #1                                      @ mask first
+    push { r3, r7 }                                 @ push for pc, and mask first
 
     ldr r7, [r0, #8]                                @ r2: first
     ldr r2, [r7]                                    @ if r2 == 0, current thread is scheduled by "start_kernel"
@@ -140,22 +144,35 @@ _switch_restore:
     orreq r6, #ARCH_SVC_MODE
     msr spsr_cxsf, r6                               @ restore spsr
 
-    mov r0, #0
-    str r0, g_asm_context_info                      @ clear
+    mov r4, #0
+    str r4, g_asm_context_info                      @ clear
     
     add r4, r1, #ARCH_FRAME_SIZE
     ldr r3, [r4]
     cmp r3, #0
     beq 3f                                          @ case 1: scheduling is from thread calling, return to thread
 
-    pop { r3 }                                      @ lr_svc will be abandoned
+    pop { r3, r7 }                                  @ lr_svc (r3) will be abandoned
     push { r5, r6 }                                 @ r5 = lr, r6 = spsr
+
+    cmp r7, #1                                      @ first scheduled
+    ittt eq
+    ldr r4, [r0, #4]
+    ldr r0, [r4]                                    @ r0: args
+    b _schedule_first_irq
+
     _context_restore_params                         @ restore context
 
+_schedule_first_irq:
     _set_preempt_cnt sub
     b _schedule_over                                @ case 2: scheduling is from IRQ, need to return to IRQ;
 
 3:
+    ldmia sp, { r2 }
+    cmp r2, #1                                      @ first scheduled
+    beq 4f
+
+    pop { r2 }
     _context_restore_params                         @ restore context
     push { r0 }
     mrs r0, spsr
@@ -164,6 +181,7 @@ _switch_restore:
     b 5f
 
 4:
+    pop { r2 }
     mov r2, #1
     str r2, [r7]                                    @ set first to true
 

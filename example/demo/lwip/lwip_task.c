@@ -36,7 +36,7 @@
 #define LWIP_TASK_THREAD_STACK_SIZE                       REAL_THREAD_STACK_PAGE(1)    /*!< 1 page (4kbytes) */
 
 /*!< The globals */
-static real_thread_t g_lwip_task_tid;
+static tid_t g_lwip_task_tid;
 static struct real_thread_attr sgrt_lwip_task_attr;
 static kuint32_t g_lwip_task_stack[LWIP_TASK_THREAD_STACK_SIZE];
 

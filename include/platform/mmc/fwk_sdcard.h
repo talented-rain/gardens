@@ -49,7 +49,7 @@
  */
 /*!< Registers */
 /*!< OCR Register */
-typedef enum ert_fwk_sdcard_ocr
+typedef enum nrt_fwk_sdcard_ocr
 {
     NR_SdCard_OcrVddLowVol_Bit = mrt_bit(7U),               /*!< reserved for low power */
     NR_SdCard_OcrVdd27_28_Bit = mrt_bit(15U),               /*!< VDD: 2.7V ~ 2.8V */
@@ -67,7 +67,7 @@ typedef enum ert_fwk_sdcard_ocr
     NR_SdCard_OcrCapacity_Bit = mrt_bit(30U),               /*!< Capacity of Card. 1: High-Capacity Card(HC or XC); 0: Standard Card(SC) */
     NR_SdCard_OcrNotBusy_Bit = mrt_bit(31U),                /*!< Power-on State of Card. 1: Power on complete; 0: Power on not complete */
 
-} ert_fwk_sdcard_ocr_t;
+} nrt_fwk_sdcard_ocr_t;
 
 /*!< CID Register */
 typedef struct fwk_sdcard_cid
@@ -409,7 +409,7 @@ typedef struct fwk_sdcard_cmd6_data
  *  R1b is indentical to R1 with an optional busy signal transmitted on the [data line]. The card may become busy after receiving these
  *  commands based on its state prior to the command reception. The host shall check for busy at the response.
  */
-typedef enum ert_fwk_sdcard_resp
+typedef enum nrt_fwk_sdcard_resp
 {
     NR_SdCard_Response_0 = 0U,                         /*!< R0 = No Response */
     NR_SdCard_Response_1,
@@ -423,7 +423,7 @@ typedef enum ert_fwk_sdcard_resp
     NR_SdCard_Response_1b,                             /*!< R1 + Busy bit */
     NR_SdCard_Response_5b,                             /*!< R5 + Busy bit */
 
-} ert_fwk_sdcard_resp_t;
+} nrt_fwk_sdcard_resp_t;
 
 /*!< R1 Response: Card Status Bit (bit[39:8]) */
 enum _ERT_FWK_SDCARD_R1_STATUS_BIT
@@ -529,7 +529,7 @@ enum _ERT_FWK_SDCARD_R1_STATUS_BIT
 #define FWK_SDCARD_CMD_MASK								(0x0000003fU)
 
 /*!< Command index(bit[45:40]): General Command */
-typedef enum ert_fwk_sdcard_gcmd
+typedef enum nrt_fwk_sdcard_gcmd
 {
     /*!< Basic (Class 0) */
     NR_SdCard_Cmd_GoIdle = 0U,                          /*!< bc,    -       Resets all MMC and SD memory cards to idle state */
@@ -576,10 +576,10 @@ typedef enum ert_fwk_sdcard_gcmd
     NR_SdCard_Cmd_AppCmd = 55U,                         /*!< ac,    R1,     Specify the next command as a specific application command, not a standard command */
     NR_SdCard_Cmd_GenCmd = 56U,                         /*!< adtc,  R1b,    In general commands or specific application commands, used to transfer a data block. The lowest bit of 1 indicates reading data, while 0 indicates writing data */
 
-} ert_fwk_sdcard_gcmd_t;
+} nrt_fwk_sdcard_gcmd_t;
 
 /*!< Command index(bit[45:40]): Special Application Command */
-typedef enum ert_fwk_sdcard_acmd
+typedef enum nrt_fwk_sdcard_acmd
 {
 	/*!< ac, R1, Define data bus width (00: 1bit; 10: 4bit) */
     NR_SdCard_ACmd_SetBusWidth = FWK_SDCARD_CMD_APP | 6U,
@@ -596,11 +596,11 @@ typedef enum ert_fwk_sdcard_acmd
 	/*!< adtc, R1, Read Configuration Register SCR */
     NR_SdCard_ACmd_GetSCR = FWK_SDCARD_CMD_APP | 51U,
 
-} ert_fwk_sdcard_acmd_t;
+} nrt_fwk_sdcard_acmd_t;
 
-/*!< for ert_fwk_sdcard_gcmd */
+/*!< for nrt_fwk_sdcard_gcmd */
 #define FWK_SDCARD_CMDTYPE_GENERIC						(0)
-/*!< for ert_fwk_sdcard_acmd */
+/*!< for nrt_fwk_sdcard_acmd */
 #define FWK_SDCARD_CMDTYPE_APPLICATION					(1)
 
 __align(1) typedef struct fwk_sdcard_cmd
@@ -785,13 +785,13 @@ enum __ERT_SDCARD_VERSION
 };
 
 /*!< read or write direction */
-typedef enum ert_fwk_sdcard_rw
+typedef enum nrt_fwk_sdcard_rw
 {
     NR_SdCard_ReadToHost = 0U,
     NR_SdCard_WriteToCard,
     NR_SdCard_EraseSector,
 
-} ert_fwk_sdcard_rw_t;
+} nrt_fwk_sdcard_rw_t;
 
 /*!< switch voltage */
 enum __ERT_SDCARD_SW_VOLTAGE
@@ -812,7 +812,7 @@ TARGET_EXT kbool_t fwk_sdcard_is_insert(struct fwk_sdcard *sprt_card);
 TARGET_EXT kbool_t fwk_sdcard_detect(struct fwk_sdcard *sprt_card);
 TARGET_EXT kbool_t fwk_sdcard_to_normal(struct fwk_sdcard *sprt_card);
 TARGET_EXT kbool_t fwk_sdcard_rw_blocks(struct fwk_sdcard *sprt_card, void *ptrBuffer, 
-                                kuint32_t iBlockStart, kuint32_t iBlockCount, ert_fwk_sdcard_rw_t egrt_rw);
+                                kuint32_t iBlockStart, kuint32_t iBlockCount, nrt_fwk_sdcard_rw_t egrt_rw);
 TARGET_EXT kbool_t fwk_sdcard_format_blocks(struct fwk_sdcard *sprt_card, kuint32_t iBlockStart, kuint32_t iBlockCount);
 
 /*!< API function */

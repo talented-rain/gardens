@@ -31,7 +31,8 @@ struct fwk_mempool
 #define FWK_MEMPOOL_FIXDATA             0
 #define FWK_MEMPOOL_KERNEL              1
 #define FWK_MEMPOOL_FB_DRAM             2
-#define FWK_MEMPOOL_TYPE_MAX            3
+#define FWK_MEMPOOL_SK_BUFF             3
+#define FWK_MEMPOOL_TYPE_MAX            4
 
 /*!< The globals */
 static struct mem_info sgrt_kernel_mem_info[FWK_MEMPOOL_TYPE_MAX] = {};
@@ -52,6 +53,11 @@ static struct fwk_mempool sgrt_kernel_mempool[FWK_MEMPOOL_TYPE_MAX] =
         .name = "framebuffer",
         .mask = NR_KMEM_FBUFFER,
         .sprt_info = &sgrt_kernel_mem_info[FWK_MEMPOOL_FB_DRAM],
+    },
+    {
+        .name = "network",
+        .mask = NR_KMEM_SK_BUFF,
+        .sprt_info = &sgrt_kernel_mem_info[FWK_MEMPOOL_SK_BUFF],
     },
 };
 
@@ -82,6 +88,13 @@ kbool_t fwk_mempool_initial(void)
     sprt_pool = &sgrt_kernel_mempool[FWK_MEMPOOL_FB_DRAM];
     sprt_info = sprt_pool->sprt_info;
     memory_simple_block_create(sprt_info, FBUFFER_DRAM_BASE, FBUFFER_DRAM_SIZE);
+    init_waitqueue_head(&sprt_pool->sgrt_wqh);
+    spin_lock_init(&sprt_pool->sgrt_lock);
+
+    /*!< ------------------------------------------------------------ */
+    sprt_pool = &sgrt_kernel_mempool[FWK_MEMPOOL_SK_BUFF];
+    sprt_info = sprt_pool->sprt_info;
+    memory_simple_block_create(sprt_info, SK_BUFFER_BASE, SK_BUFFER_SIZE);
     init_waitqueue_head(&sprt_pool->sgrt_wqh);
     spin_lock_init(&sprt_pool->sgrt_lock);
 
@@ -176,7 +189,7 @@ void memory_block_self_destroy(kint32_t flags)
  * @retval  none
  * @note    read memory total lenth
  */
-__weak kssize_t kmget_size(ert_fwk_mempool_t flags)
+__weak kssize_t kmget_size(nrt_gfp_t flags)
 {
     struct fwk_mempool *sprt_pool = mrt_nullptr;
     kuint32_t index;
@@ -204,7 +217,7 @@ __weak kssize_t kmget_size(ert_fwk_mempool_t flags)
  * @retval  none
  * @note    kernel memory pool allocate
  */
-__weak void *kmalloc(size_t __size, ert_fwk_mempool_t flags)
+__weak void *kmalloc(size_t __size, nrt_gfp_t flags)
 {
     struct fwk_mempool *sprt_pool = mrt_nullptr;
     struct mem_info *sprt_info;
@@ -253,7 +266,7 @@ END:
  * @retval  none
  * @note    kernel memory pool allocate (array)
  */
-__weak void *kcalloc(size_t __size, size_t __n, ert_fwk_mempool_t flags)
+__weak void *kcalloc(size_t __size, size_t __n, nrt_gfp_t flags)
 {
     return kmalloc(__size * __n, flags);
 }
@@ -264,7 +277,7 @@ __weak void *kcalloc(size_t __size, size_t __n, ert_fwk_mempool_t flags)
  * @retval  none
  * @note    kernel memory pool allocate, and reset automatically
  */
-__weak void *kzalloc(size_t __size, ert_fwk_mempool_t flags)
+__weak void *kzalloc(size_t __size, nrt_gfp_t flags)
 {
     return kmalloc(__size, flags | GFP_ZERO);
 }

@@ -22,7 +22,7 @@ real_thread_init_t g_thread_init_tables[] =
     mrt_test_app_list,
     
     /*!< applications */
-    lvgl_task_init,
+//  lvgl_task_init,
     lwip_task_init,
     
     /*!< end */

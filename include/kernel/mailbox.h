@@ -64,7 +64,7 @@ struct mail
 struct mailbox
 {
     kchar_t name[MAILBOX_NAME_LEN];
-    real_thread_t tid;
+    tid_t tid;
 
     kuint32_t num_mails;
     struct list_head sgrt_mail;
@@ -77,9 +77,9 @@ struct mailbox
 TARGET_EXT struct mailbox *mailbox_find(const kchar_t *name);
 TARGET_EXT void mailbox_insert(struct mailbox *sprt_mb);
 
-TARGET_EXT kint32_t mailbox_init(struct mailbox *sprt_mb, real_thread_t tid, const kchar_t *name);
+TARGET_EXT kint32_t mailbox_init(struct mailbox *sprt_mb, tid_t tid, const kchar_t *name);
 TARGET_EXT void mailbox_deinit(struct mailbox *sprt_mb);
-TARGET_EXT struct mailbox *mailbox_create(real_thread_t tid, const kchar_t *name);
+TARGET_EXT struct mailbox *mailbox_create(tid_t tid, const kchar_t *name);
 TARGET_EXT void mailbox_destroy(struct mailbox *sprt_mb);
 
 TARGET_EXT void mail_init(struct mailbox *sprt_mb, struct mail *sprt_mail);

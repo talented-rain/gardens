@@ -32,7 +32,7 @@ static kuint32_t g_fwk_allocated_irqs[mrt_num_align(FWK_IRQ_DESC_MAX, RET_BITS_P
  * @retval  none
  * @note    none
  */
-static struct fwk_irq_desc *fwk_allocate_irq_desc(ert_fwk_mempool_t gfp)
+static struct fwk_irq_desc *fwk_allocate_irq_desc(nrt_gfp_t gfp)
 {
 	struct fwk_irq_desc *sprt_desc;
 

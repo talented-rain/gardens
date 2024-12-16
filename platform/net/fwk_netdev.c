@@ -92,13 +92,13 @@ struct fwk_net_device *fwk_alloc_netdev_mq(kint32_t sizeof_priv, const kchar_t *
     struct fwk_netdev_queue *sprt_tx;
     kint32_t alloc_size = 0;
 
+    alloc_size = sizeof(*sprt_netdev);
     if (sizeof_priv > 0)
-    {
-        alloc_size = mrt_align(sizeof(*sprt_netdev), sizeof(kutype_t));
-        alloc_size += sizeof_priv;
-    }
+        alloc_size = mrt_align(alloc_size, sizeof(kutype_t));
+    else
+        sizeof_priv = 0;
 
-    sprt_netdev = (struct fwk_net_device *)kzalloc(alloc_size, GFP_KERNEL);
+    sprt_netdev = (struct fwk_net_device *)kzalloc(alloc_size + sizeof_priv, GFP_KERNEL);
     if (!isValid(sprt_netdev))
         return ERR_PTR(-ER_NOMEM);
 
@@ -113,11 +113,9 @@ struct fwk_net_device *fwk_alloc_netdev_mq(kint32_t sizeof_priv, const kchar_t *
     sprt_netdev->sprt_tx = sprt_tx;
     sprt_netdev->num_tx_queues = txqs;
     sprt_netdev->real_num_tx_queues = txqs;
-    sprt_netdev->private_data = ((void *)sprt_netdev) + mrt_align(sizeof(*sprt_netdev), sizeof(kutype_t));
+    sprt_netdev->private_data = (sizeof_priv > 0) ? (((void *)sprt_netdev) + alloc_size) : mrt_nullptr;
     sprt_netdev->ifindex = -1;
 
-    /*!< initial recieve queue */
-    memset(&sprt_netdev->sgrt_rcu, 0, sizeof(struct fwk_netdev_queue));
     kstrncpy(sprt_netdev->name, name, NET_IFNAME_SIZE);
     init_list_head(&sprt_netdev->sgrt_link);
 
@@ -145,7 +143,7 @@ void fwk_free_netdev(struct fwk_net_device *sprt_ndev)
     kfree(sprt_ndev);
 }
 
-struct fwk_net_device *fwk_find_netdevice(const kchar_t *name)
+struct fwk_net_device *fwk_ifname_to_ndev(const kchar_t *name)
 {
     struct fwk_net_device *sprt_ndev;
 
@@ -170,7 +168,7 @@ kint32_t fwk_register_netdevice(struct fwk_net_device *sprt_ndev)
         return -ER_CHECKERR;
 
     fwk_net_validate_name(sprt_ndev);
-    if (fwk_find_netdevice(sprt_ndev->name))
+    if (fwk_ifname_to_ndev(sprt_ndev->name))
         return -ER_EXISTED;
 
     if (sprt_ndev->sprt_netdev_oprts->ndo_init)
@@ -211,7 +209,7 @@ kint32_t fwk_unregister_netdevice(struct fwk_net_device *sprt_ndev)
     if (mrt_list_head_empty(&sprt_ndev->sgrt_link))
         return -ER_CHECKERR;
 
-    if (!fwk_find_netdevice(sprt_ndev->name))
+    if (!fwk_ifname_to_ndev(sprt_ndev->name))
         return -ER_NODEV;
 
     sprt_dev = &sprt_ndev->sgrt_dev;

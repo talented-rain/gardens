@@ -142,9 +142,9 @@ static const struct zynq7_clk_grp sgrt_zynq7_clks_gate_name[] =
  */
 static kint32_t zynq7_clks_gate_enable(struct fwk_clk_hw *sprt_hw)
 {
-    struct fwk_clk_gate *sprt_gate;
-
-    sprt_gate = mrt_container_of(sprt_hw, struct fwk_clk_gate, sgrt_hw);
+//    struct fwk_clk_gate *sprt_gate;
+//
+//    sprt_gate = mrt_container_of(sprt_hw, struct fwk_clk_gate, sgrt_hw);
 
     return ER_NORMAL;
 }
@@ -157,9 +157,9 @@ static kint32_t zynq7_clks_gate_enable(struct fwk_clk_hw *sprt_hw)
  */
 static void	zynq7_clks_gate_disable(struct fwk_clk_hw *sprt_hw)
 {
-    struct fwk_clk_gate *sprt_gate;
+//    struct fwk_clk_gate *sprt_gate;
 
-    sprt_gate = mrt_container_of(sprt_hw, struct fwk_clk_gate, sgrt_hw);
+//    sprt_gate = mrt_container_of(sprt_hw, struct fwk_clk_gate, sgrt_hw);
 
 }
 
@@ -171,10 +171,10 @@ static void	zynq7_clks_gate_disable(struct fwk_clk_hw *sprt_hw)
  */
 static kint32_t zynq7_clks_gate_is_enabled(struct fwk_clk_hw *sprt_hw)
 {
-    struct fwk_clk_gate *sprt_gate;
+//    struct fwk_clk_gate *sprt_gate;
     kuint32_t value = 0;
 
-    sprt_gate = mrt_container_of(sprt_hw, struct fwk_clk_gate, sgrt_hw);
+//    sprt_gate = mrt_container_of(sprt_hw, struct fwk_clk_gate, sgrt_hw);
 
 
     return !!value;
@@ -195,9 +195,9 @@ static const struct fwk_clk_ops sgrt_zynq7_clks_gate_oprts =
  */
 static kint32_t zynq7_clks_driver_of_init(struct zynq7_clks_data *sprt_data)
 {
-    struct zynq7_sclr *sprt_zsclr;
+//    struct zynq7_sclr *sprt_zsclr;
 
-    sprt_zsclr = (struct zynq7_sclr *)sprt_data->sclr_base;
+//    sprt_zsclr = (struct zynq7_sclr *)sprt_data->sclr_base;
 
     return 0;
 }

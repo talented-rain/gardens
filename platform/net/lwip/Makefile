@@ -9,7 +9,8 @@
 # Copyright (c) 2024   Yang Yujun <yujiantianhu@163.com>
 #
 
-obj-y	+=	loopback.o
-#obj-y	+=	zynq7sdk_gem.o
+obj-y	+=	fwk_lwip.o
+obj-y	+=	fwk_udp.o
+obj-y	+=	fwk_tcp.o
 
 # end of file

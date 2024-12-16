@@ -116,11 +116,18 @@
 
 /*!< Calculate the offset of the member in the struct */
 #define mrt_member_offset(type, member)					((kusize_t)(&((type *)0)->member))
+
+#ifdef __compiler_offsetof
+	#define mrt_offsetof(type, member)					__compiler_offsetof(type, member)
+#else
+	#define mrt_offsetof(type, member)					mrt_member_offset(type, member)
+#endif
+
 /*!< Return the handler of parent struct */
 #define mrt_to_parent_handler(ptr, type, member)	\
 ({	\
 	const typeof(((type *)0)->member) *ptr_member = (ptr);	\
-	(type *)((char *)ptr_member - mrt_member_offset(type, member));	\
+	(type *)((char *)ptr_member - mrt_offsetof(type, member));	\
 })
 #define mrt_container_of(ptr, type, member)				mrt_to_parent_handler(ptr, type, member)
 
@@ -188,6 +195,7 @@ TARGET_EXT kutype_t udiv_remainder(kutype_t divied, kutype_t div);
 TARGET_EXT kutype_t dec_to_hex(kchar_t *buf, kutype_t number, kbool_t mode);
 TARGET_EXT kutype_t dec_to_binary(kchar_t *buf, kutype_t number);
 TARGET_EXT kutype_t ascii_to_dec(const kchar_t *str);
+TARGET_EXT kutype_t random_val(void);
 
 #define mrt_udiv(divied, div)	\
 ({	\

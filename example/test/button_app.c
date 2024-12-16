@@ -29,7 +29,7 @@
 #define BUTTONAPP_THREAD_STACK_SIZE                          REAL_THREAD_STACK_HALF(1)    /*!< 1/2 page (1kbytes) */
 
 /*!< The globals */
-static real_thread_t g_button_app_tid;
+static tid_t g_button_app_tid;
 static struct real_thread_attr sgrt_button_app_attr;
 static kuint32_t g_button_app_stack[BUTTONAPP_THREAD_STACK_SIZE];
 static struct mailbox sgrt_button_app_mailbox;

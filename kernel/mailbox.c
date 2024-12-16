@@ -89,7 +89,7 @@ END:
  * @retval  none
  * @note    none
  */
-kint32_t mailbox_init(struct mailbox *sprt_mb, real_thread_t tid, const kchar_t *name)
+kint32_t mailbox_init(struct mailbox *sprt_mb, tid_t tid, const kchar_t *name)
 {
     struct mailbox *sprt_box;
     kchar_t label[MAILBOX_NAME_LEN] = {};
@@ -133,7 +133,7 @@ void mailbox_deinit(struct mailbox *sprt_mb)
  * @retval  mailbox created
  * @note    none
  */
-struct mailbox *mailbox_create(real_thread_t tid, const kchar_t *name)
+struct mailbox *mailbox_create(tid_t tid, const kchar_t *name)
 {
     struct mailbox *sprt_mb;
 

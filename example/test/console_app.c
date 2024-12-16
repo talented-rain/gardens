@@ -29,7 +29,7 @@
 #define CONSOLE_APP_THREAD_STACK_SIZE                       REAL_THREAD_STACK_HALF(1)    /*!< 1/2 page (1kbytes) */
 
 /*!< The globals */
-static real_thread_t g_console_app_tid;
+static tid_t g_console_app_tid;
 static struct real_thread_attr sgrt_console_app_attr;
 static kuint32_t g_console_app_stack[CONSOLE_APP_THREAD_STACK_SIZE];
 static struct mailbox sgrt_console_app_mailbox;

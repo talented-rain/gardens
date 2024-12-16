@@ -18,20 +18,16 @@
 #include <common/error_types.h>
 #include <common/generic.h>
 #include <common/list_types.h>
+#include <platform/fwk_basic.h>
 #include <platform/net/fwk_if.h>
-
-#include <lwip/port/lwipopts.h>
-#include <lwip/inet.h>
-#include <lwip/ip4.h>
+#include <platform/net/fwk_netif.h>
+#include <platform/net/fwk_socket.h>
 
 /*!< The defines */
 struct lwip_task_data
 {
     kint32_t fd;
-    struct netif server_netif;
-    kuint8_t mac_address[NET_MAC_ETH_ALEN];
-    kuint8_t tx_buffer[1518];
-    kuint8_t rx_buffer[1518];
+    kuint8_t rx_buffer[128];
 };
 
 /*!< The globals */

@@ -132,7 +132,7 @@
 &gem0 {
     phy-handle = <&phy1>;
     status = "okay";
-}
+};
 
 &pinctrl0 {
     pinctrl_led1_gpio: led1_gpio_pingrp {

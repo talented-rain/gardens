@@ -1681,7 +1681,7 @@ fail1:
  * @note    read or write blocks
  */
 kbool_t fwk_sdcard_rw_blocks(struct fwk_sdcard *sprt_card, void *ptrBuffer, 
-                                kuint32_t iBlockStart, kuint32_t iBlockCount, ert_fwk_sdcard_rw_t egrt_rw)
+                                kuint32_t iBlockStart, kuint32_t iBlockCount, nrt_fwk_sdcard_rw_t egrt_rw)
 {
     mrt_assert(sprt_card);
 

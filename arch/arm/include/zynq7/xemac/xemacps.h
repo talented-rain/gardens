@@ -765,7 +765,7 @@ TARGET_EXT void XEmacPs_PhyDetect(XEmacPs *sprt_xemac);
 TARGET_EXT void XEmacPs_SetOperatingSpeed(XEmacPs *sprt_emacps, u16 Speed);
 TARGET_EXT kint32_t XEmacPs_PhySetup(XEmacPs *xemacpsp, kuint32_t phy_addr);
 
-TARGET_EXT void XEmacPs_Init(XEmacPs *xemacpsp);
+TARGET_EXT void XEmacPs_Init(XEmacPs *xemacpsp, void *hwaddr);
 
 #ifdef __cplusplus
 }

@@ -119,8 +119,6 @@ static XEmacPs_Config XEmacPs_ConfigTable[XPAR_XEMACPS_NUM_INSTANCES] =
 };
 #define XEMACPS_IS_ETH_0(x)                  ((x)->Config.BaseAddress == XPAR_PS7_ETHERNET_0_BASEADDR)
 
-static struct XEthernetPs sgrt_zynq7_xetherps;
-
 static kint32_t link_speed = 100;
 static kuint32_t phymapemac0[32];
 static kuint32_t phymapemac1[32];
@@ -1530,22 +1528,19 @@ kint32_t XEmacPs_PhySetup(XEmacPs *xemacpsp, kuint32_t phy_addr)
     return link_speed;
 }
 
-void XEmacPs_Init(XEmacPs *xemacpsp)
+void XEmacPs_Init(XEmacPs *xemacpsp, void *hwaddr)
 {
     kint32_t status;
     kuint32_t i;
     kuint32_t phyfoundforemac0 = false;
     kuint32_t phyfoundforemac1 = false;
-    struct netif *netif;
-
-    netif = sprt_zynq7_netif;
 
 #if (defined(LWIP_IGMP) && (LWIP_IGMP))
     XEmacPs_SetOptions(xemacpsp, XEMACPS_MULTICAST_OPTION);
 #endif
 
     /*!< set mac address */
-    status = XEmacPs_SetMacAddress(xemacpsp, (void*)(netif->hwaddr), 1);
+    status = XEmacPs_SetMacAddress(xemacpsp, hwaddr, 1);
     if (status)
         print_debug("In %s: Emac Mac Address set failed...\r\n",__func__);
 
@@ -1618,10 +1613,7 @@ void XEmacPs_Init(XEmacPs *xemacpsp)
     XEmacPs_SetOperatingSpeed(xemacpsp, link_speed);
 
     /*!< Setting the operating speed of the MAC needs a delay. */
-    {
-        volatile s32_t wait;
-        for (wait = 0; wait < 20000; wait++);
-    }
+
 }
 
 /*!< ----------------------------------------------------------------- */
@@ -2691,7 +2683,7 @@ void XEmacPsIf_RecvHandler(void *arg)
              *  store it in the receive queue,
              * where it'll be processed by a different handler
              */
-            if (pq_queue_put(xemacpsif->recv_q, (void*)p) < 0)
+            if (pq_enqueue(xemacpsif->recv_q, (void*)p) < 0)
                 pbuf_free(p);
 
             curbdptr = XEmacPs_BdRingNext( rxring, curbdptr);
@@ -2920,7 +2912,7 @@ kint32_t XEthernetPs_Initiailize(struct XEthernetPs *sprt_xethps, struct netif *
     xemac->topology_index = 0;
 
     xemacpsif->send_q = mrt_nullptr;
-    xemacpsif->recv_q = pq_queue_create();
+    xemacpsif->recv_q = pq_queue_create(NR_PQ_DROP, 4096);
     if (!xemacpsif->recv_q)
         return -ER_NOMEM;
 
@@ -2934,7 +2926,7 @@ kint32_t XEthernetPs_Initiailize(struct XEthernetPs *sprt_xethps, struct netif *
     sprt_zynq7_netif = netif;
     
     /*!< initialize the mac */
-    XEmacPs_Init(&xemacpsif->emacps);
+    XEmacPs_Init(&xemacpsif->emacps, (void *)netif->hwaddr);
 
     /*!< setisr */
     XEmacPsIf_SetupIsr(xemac);
@@ -3002,7 +2994,7 @@ static struct pbuf *low_level_input(struct netif *netif)
         return NULL;
 
     /*!< return one packet from receive q */
-    p = (struct pbuf *)pq_queue_get(xemacpsif->recv_q);
+    p = (struct pbuf *)pq_dequeue(xemacpsif->recv_q);
     return p;
 }
 

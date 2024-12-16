@@ -20,6 +20,9 @@
 
 #include <platform/net/fwk_if.h>
 #include <platform/net/fwk_netdev.h>
+#include <platform/net/fwk_ip.h>
+#include <platform/net/fwk_skbuff.h>
+#include <platform/net/fwk_ether.h>
 
 #include <zynq7/zynq7_periph.h>
 #include <zynq7/xemac/xemacpsif.h>
@@ -32,8 +35,11 @@ struct xsdk_gem_drv_data
     void *base;
     kint32_t irq;
 
-    xemacpsif_s *sprt_emacif;
-    XEmacPs_Config *sprt_config;
+    kuint16_t hwaddr[NET_MAC_ETH_ALEN];
+
+    struct xemac_s sgrt_xemac;
+    xemacpsif_s sgrt_xemacpsif;
+    XEmacPs_Config sgrt_config;
 };
 
 #define XSDK_GEM_DRIVER_NAME                        "gem0"
@@ -43,8 +49,47 @@ struct xsdk_gem_drv_data
 /*!< The functions */
 
 /*!< API function */
+static kint32_t xsdk_gem_dma_init(struct xemac_s *sprt_xemac)
+{
+    xemacpsif_s *sprt_emcpsif;
+    kuint32_t version;
+
+    sprt_emcpsif = (xemacpsif_s *)sprt_xemac->state;
+    version = ((XEmacPs_ReadReg(sprt_emcpsif->emacps.Config.BaseAddress, 0xFC)) >> 16) & 0xFFF;
+    
+}
+
 static kint32_t xsdk_gem_ndo_init(struct fwk_net_device *sprt_ndev)
 {
+    struct xemac_s *sprt_xemac;
+    xemacpsif_s *sprt_emcpsif;
+    XEmacPs_Config *sprt_config;
+    struct xsdk_gem_drv_data *sprt_data;
+    kint32_t retval;
+
+    sprt_data = (struct xsdk_gem_drv_data *)fwk_netdev_priv(sprt_ndev);
+    sprt_xemac = &sprt_data->sgrt_xemac;
+    sprt_emcpsif = &sprt_data->sgrt_xemacpsif;
+
+    sprt_xemac->state = (void *)sprt_emcpsif;
+    sprt_xemac->topology_index = 0;
+
+    sprt_config = &sprt_data->sgrt_config;
+    sprt_config->DeviceId = 0;
+    sprt_config->BaseAddress = (kuaddr_t)sprt_data->base;
+    sprt_config->IsCacheCoherent = XPAR_PS7_ETHERNET_0_IS_CACHE_COHERENT;
+
+    retval = XEmacPs_CfgInitialize(&sprt_emcpsif->emacps, sprt_config, sprt_config->BaseAddress);
+    if (retval)
+        return retval;
+
+    for (kint32_t idx = 0; idx < NET_MAC_ETH_ALEN; idx++)
+        sprt_ndev->dev_addr[idx] = (kuint8_t)sprt_data->hwaddr[idx];
+
+    XEmacPs_Init(&sprt_emcpsif->emacps, sprt_ndev->dev_addr);
+    XEmacPsIf_SetupIsr(sprt_xemac);
+    
+
     return ER_NORMAL;
 }
 
@@ -127,11 +172,22 @@ static const struct fwk_netdev_ops sgrt_xsdk_gem_drv_oprts =
 
 static void xsdk_gem_driver_setup(struct fwk_net_device *sprt_ndev)
 {
+    struct xsdk_gem_drv_data *sprt_data;
 
+    sprt_ndev->mtu = XEMACPS_MTU;
+    sprt_ndev->sprt_netdev_oprts = &sgrt_xsdk_gem_drv_oprts;
+    fwk_eth_random_addr(sprt_ndev->dev_addr);
+
+    fwk_eth_broadcast_addr(sprt_ndev->broadcast);
+    sprt_ndev->tx_queue_len = 1000;
+    sprt_ndev->hard_header_len = NET_ETHER_HDR_LEN;
+    sprt_ndev->min_header_len = NET_ETHER_HDR_LEN;
 }
 
 static irq_return_t xsdk_gem_driver_isr(void *args)
 {
+
+
     return 0;
 }
 
@@ -144,7 +200,6 @@ static irq_return_t xsdk_gem_driver_isr(void *args)
 static kint32_t xsdk_gem_driver_probe_dt(struct fwk_platdev *sprt_pdev, struct xsdk_gem_drv_data *sprt_data)
 {
     struct fwk_device_node *sprt_node, *sprt_phy;
-    struct fwk_platdev *sprt_platnew;
     kuint32_t phandle;
     void *base;
 
@@ -161,14 +216,8 @@ static kint32_t xsdk_gem_driver_probe_dt(struct fwk_platdev *sprt_pdev, struct x
     sprt_data->base = fwk_io_remap(base);
     sprt_data->irq = fwk_platform_get_irq(sprt_pdev, 0);
 
-    sprt_platnew = fwk_platdevice_alloc("xsdk,gem-phy", -1);
-    if (!isValid(sprt_platnew))
-        return PTR_ERR(sprt_platnew);
-
-    sprt_platnew->sgrt_dev.sprt_node = sprt_phy;
-    sprt_platnew->sgrt_dev.sprt_parent = &sprt_pdev->sgrt_dev;
-
-    return fwk_platdevice_add(sprt_platnew);
+    fwk_of_property_read_u16_array(sprt_phy, "local-mac-address", sprt_data->hwaddr, NET_MAC_ETH_ALEN);
+    return ER_NORMAL;
 }
 
 /*!
@@ -191,7 +240,6 @@ static kint32_t xsdk_gem_driver_probe(struct fwk_platdev *sprt_pdev)
     if (!isValid(sprt_data))
         goto fail1;
 
-    sprt_ndev->sprt_netdev_oprts = &sgrt_xsdk_gem_drv_oprts;
     if (xsdk_gem_driver_probe_dt(sprt_pdev, sprt_data))
         goto fail1;
 

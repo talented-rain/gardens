@@ -17,14 +17,24 @@
 #include <platform/net/fwk_if.h>
 
 /*!< The defines */
+/*!< IP Version */
 #define NET_IPV4_FLAG										(0x04)
+
+#define NET_IP_HDR_LEN                                      (20)
+
+/*!< Trasport Protocol */
+#define NET_IP_PROTO_ICMP                                   (0x01)
+#define NET_IP_PROTO_IGMP                                   (0x02)
+#define NET_IP_PROTO_UDP                                    (0x11)
+#define NET_IP_PROTO_UDPLITE                                (0x88)
+#define NET_IP_PROTO_TCP                                    (0x06)
 
 /*!< IP information Header */
 struct fwk_ip_hdr {
-#if IS_BOARD_ENDIAN_LIT                       				/*!< Little-endian mode, low address storage low bytes */
+#if CONFIG_LITTILE_ENDIAN                       			/*!< Little-endian mode, low address storage low bytes */
     kuint8_t ihl : 4,                                       /*!< Low address, so here is the low 4 bits, the length of the IP frame is stored: ihl * 4, generally ihl = 0x5, and the calculation result is exactly 20 */
 			 version : 4;                                   /*!< High address, so here is 4 bits high, storing the IP protocol version, if IPv4, then version = 0x4*/
-#elif IS_BOARD_ENDIAN_BIG                       			/*!< Big-endian mode, low addresses store high bytes; In contrast to the little-endian, the version is reversed with ihl */
+#else                       			                    /*!< Big-endian mode, low addresses store high bytes; In contrast to the little-endian, the version is reversed with ihl */
     kuint8_t version : 4,
   			 ihl : 4;
 #endif
@@ -38,6 +48,7 @@ struct fwk_ip_hdr {
     kuint16_t	check;                                      /*!< CRC */
     kuint32_t	saddr;                                      /*!< source ip address */
     kuint32_t	daddr;                                      /*!< destination IP address */
-};
+
+} __packed;
 
 #endif /*!< __FWK_IP_H_ */

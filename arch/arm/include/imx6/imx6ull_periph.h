@@ -389,7 +389,7 @@ typedef enum __ERT_IMX_USBOTG_INTR_BIT
     NR_ImxUsbOtgIntr_GpTimer0IntBit = mrt_bit(24U),
     NR_ImxUsbOtgIntr_GpTimer1IntBit = mrt_bit(25U),
 
-} ert_imx_usb_intr_t;
+} nrt_imx_usb_intr_t;
 
 /*!< ------------------------------------------------------------------------- */
 /*!< USBNC - Register Layout Typedef */

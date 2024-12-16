@@ -30,7 +30,7 @@
 #define TSCAPP_THREAD_STACK_SIZE                          REAL_THREAD_STACK_HALF(1)    /*!< 1/2 page (2kbytes) */
 
 /*!< The globals */
-static real_thread_t g_tsc_app_tid;
+static tid_t g_tsc_app_tid;
 static struct real_thread_attr sgrt_tsc_app_attr;
 static kuint32_t g_tsc_app_stack[TSCAPP_THREAD_STACK_SIZE];
 

@@ -29,7 +29,7 @@
 #define LIGHTAPP_THREAD_STACK_SIZE                          REAL_THREAD_STACK_HALF(1)    /*!< 1/2 page (1kbytes) */
 
 /*!< The globals */
-static real_thread_t g_light_app_tid;
+static tid_t g_light_app_tid;
 static struct real_thread_attr sgrt_light_app_attr;
 static kuint32_t g_light_app_stack[LIGHTAPP_THREAD_STACK_SIZE];
 static struct mailbox sgrt_light_app_mailbox;

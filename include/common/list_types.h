@@ -124,6 +124,7 @@ typedef struct list_head srt_list_head_t;
 #define mrt_list_next_entry(pos, member)						mrt_container_of((pos)->member.sprt_next, typeof(*(pos)), member)
 #define mrt_list_prev_entry(pos, member)						mrt_container_of((pos)->member.sprt_prev, typeof(*(pos)), member)
 
+#define mrt_list_head_until(pos, head, member)					((pos)->member.sprt_next == (head))
 #define mrt_list_first_valid_entry(ptr, type, member)			(mrt_list_head_empty(ptr) ? mrt_nullptr : mrt_list_first_entry(ptr, type, member))
 
 /*!<

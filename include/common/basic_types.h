@@ -50,17 +50,17 @@
 #define IT_BOOLEN(x)            (mrt_boolen(x))
 #define IT_NULL                 (mrt_nullptr)
 
-typedef enum ert_bool
+typedef enum nrt_bool
 {
     NR_FALSE = false,
     NR_TRUE  = true
 
-} ert_bool_t;
+} nrt_bool_t;
 
 #if defined(__cplusplus) || defined(bool)
 typedef bool                    kbool_t;
 #else
-typedef ert_bool_t              kbool_t;
+typedef nrt_bool_t              kbool_t;
 #endif
 
 #define mrt_to_kbool(x)         ((x) ? NR_TRUE : NR_FALSE)
@@ -96,6 +96,8 @@ typedef kuint16_t               u16;
 typedef kint32_t                s32;
 typedef kuint32_t               u32;
 
+#define ARCH_PER_SIZE           sizeof(kutype_t)
+
 #define __used		            __attribute__((used))
 #define __weak                  __attribute__((weak))
 #define __packed                __attribute__((packed))
@@ -119,5 +121,8 @@ typedef kuint32_t               u32;
 #ifndef mrt_unlikely
 #define mrt_check_unlikely(x)   (__builtin_constant_p(x) ? mrt_boolen(x) : __branch_check__(x, false))
 #endif
+
+#define __compiler_offsetof(a, b)   \
+                                __builtin_offsetof(a, b)
 
 #endif  /* __BASIC_TYPES_H */

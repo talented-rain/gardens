@@ -57,6 +57,7 @@ kint32_t system_boot_initial(void)
     _UND_MODE_STACK_BASE = CONFIG_UND_STACK_BASE;
 #endif
 
+    boot_text_print();
     return RET_BOOT_PASS;
 }
 

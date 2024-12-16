@@ -28,7 +28,7 @@
 #include <kernel/sleep.h>
 
 /*!< The defines */
-typedef kint32_t real_thread_t;
+typedef kint32_t tid_t;
 
 /*!< maximum number of threads that can be created */
 #define REAL_THREAD_MAX_NUM						(128)
@@ -56,6 +56,9 @@ typedef kint32_t real_thread_t;
 #define REAL_THREAD_TID_BASE                    (1)                 /*!< kernel thread (parent) */
 #define REAL_THREAD_TID_INIT                    (2)                 /*!< init thread */
 
+#define REAL_THREAD_TID_SOCKRX                  (19)
+#define REAL_THREAD_TID_SOCKTX                  (20)
+
 /*!<
  * priority
  * kernel thread requires higher priority (0 ~ 19)
@@ -69,6 +72,9 @@ typedef kint32_t real_thread_t;
 #define REAL_THREAD_PROTY_KERNEL				(REAL_THREAD_PROTY_MAX)
 #define REAL_THREAD_PROTY_INIT					(REAL_THREAD_PROTY_KERNEL + 1)
 #define REAL_THREAD_PROTY_KWORKER				(REAL_THREAD_PROTY_KERNEL + 1)
+
+#define REAL_THREAD_PROTY_SOCKRX                (19)
+#define REAL_THREAD_PROTY_SOCKTX                (20)
 
 #define __THREAD_IS_LOW_PRIO(prio, prio2)		((prio2) <= (prio))
 #define __THREAD_HIGHER_DEFAULT(val)			(REAL_THREAD_PROTY_DEFAULT - (val))	
@@ -159,39 +165,40 @@ struct real_thread_attr
 typedef struct real_thread_attr srt_real_thread_attr_t;
 
 /*!< The defines */
-TARGET_EXT kint32_t kernel_thread_create(real_thread_t *ptr_id, 
-                                                struct real_thread_attr *sprt_attr, 
-                                                void *(*pfunc_start_routine) (void *), 
-                                                void *ptr_args);
+TARGET_EXT tid_t kernel_thread_create(tid_t tid, 
+                                        struct real_thread_attr *sprt_attr, 
+                                        void *(*pfunc_start_routine) (void *), 
+                                        void *ptr_args);
 
-TARGET_EXT kint32_t real_thread_create(real_thread_t *ptr_id, 
-                                                struct real_thread_attr *sprt_attr, 
-                                                void *(*pfunc_start_routine) (void *), 
-                                                void *ptr_args);
+TARGET_EXT kint32_t real_thread_create(tid_t *ptr_id, 
+                                        struct real_thread_attr *sprt_attr, 
+                                        void *(*pfunc_start_routine) (void *), 
+                                        void *ptr_args);
 
 TARGET_EXT kint32_t kernel_thread_idle_create(struct real_thread_attr *sprt_attr, 
-                                                void *(*pfunc_start_routine) (void *), 
-                                                void *ptr_args);
+                                        void *(*pfunc_start_routine) (void *), 
+                                        void *ptr_args);
 
 TARGET_EXT kint32_t kernel_thread_base_create(struct real_thread_attr *sprt_attr, 
-                                                void *(*pfunc_start_routine) (void *), 
-                                                void *ptr_args);
+                                        void *(*pfunc_start_routine) (void *), 
+                                        void *ptr_args);
                                                 
 TARGET_EXT kint32_t kernel_thread_init_create(struct real_thread_attr *sprt_attr, 
-                                                void *(*pfunc_start_routine) (void *), 
-                                                void *ptr_args);
+                                        void *(*pfunc_start_routine) (void *), 
+                                        void *ptr_args);
 
 TARGET_EXT void *real_thread_attr_init(struct real_thread_attr *sprt_attr);
 TARGET_EXT void *real_thread_attr_revise(struct real_thread_attr *sprt_attr);
 TARGET_EXT void real_thread_attr_destroy(struct real_thread_attr *sprt_attr);
+TARGET_EXT struct real_thread_attr *real_thread_attr_get(tid_t tid);
 TARGET_EXT void *real_thread_set_stack(struct real_thread_attr *sprt_attr, 
                                     void *ptr_dync, void *ptr_stack, kusize_t stacksize);
 
 TARGET_EXT kint32_t real_thread_create_mempool(struct real_thread_attr *sprt_attr, void *base, kusize_t size);
 TARGET_EXT void real_thread_release_mempool(struct real_thread_attr *sprt_attr);
-TARGET_EXT void *tmalloc(size_t __size, ert_fwk_mempool_t flags);
-TARGET_EXT void *tcalloc(size_t __size, size_t __n, ert_fwk_mempool_t flags);
-TARGET_EXT void *tzalloc(size_t __size, ert_fwk_mempool_t flags);
+TARGET_EXT void *tmalloc(size_t __size, nrt_gfp_t flags);
+TARGET_EXT void *tcalloc(size_t __size, size_t __n, nrt_gfp_t flags);
+TARGET_EXT void *tzalloc(size_t __size, nrt_gfp_t flags);
 TARGET_EXT void tfree(void *__ptr);
 
 /*!< API functions */
@@ -379,6 +386,5 @@ static inline void real_thread_attr_getschedparam(struct real_thread_attr *sprt_
 {
     memcpy(sprt_param, &sprt_attr->sgrt_param, sizeof(struct kel_sched_param));
 }
-
 
 #endif /* _REAL_THREAD_H_ */

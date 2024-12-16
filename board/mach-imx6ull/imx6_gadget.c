@@ -322,7 +322,7 @@ void imx6_usb_gadget_initial(void)
  * @retval  none
  * @note    none
  */
-static void __imx6_gadget_handler(ert_imx_usb_intr_t type, void (*handler)(void *), void *ptrDev)
+static void __imx6_gadget_handler(nrt_imx_usb_intr_t type, void (*handler)(void *), void *ptrDev)
 {
     srt_imx_gadget_t *sprt_gadget = (srt_imx_gadget_t *)ptrDev;
 

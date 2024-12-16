@@ -67,7 +67,7 @@ typedef enum __ERT_FWK_GPIODESC_FLAGS
 #define FWK_GPIODESC_FLAGS_MASK		            ((1 << FWK_GPIODESC_FLAG_SHIFT) - 1)
 #define FWK_GPIODESC_TRIGGER_MASK	            (mrt_bit(NR_FWK_GPIODESC_TRIG_FALL) | mrt_bit(NR_FWK_GPIODESC_TRIG_RISE))
 
-} ert_fwk_gpiodesc_flag_t;
+} nrt_fwk_gpiodesc_flag_t;
 
 typedef struct fwk_gpio_desc
 {
@@ -117,7 +117,7 @@ TARGET_EXT kbool_t fwk_gpio_dir_is_input(struct fwk_gpio_desc *sprt_desc);
  * @retval  none
  * @note    none
  */
-static inline void fwk_gpio_desc_set_flags(struct fwk_gpio_desc *sprt_desc, ert_fwk_gpiodesc_flag_t flag)
+static inline void fwk_gpio_desc_set_flags(struct fwk_gpio_desc *sprt_desc, nrt_fwk_gpiodesc_flag_t flag)
 {
     sprt_desc->flags |= mrt_bit(flag);
 }
@@ -128,7 +128,7 @@ static inline void fwk_gpio_desc_set_flags(struct fwk_gpio_desc *sprt_desc, ert_
  * @retval  is set(true) / is not set(false)
  * @note    none
  */
-static inline kbool_t fwk_gpio_desc_check_flags(struct fwk_gpio_desc *sprt_desc, ert_fwk_gpiodesc_flag_t flag)
+static inline kbool_t fwk_gpio_desc_check_flags(struct fwk_gpio_desc *sprt_desc, nrt_fwk_gpiodesc_flag_t flag)
 {
     return !!(sprt_desc->flags & mrt_bit(flag));
 }
@@ -139,7 +139,7 @@ static inline kbool_t fwk_gpio_desc_check_flags(struct fwk_gpio_desc *sprt_desc,
  * @retval  none
  * @note    none
  */
-static inline void fwk_gpio_desc_clr_flags(struct fwk_gpio_desc *sprt_desc, ert_fwk_gpiodesc_flag_t flag)
+static inline void fwk_gpio_desc_clr_flags(struct fwk_gpio_desc *sprt_desc, nrt_fwk_gpiodesc_flag_t flag)
 {
     sprt_desc->flags &= ~mrt_bit(flag);
 }

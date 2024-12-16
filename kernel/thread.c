@@ -21,14 +21,16 @@
  * @retval 	err code
  * @note   	configure attribute and thread
  */
-static kint32_t __real_thread_create(real_thread_t *ptr_id, kint32_t base, struct real_thread_attr *sprt_attr,
+static kint32_t __real_thread_create(tid_t *ptr_id, kint32_t base, struct real_thread_attr *sprt_attr,
                                     void *(*pfunc_start_routine) (void *), void *ptr_args, kuint32_t flags)
 {
-    real_thread_t tid;
+    tid_t tid;
     struct real_thread *sprt_thread;
     struct real_thread_attr *sprt_it_attr;
     kuint32_t i_start, count;
     kint32_t retval;
+
+    mrt_preempt_disable();
 
     /*!< check if is user thread */
     if ((REAL_THREAD_USER & flags) == REAL_THREAD_USER)
@@ -58,7 +60,7 @@ static kint32_t __real_thread_create(real_thread_t *ptr_id, kint32_t base, struc
 
     if (!sprt_attr)
     {
-        sprt_it_attr = (struct real_thread_attr *)kzalloc(sizeof(struct real_thread_attr), GFP_KERNEL);
+        sprt_it_attr = (struct real_thread_attr *)kmalloc(sizeof(struct real_thread_attr), GFP_KERNEL);
         if (!isValid(sprt_it_attr))
             goto fail;
 
@@ -89,6 +91,7 @@ static kint32_t __real_thread_create(real_thread_t *ptr_id, kint32_t base, struc
     if (ptr_id)
         *ptr_id = tid;
     
+    mrt_preempt_enable();
     return ER_NORMAL;
 
 fail4:
@@ -99,6 +102,7 @@ fail2:
     if (!isValid(sprt_attr))
         kfree(sprt_it_attr);
 fail:
+    mrt_preempt_enable();
     return -ER_FAULT;
 }
 
@@ -108,7 +112,7 @@ fail:
  * @retval 	err code
  * @note   	none
  */
-kint32_t __kernel_thread_create(real_thread_t *ptr_id, kint32_t base, 
+kint32_t __kernel_thread_create(tid_t *ptr_id, kint32_t base, 
                         struct real_thread_attr *sprt_attr, void *(*pfunc_start_routine) (void *), void *ptr_args)
 {
     return __real_thread_create(ptr_id, base, 
@@ -121,7 +125,7 @@ kint32_t __kernel_thread_create(real_thread_t *ptr_id, kint32_t base,
  * @retval 	err code
  * @note   	none
  */
-kint32_t __real_user_thread_create(real_thread_t *ptr_id, kint32_t base, 
+kint32_t __real_user_thread_create(tid_t *ptr_id, kint32_t base, 
                         struct real_thread_attr *sprt_attr, void *(*pfunc_start_routine) (void *), void *ptr_args)
 {
     return __real_thread_create(ptr_id, base, 
@@ -134,11 +138,23 @@ kint32_t __real_user_thread_create(real_thread_t *ptr_id, kint32_t base,
  * @retval 	err code
  * @note   	none
  */
-kint32_t kernel_thread_create(real_thread_t *ptr_id, struct real_thread_attr *sprt_attr, 
+tid_t kernel_thread_create(tid_t tid, struct real_thread_attr *sprt_attr, 
                         void *(*pfunc_start_routine) (void *), void *ptr_args)
 {
-    return __kernel_thread_create(ptr_id, -1, 
+    kint32_t retval;
+
+    if (tid < 0)
+    {
+        tid_t new_tid;
+
+        retval = __kernel_thread_create(&new_tid, -1, 
+                                    sprt_attr, pfunc_start_routine, ptr_args);
+        return retval ? -1 : new_tid;
+    }
+
+    retval = __kernel_thread_create(mrt_nullptr, tid, 
                                 sprt_attr, pfunc_start_routine, ptr_args);
+    return retval ? -1 : tid;
 }
 
 /*!
@@ -147,7 +163,7 @@ kint32_t kernel_thread_create(real_thread_t *ptr_id, struct real_thread_attr *sp
  * @retval 	err code
  * @note   	none
  */
-kint32_t real_thread_create(real_thread_t *ptr_id, struct real_thread_attr *sprt_attr, 
+kint32_t real_thread_create(tid_t *ptr_id, struct real_thread_attr *sprt_attr, 
                         void *(*pfunc_start_routine) (void *), void *ptr_args)
 {
     return __real_user_thread_create(ptr_id, -1, 
@@ -213,7 +229,7 @@ void *real_thread_attr_init(struct real_thread_attr *sprt_attr)
     /*!< schedule policy: preempt */
     sprt_attr->schedpolicy = REAL_THREAD_SCHED_FIFO;
 
-    /*!< stack: 128bytes */
+    /*!< stack: 2K */
     ptr_stack = kzalloc(REAL_THREAD_STACK_DEFAULT, GFP_KERNEL);
     if (!isValid(ptr_stack))
         return mrt_nullptr;
@@ -275,6 +291,23 @@ void real_thread_attr_destroy(struct real_thread_attr *sprt_attr)
 }
 
 /*!
+ * @brief	get attribute
+ * @param  	tid
+ * @retval 	sprt_attr
+ * @note   	none
+ */
+struct real_thread_attr *real_thread_attr_get(tid_t tid)
+{
+    if (mrt_likely((tid >= 0) && (tid < REAL_THREAD_MAX_NUM)))
+    {
+        struct real_thread *sprt_th = mrt_tid_handle(tid);
+        return sprt_th->sprt_attr;
+    }
+
+    return mrt_nullptr;
+}
+
+/*!
  * @brief	set stack
  * @param  	sprt_attr: thread attibute
  * @param   ptr_dync: stack which allocated by dynamic (kmalloc/malloc)
@@ -295,6 +328,9 @@ void *real_thread_set_stack(struct real_thread_attr *sprt_attr,
     /*!< check: ptr_dync just should be NULL or ptr_stack */
     if (ptr_dync && (ptr_dync != ptr_stack))
         return mrt_nullptr;
+
+    if (isValid(sprt_attr->ptr_stack_start))
+        kfree(sprt_attr->ptr_stack_start);
 
     /*!< 
      * if the stack is defined in a static storage area, ptr_dync should be NULL; 
@@ -351,7 +387,7 @@ void real_thread_release_mempool(struct real_thread_attr *sprt_attr)
  * @retval  none
  * @note    thread memory pool allocate
  */
-void *tmalloc(size_t __size, ert_fwk_mempool_t flags)
+void *tmalloc(size_t __size, nrt_gfp_t flags)
 {
     struct real_thread *sprt_thread = mrt_current;
     struct mem_info *sprt_info;
@@ -381,7 +417,7 @@ END:
  * @retval  none
  * @note    thread memory pool allocate (array)
  */
-void *tcalloc(size_t __size, size_t __n, ert_fwk_mempool_t flags)
+void *tcalloc(size_t __size, size_t __n, nrt_gfp_t flags)
 {
     return tmalloc(__size * __n, flags);
 }
@@ -392,7 +428,7 @@ void *tcalloc(size_t __size, size_t __n, ert_fwk_mempool_t flags)
  * @retval  none
  * @note    thread memory pool allocate, and reset automatically
  */
-void *tzalloc(size_t __size, ert_fwk_mempool_t flags)
+void *tzalloc(size_t __size, nrt_gfp_t flags)
 {
     return tmalloc(__size, flags | GFP_ZERO);
 }

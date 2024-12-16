@@ -15,11 +15,15 @@
 #include <platform/net/fwk_if.h>
 #include <platform/net/fwk_netdev.h>
 #include <platform/net/fwk_skbuff.h>
+#include <platform/net/fwk_netif.h>
+
+#include <kernel/thread.h>
+#include <kernel/sched.h>
 
 /*!< The defines */
 
 /*!< The globals */
-
+static struct fwk_sk_buff_head sgrt_fwk_skb_rx_lists;
 
 /*!< API functions */
 /*!< 
@@ -84,12 +88,23 @@ fail:
     return 0;
 }
 
+void fwk_inet_random_addr(kuint8_t *buf, kusize_t lenth)
+{
+    for (kuint32_t idx; idx < lenth; idx++)
+        *(buf++) = (kuint8_t)random_val();
+}
+
+struct fwk_sk_buff_head *fwk_netif_rxq_get(void)
+{
+    return &sgrt_fwk_skb_rx_lists;
+}
+
 kint32_t fwk_netif_open(const kchar_t *name)
 {
     struct fwk_net_device *sprt_ndev;
     const struct fwk_netdev_ops *sprt_ops;
 
-    sprt_ndev = fwk_find_netdevice(name);
+    sprt_ndev = fwk_ifname_to_ndev(name);
     if (!isValid(sprt_ndev))
         return PTR_ERR(sprt_ndev);
 
@@ -108,7 +123,7 @@ kint32_t fwk_netif_close(const kchar_t *name)
     struct fwk_net_device *sprt_ndev;
     const struct fwk_netdev_ops *sprt_ops;
 
-    sprt_ndev = fwk_find_netdevice(name);
+    sprt_ndev = fwk_ifname_to_ndev(name);
     if (!isValid(sprt_ndev))
         return PTR_ERR(sprt_ndev);
 
@@ -129,7 +144,7 @@ kint32_t fwk_netif_ioctl(kuint32_t request, kuaddr_t args)
     const struct fwk_netdev_ops *sprt_ops;
 
     sprt_ifr = (struct fwk_ifreq *)args;
-    sprt_ndev = fwk_find_netdevice(sprt_ifr->mrt_ifr_name);
+    sprt_ndev = fwk_ifname_to_ndev(sprt_ifr->mrt_ifr_name);
     if (!isValid(sprt_ndev))
         return PTR_ERR(sprt_ndev);
 
@@ -144,10 +159,11 @@ kint32_t fwk_netif_ioctl(kuint32_t request, kuaddr_t args)
     switch (request)
     {
         case NETWORK_IFR_GET_HWADDR:
+            memcpy(sprt_ifr->mrt_ifr_hwaddr.sa_data, sprt_ndev->dev_addr, NET_MAC_ETH_ALEN);
             break;
 
         case NETWORK_IFR_GET_MTU:
-
+            sprt_ifr->mrt_ifr_mtu = sprt_ndev->mtu;
             break;
 
         default:
@@ -158,26 +174,20 @@ out:
     return ER_NORMAL;
 }
 
-static kint32_t __fwk_dev_queue_xmit(struct fwk_sk_buff *sprt_skb)
+static netdev_tx_t __fwk_dev_queue_xmit(struct fwk_sk_buff *sprt_skb)
 {
-    struct fwk_net_device *sprt_ndev = sprt_skb->sprt_netdev;
-    const struct fwk_netdev_ops *sprt_ops = sprt_ndev->sprt_netdev_oprts;
-    struct fwk_sk_buff *sprt_per;
-    netdev_tx_t retval, total_size = 0;
+    struct fwk_net_device *sprt_ndev;
+    const struct fwk_netdev_ops *sprt_ops;
+    netdev_tx_t retval;
+    
+    sprt_ndev = sprt_skb->sprt_ndev;
+    sprt_ops = sprt_ndev->sprt_netdev_oprts;
 
     if (!sprt_ops->ndo_start_xmit)
         return -ER_TRXERR;
-    
-    for (sprt_per = sprt_skb; sprt_per; sprt_per = sprt_skb->sprt_next)
-    {
-        retval = sprt_ops->ndo_start_xmit(sprt_per, sprt_ndev);
-        if (retval < 0)
-            return -ER_SEND_FAILD;
 
-        total_size += retval;
-    }
-
-    return total_size;
+    retval = sprt_ops->ndo_start_xmit(sprt_skb, sprt_ndev);
+    return retval;
 }
 
 kint32_t fwk_dev_queue_xmit(struct fwk_sk_buff *sprt_skb)
@@ -187,12 +197,59 @@ kint32_t fwk_dev_queue_xmit(struct fwk_sk_buff *sprt_skb)
 
 kint32_t fwk_netif_rx(struct fwk_sk_buff *sprt_skb)
 {
-    return 0;
+    if (!fwk_skb_enqueue(fwk_netif_rxq_get(), sprt_skb))
+        schedule_thread_wakeup(REAL_THREAD_TID_SOCKRX);
+
+    return ER_NORMAL;
 }
 
-struct pq_queue *fwk_dev_queue_poll(void)
+/*!< ----------------------------------------------------------------------- */
+struct fwk_netif_tcb
 {
-    return mrt_nullptr;
+    void *args;
+    void (*pfunc_rx)(void *rxq, void *args);
+};
+
+static void *fwk_netif_rx_entry(void *args)
+{
+    struct fwk_netif_tcb *sprt_tcb;
+    struct fwk_sk_buff_head *sprt_head;
+
+    sprt_head = fwk_netif_rxq_get();
+    sprt_tcb = (struct fwk_netif_tcb *)args;
+
+    for (;;)
+    {
+        if (mrt_skbuff_list_empty(sprt_head))
+            goto END;
+
+        if (sprt_tcb->pfunc_rx)
+            sprt_tcb->pfunc_rx(sprt_head, sprt_tcb->args);
+
+    END:
+        schedule_self_suspend();
+    }
+
+    return args;
+}
+
+void fwk_netif_init(void (*pfunc_rx)(void *rxq, void *args), void *args)
+{
+    struct fwk_netif_tcb *sprt_tcb;
+    struct fwk_sk_buff_head *sprt_head;
+
+    sprt_tcb = kmalloc(sizeof(*sprt_tcb), GFP_KERNEL);
+    if (!isValid(sprt_tcb))
+        return;
+
+    sprt_tcb->args = args;
+    sprt_tcb->pfunc_rx = pfunc_rx;
+
+    sprt_head = fwk_netif_rxq_get();
+    fwk_skb_list_init(sprt_head);
+
+    kernel_thread_create(REAL_THREAD_TID_SOCKRX, mrt_nullptr, fwk_netif_rx_entry, sprt_tcb);
+    real_thread_set_priority(mrt_tid_attr(REAL_THREAD_TID_SOCKRX), REAL_THREAD_PROTY_SOCKRX);
 }
 
 /*!< end of file */

@@ -58,6 +58,8 @@ struct fwk_sockaddr_in
 
 struct fwk_network_if
 {
+	kchar_t ifname[NET_IFNAME_SIZE];
+
     struct fwk_sockaddr_in sgrt_ip;
     struct fwk_sockaddr_in sgrt_gw;
     struct fwk_sockaddr_in sgrt_netmask;
@@ -66,8 +68,6 @@ struct fwk_network_if
 
     struct list_head sgrt_link;
     void *private_data;
-    
-    kchar_t ifname[];
 };
 
 struct fwk_network_com
@@ -92,8 +92,15 @@ struct fwk_network_if_ops
 {
     kint32_t (*init)(struct fwk_network_com *sprt_socket);
     void (*exit)(struct fwk_network_com *sprt_socket);
+
+    void (*listen)(struct fwk_network_com *sprt_socket);
+
     kssize_t (*send)(struct fwk_network_com *sprt_socket, const void *buf, kssize_t size);
     kssize_t (*recv)(struct fwk_network_com *sprt_socket, void *buf, kssize_t size);
+    kssize_t (*sendto)(struct fwk_network_com *sprt_socket, const void *buf, kssize_t len, 
+                        kint32_t flags, const struct fwk_sockaddr *sprt_dest, fwk_socklen_t addrlen);
+    kssize_t (*recvfrom)(struct fwk_network_com *sprt_socket, void *buf, size_t len, 
+                        kint32_t flags, struct fwk_sockaddr *sprt_src, fwk_socklen_t *addrlen);
 
     kint32_t (*link_up)(struct fwk_network_if *sprt_if);
     kint32_t (*link_down)(struct fwk_network_if *sprt_if);
@@ -184,5 +191,12 @@ TARGET_EXT struct fwk_network_if_ops *sprt_fwk_network_if_oprts;
 
 /*!< The functions */
 TARGET_EXT struct fwk_network_if *network_find_node(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip);
+TARGET_EXT struct fwk_network_if *network_next_node(struct fwk_network_if *sprt_if);
+
+/*!< API functions */
+static inline void network_set_default_ops(const struct fwk_network_if_ops *sprt_oprts)
+{
+    sprt_fwk_network_if_oprts = (struct fwk_network_if_ops *)sprt_oprts;
+}
 
 #endif /*!< _FWK_MAC_H_ */

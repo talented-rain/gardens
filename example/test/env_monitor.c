@@ -30,7 +30,7 @@
 #define ENVAPP_THREAD_STACK_SIZE                          REAL_THREAD_STACK_HALF(1)    /*!< 1/2 page (2kbytes) */
 
 /*!< The globals */
-static real_thread_t g_env_monitor_tid;
+static tid_t g_env_monitor_tid;
 static struct real_thread_attr sgrt_env_monitor_attr;
 static kuint32_t g_env_monitor_stack[ENVAPP_THREAD_STACK_SIZE];
 

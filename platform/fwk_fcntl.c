@@ -17,8 +17,8 @@
 #include <platform/fwk_cdev.h>
 #include <platform/fwk_inode.h>
 #include <platform/fwk_fcntl.h>
-#include <platform/net/fwk_inet.h>
-#include <platform/net/fwk_network.h>
+#include <platform/net/fwk_netif.h>
+#include <platform/net/fwk_socket.h>
 #include <kernel/spinlock.h>
 
 /*!< The globals */
@@ -501,17 +501,6 @@ static void *fwk_do_mmap(void *addr, kusize_t length, kint32_t prot, kint32_t fl
 kint32_t virt_open(const kchar_t *dev, kuint32_t mode)
 {
     return fwk_do_open(dev, mode);
-}
-
-/*!
- * @brief   virt_socket
- * @param   none
- * @retval  none
- * @note    The interface is provided for use by the application layer
- */
-kint32_t virt_socket(kint32_t domain, kint32_t type, kint32_t protocol)
-{
-    return network_socket(domain, type, protocol);
 }
 
 /*!

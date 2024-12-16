@@ -63,10 +63,7 @@ static void kthread_schedule_timeout(kuint32_t args)
    
     /*!< there is a higher priority thread ready */
     if (__THREAD_IS_LOW_PRIO(work_prio, next_prio))
-    {
         g_asm_sched_flag = true;
-        goto END;
-    }
     
 END:
     mod_timer(sprt_tim, jiffies + msecs_to_jiffies(REAL_THREAD_PREEMPT_PERIOD));
@@ -81,7 +78,7 @@ END:
 static void *kthread_entry(void *args)
 {
     struct timer_list *sprt_tim = &sgrt_kthread_timer;
-    real_thread_t tid = mrt_current->tid;
+    tid_t tid = mrt_current->tid;
     
     real_thread_set_self_name(__FUNCTION__);
     spin_lock_init(&sgrt_kthread_spinlock);

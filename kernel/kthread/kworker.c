@@ -22,7 +22,7 @@
 #define KWORKER_THREAD_STACK_SIZE                       REAL_THREAD_STACK_HALF(1)    /*!< 1/2 page (2 kbytes) */
 
 /*!< The globals */
-static real_thread_t g_kworker_tid;
+static tid_t g_kworker_tid;
 static struct real_thread_attr sgrt_kworker_attr;
 static kuint32_t g_kworker_stack[KWORKER_THREAD_STACK_SIZE];
 
@@ -84,7 +84,6 @@ END:
 kint32_t kworker_init(void)
 {
     struct real_thread_attr *sprt_attr = &sgrt_kworker_attr;
-    kint32_t retval;
 
 	sprt_attr->detachstate = REAL_THREAD_CREATE_JOINABLE;
 	sprt_attr->inheritsched	= REAL_THREAD_INHERIT_SCHED;
@@ -98,11 +97,14 @@ kint32_t kworker_init(void)
     real_thread_set_time_slice(sprt_attr, REAL_THREAD_TIME_DEFUALT);
 
     /*!< register thread */
-    retval = kernel_thread_create(&g_kworker_tid, sprt_attr, kworker_entry, mrt_nullptr);
-    if (!retval)
+    g_kworker_tid = kernel_thread_create(-1, sprt_attr, kworker_entry, mrt_nullptr);
+    if (g_kworker_tid >= 0)
+    {
         real_thread_set_name(g_kworker_tid, "kworker_entry");
+        return ER_NORMAL;
+    }
 
-    return retval;
+    return -ER_FAILD;
 }
 
 /*!< end of file */

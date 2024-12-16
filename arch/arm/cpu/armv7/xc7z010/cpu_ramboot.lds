@@ -17,20 +17,23 @@ OUTPUT_ARCH(arm)
 
 /*!< Program base address */
 /*!< 0x00100000 ~ 0x040fffff (64MB) is used as memory space and dtb */
+_RAM_DDR_BASE  = DEFINED(CONFIG_RAM_DDR_BASE) ? CONFIG_RAM_DDR_BASE : 0x00100000;
 _PROGRAM_START = DEFINED(CONFIG_PROGRAM_BASE) ? CONFIG_PROGRAM_BASE : 0x04100000;
 _PROGRAM_SIZE  = DEFINED(CONFIG_PROGRAM_SIZE) ? CONFIG_PROGRAM_SIZE : 0x0FF00000;
+
+/*!< Reserve Memory: 4MB (4K = 1page, 4MB = 1024pages) */
+_RESERVE_MEMORY_SIZE = DEFINED(CONFIG_RESERVE_MEMORY_SIZE) ? CONFIG_RESERVE_MEMORY_SIZE : 0x400000;
+/*!< 0xfc00000 */
+_PROGRAM_END = (_RAM_DDR_BASE + _PROGRAM_SIZE - _RESERVE_MEMORY_SIZE);
 
 /*!< Heap and Stack size (12.514MB) */
 _HEAP_SIZE = DEFINED(CONFIG_HEAP_SIZE) ? CONFIG_HEAP_SIZE : (8 * 1024 * 1024);
 _SVC_STACK_SIZE = DEFINED(CONFIG_SVC_STACK_SIZE) ? CONFIG_SVC_STACK_SIZE : (2 * 1024 * 1024);
 _SYS_STACK_SIZE = DEFINED(CONFIG_SYS_STACK_SIZE) ? CONFIG_SYS_STACK_SIZE : (2 * 1024 * 1024);
-_IRQ_STACK_SIZE = DEFINED(CONFIG_IRQ_STACK_SIZE) ? CONFIG_IRQ_STACK_SIZE : (256 * 1024);
-_FIQ_STACK_SIZE = DEFINED(CONFIG_FIQ_STACK_SIZE) ? CONFIG_FIQ_STACK_SIZE : (256 * 1024);
+_IRQ_STACK_SIZE = DEFINED(CONFIG_IRQ_STACK_SIZE) ? CONFIG_IRQ_STACK_SIZE : (2 * 1024 * 1024);
+_FIQ_STACK_SIZE = DEFINED(CONFIG_FIQ_STACK_SIZE) ? CONFIG_FIQ_STACK_SIZE : (2 * 1024 * 1024);
 _ABT_STACK_SIZE = DEFINED(CONFIG_ABT_STACK_SIZE) ? CONFIG_ABT_STACK_SIZE : (1024);
 _UND_STACK_SIZE = DEFINED(CONFIG_UND_STACK_SIZE) ? CONFIG_UND_STACK_SIZE : (1024);
-
-/*!< memory pool size (32MB) */
-_MEM_POOL_SIZE  = DEFINED(CONFIG_MEM_POOL_SIZE) ? CONFIG_MEM_POOL_SIZE : (32 * 1024 * 1024);
 
 /*!< 
  * framebuffer ram (support double buffer with 1080p) 
@@ -40,6 +43,9 @@ _MEM_POOL_SIZE  = DEFINED(CONFIG_MEM_POOL_SIZE) ? CONFIG_MEM_POOL_SIZE : (32 * 1
  * therefore, support at less 2K
  */
 _FB_DRAM_SIZE   = DEFINED(CONFIG_FB_DRAM_SIZE) ? CONFIG_FB_DRAM_SIZE : (16 * 1024 * 1024);
+
+/*!< NetWork Tx/Rx Buffer: 8MB */
+_NETWORK_BUFF_SIZE = DEFINED(CONFIG_NETWORK_BUFF_SIZE) ? CONFIG_NETWORK_BUFF_SIZE : (8 * 1024 * 1024);
 
 MEMORY
 {
@@ -74,6 +80,8 @@ SECTIONS
         *(.gnu.linkonce.armextab.*)
         *(.note.gnu.build-id)
     } > ram_ddr_0
+
+    __text_sec_end = .;
 
     .dync_init : 
     {
@@ -133,6 +141,8 @@ SECTIONS
         __dync_exit_end = .;
     } > ram_ddr_0
 
+    __dync_sec_end = .;
+
     . = ALIGN(16);
     .rodata :
     {
@@ -157,6 +167,13 @@ SECTIONS
         *(.ARM.exidx*)
         *(.gnu.linkonce.armexidix.*.*)
         __exidx_end = .;
+    } > ram_ddr_0
+
+    .ARM.attributes 0 : 
+    { 
+        __ARM_attributes_start = .;
+        *(.ARM.attributes)
+        __ARM_attributes_end = .;
     } > ram_ddr_0
 
     . = ALIGN(16);
@@ -210,15 +227,6 @@ SECTIONS
         __stack_end = .;
     } > ram_ddr_0
 
-    /*!< memory pool */
-    .mem_pool (NOLOAD) :
-    {
-        . = ALIGN(16);
-        __mem_pool_start = .;
-        . += _MEM_POOL_SIZE;
-        __mem_pool_end = .;
-    } > ram_ddr_0
-
     /*!< DRAM */
     .fb_dram (NOLOAD) :
     {
@@ -228,12 +236,25 @@ SECTIONS
         __fb_dram_end = .;
     } > ram_ddr_0
 
-    __ram_ddr_end = .;
+    /*!< Network Buffer */
+    .network_buffer (NOLOAD) :
+    {
+        . = ALIGN(16);
+        __sk_buffer_start = .;
+        . += _NETWORK_BUFF_SIZE;
+        __sk_buffer_end = .;
+    } > ram_ddr_0
 
-    .ARM.attributes 0 : 
-    { 
-        __ARM_attributes_start = .;
-        *(.ARM.attributes)
-        __ARM_attributes_end = .;
-    }
+    /*!< memory pool: must at the end of RAM */
+    . = ALIGN(16);
+    __mem_pool_size = _PROGRAM_END - .;
+
+    .mem_pool (NOLOAD) :
+    {
+        __mem_pool_start = .;
+        . += __mem_pool_size;
+        __mem_pool_end = .;
+    } > ram_ddr_0
+
+    __ram_ddr_end = .;
 }

@@ -76,17 +76,17 @@ static kuint32_t thread_schedule_ref = 0;
 })
 
 /*!< The functions */
-static kint32_t __find_thread_from_scheduler(real_thread_t tid, struct list_head *sprt_head);
+static kint32_t __find_thread_from_scheduler(tid_t tid, struct list_head *sprt_head);
 static kint32_t __schedule_add_status_list(struct real_thread *sprt_thread, struct list_head *sprt_head);
 static void __schedule_del_status_list(struct real_thread *sprt_thread, struct list_head *sprt_head);
-static kint32_t schedule_despoil_work_role(real_thread_t tid);
-static kint32_t schedule_reinstall_work_role(real_thread_t tid);
-static kint32_t schedule_add_ready_list(real_thread_t tid);
-static kint32_t schedule_detach_ready_list(real_thread_t tid);
-static kint32_t schedule_add_suspend_list(real_thread_t tid);
-static kint32_t schedule_detach_suspend_list(real_thread_t tid);
-static kint32_t schedule_add_sleep_list(real_thread_t tid);
-static kint32_t schedule_detach_sleep_list(real_thread_t tid);
+static kint32_t schedule_despoil_work_role(tid_t tid);
+static kint32_t schedule_reinstall_work_role(tid_t tid);
+static kint32_t schedule_add_ready_list(tid_t tid);
+static kint32_t schedule_detach_ready_list(tid_t tid);
+static kint32_t schedule_add_suspend_list(tid_t tid);
+static kint32_t schedule_detach_suspend_list(tid_t tid);
+static kint32_t schedule_add_sleep_list(tid_t tid);
+static kint32_t schedule_detach_sleep_list(tid_t tid);
 
 /* -------------------------------------------------------------------------- */
 /*!< API functions */
@@ -118,7 +118,7 @@ struct list_head *get_ready_thread_table(void)
  * @retval 	thread
  * @note   	none
  */
-struct real_thread *get_thread_handle(real_thread_t tid)
+struct real_thread *get_thread_handle(tid_t tid)
 {
     return SCHED_THREAD_HANDLER(tid);
 }
@@ -129,7 +129,7 @@ struct real_thread *get_thread_handle(real_thread_t tid)
  * @retval 	none
  * @note   	none
  */
-void real_thread_set_name(real_thread_t tid, const kchar_t *name)
+void real_thread_set_name(tid_t tid, const kchar_t *name)
 {
     struct real_thread *sprt_thread;
 
@@ -190,7 +190,7 @@ struct spin_lock *scheduler_lock(void)
  * @retval 	none
  * @note   	none
  */
-real_thread_t get_unused_tid_from_scheduler(kuint32_t i_start, kuint32_t count)
+tid_t get_unused_tid_from_scheduler(kuint32_t i_start, kuint32_t count)
 {
     kuint32_t i;
 
@@ -267,7 +267,7 @@ void schedule_self_suspend(void)
  * @retval 	err code
  * @note   	none
  */
-kint32_t schedule_thread_suspend(real_thread_t tid)
+kint32_t schedule_thread_suspend(tid_t tid)
 {
     kint32_t retval;
 
@@ -292,7 +292,7 @@ kint32_t schedule_thread_suspend(real_thread_t tid)
  * @retval 	err code
  * @note   	if target thread is suspending, wake it up and add to ready list
  */
-kint32_t schedule_thread_wakeup(real_thread_t tid)
+kint32_t schedule_thread_wakeup(tid_t tid)
 {
     kint32_t retval;
 
@@ -389,7 +389,7 @@ struct real_thread *get_first_sleep_thread(void)
  * @retval 	err code
  * @note   	only the running thread need to save context; and only the ready thread maybe need to restore context
  */ 
-kint32_t schedule_thread_switch(real_thread_t tid)
+kint32_t schedule_thread_switch(tid_t tid)
 {
     kuint32_t src, dst;
     kint32_t retval;
@@ -494,7 +494,7 @@ fail:
  * @retval 	err code
  * @note   	only ready status can be switched to running!!!
  */
-static kint32_t schedule_despoil_work_role(real_thread_t tid)
+static kint32_t schedule_despoil_work_role(tid_t tid)
 {
     struct real_thread *sprt_thread;
     struct real_thread *sprt_running;
@@ -534,7 +534,7 @@ static kint32_t schedule_despoil_work_role(real_thread_t tid)
  * @retval 	err code
  * @note   	running ---> xxx
  */
-static kint32_t schedule_reinstall_work_role(real_thread_t tid)
+static kint32_t schedule_reinstall_work_role(tid_t tid)
 {
     struct real_thread *sprt_thread;
 
@@ -567,7 +567,7 @@ static kint32_t schedule_reinstall_work_role(real_thread_t tid)
  * @retval 	err code
  * @note   	add to ready list
  */
-static kint32_t schedule_add_ready_list(real_thread_t tid)
+static kint32_t schedule_add_ready_list(tid_t tid)
 {
     struct real_thread *sprt_thread;
 
@@ -591,7 +591,7 @@ static kint32_t schedule_add_ready_list(real_thread_t tid)
  * 			(after detaching from the ready list, the thread will appear in a free state, 
  * 			so this function prohibits external calls to prevent the thread from leaving management and causing memory leakage)
  */
-static kint32_t schedule_detach_ready_list(real_thread_t tid)
+static kint32_t schedule_detach_ready_list(tid_t tid)
 {
     struct real_thread *sprt_thread;
 
@@ -616,7 +616,7 @@ static kint32_t schedule_detach_ready_list(real_thread_t tid)
  * @retval 	err code
  * @note   	add to suspend list
  */
-static kint32_t schedule_add_suspend_list(real_thread_t tid)
+static kint32_t schedule_add_suspend_list(tid_t tid)
 {
     struct real_thread *sprt_thread;
 
@@ -640,7 +640,7 @@ static kint32_t schedule_add_suspend_list(real_thread_t tid)
  * 			(after detaching from the suspend list, the thread will appear in a free state, 
  * 			so this function prohibits external calls to prevent the thread from leaving management and causing memory leakage)
  */
-static kint32_t schedule_detach_suspend_list(real_thread_t tid)
+static kint32_t schedule_detach_suspend_list(tid_t tid)
 {
     struct real_thread *sprt_thread;
 
@@ -665,7 +665,7 @@ static kint32_t schedule_detach_suspend_list(real_thread_t tid)
  * @retval 	err code
  * @note   	add to sleep list
  */
-static kint32_t schedule_add_sleep_list(real_thread_t tid)
+static kint32_t schedule_add_sleep_list(tid_t tid)
 {
     struct real_thread *sprt_thread;
 
@@ -689,7 +689,7 @@ static kint32_t schedule_add_sleep_list(real_thread_t tid)
  * 			(after detaching from the sleep list, the thread will appear in a free state, 
  * 			so this function prohibits external calls to prevent the thread from leaving management and causing memory leakage)
  */
-static kint32_t schedule_detach_sleep_list(real_thread_t tid)
+static kint32_t schedule_detach_sleep_list(tid_t tid)
 {
     struct real_thread *sprt_thread;
 
@@ -715,7 +715,7 @@ static kint32_t schedule_detach_sleep_list(real_thread_t tid)
  * @retval 	err code
  * @note   	find thread if it is exsited
  */
-static kint32_t __find_thread_from_scheduler(real_thread_t tid, struct list_head *sprt_head)
+static kint32_t __find_thread_from_scheduler(tid_t tid, struct list_head *sprt_head)
 {
     struct real_thread *sprt_anyTask;
     struct real_thread *sprt_thread = SCHED_THREAD_HANDLER(tid); 
@@ -805,7 +805,7 @@ static void __schedule_del_status_list(struct real_thread *sprt_thread, struct l
  * @retval 	err code
  * @note   	all new threads should be added to ready list at first
  */
-kint32_t register_new_thread(struct real_thread *sprt_thread, real_thread_t tid)
+kint32_t register_new_thread(struct real_thread *sprt_thread, tid_t tid)
 {
     struct real_thread_attr *sprt_it_attr;
     kint32_t retval;

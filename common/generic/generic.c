@@ -13,6 +13,27 @@
 /*!< The includes */
 #include <common/generic.h>
 #include <common/io_stream.h>
+#include <common/time.h>
+#include <kernel/spinlock.h>
+
+/*!< The defines */
+#define RANDOM_BLOCK_SIZE                       (64)
+
+struct common_random_state
+{
+    struct spin_lock sgrt_lock;
+
+    union {
+        kutype_t value;
+        kuint8_t state[RANDOM_BLOCK_SIZE];
+    } u;
+};
+
+/*!< The globals */
+static struct common_random_state sgrt_com_random_state = 
+{
+    .sgrt_lock = SPIN_LOCK_INIT(),
+};
 
 /*!< API function */
 /*!
@@ -23,15 +44,15 @@
  */
 kutype_t udiv_integer(kutype_t divied, kutype_t div)
 {
-	kutype_t count = 0;
+    kutype_t count = 0;
 
-	while (divied >= div)
-	{
-		divied -= div;
-		count++;
-	}
+    while (divied >= div)
+    {
+        divied -= div;
+        count++;
+    }
 
-	return count;
+    return count;
 }
 
 /*!
@@ -42,17 +63,17 @@ kutype_t udiv_integer(kutype_t divied, kutype_t div)
  */
 kstype_t sdiv_integer(kstype_t divied, kstype_t div)
 {
-	kstype_t count = 0;
-	kstype_t number1 = mrt_abs(divied);
-	kstype_t number2 = mrt_abs(div);
+    kstype_t count = 0;
+    kstype_t number1 = mrt_abs(divied);
+    kstype_t number2 = mrt_abs(div);
 
-	while (number1 >= number2)
-	{
-		number1 -= number2;
-		count++;
-	}
+    while (number1 >= number2)
+    {
+        number1 -= number2;
+        count++;
+    }
 
-	return ((divied ^ div) < 0) ? -count : count;
+    return ((divied ^ div) < 0) ? -count : count;
 }
 
 /*!
@@ -63,10 +84,10 @@ kstype_t sdiv_integer(kstype_t divied, kstype_t div)
  */
 kutype_t udiv_remainder(kutype_t divied, kutype_t div)
 {
-	while (divied >= div)
-		divied -= div;
+    while (divied >= div)
+        divied -= div;
 
-	return divied;
+    return divied;
 }
 
 /*!
@@ -77,35 +98,35 @@ kutype_t udiv_remainder(kutype_t divied, kutype_t div)
  */
 kutype_t dec_to_hex(kchar_t *buf, kutype_t number, kbool_t mode)
 {
-	kchar_t temp[(sizeof(kutype_t) << 1) + 4];
-	kchar_t result = 0;
-	kint16_t count = 0, idx;
+    kchar_t temp[(sizeof(kutype_t) << 1) + 4];
+    kchar_t result = 0;
+    kint16_t count = 0, idx;
 
-	do
-	{
-		result = number - ((number >> 4) << 4);
-		number = number >> 4;
+    do
+    {
+        result = number - ((number >> 4) << 4);
+        number = number >> 4;
 
-		if (result >= 10)
-			temp[count] = result - 10 + (mode ? 'A' : 'a');
-		else
-			temp[count] = result + '0';
+        if (result >= 10)
+            temp[count] = result - 10 + (mode ? 'A' : 'a');
+        else
+            temp[count] = result + '0';
 
-		count++;
-		
-	} while (number);
+        count++;
+        
+    } while (number);
 
-	if (!buf)
-		goto END;
-	
-	*buf = '0';
-	*(buf + 1) = mode ? 'X' : 'x';
+    if (!buf)
+        goto END;
+    
+    *buf = '0';
+    *(buf + 1) = mode ? 'X' : 'x';
 
-	for (idx = 0; idx < count; idx++)
-		*(buf + idx + 2) = temp[count - idx - 1];
-	
+    for (idx = 0; idx < count; idx++)
+        *(buf + idx + 2) = temp[count - idx - 1];
+    
 END:
-	return (count + 2);
+    return (count + 2);
 }
 
 /*!
@@ -116,30 +137,30 @@ END:
  */
 kutype_t dec_to_binary(kchar_t *buf, kutype_t number)
 {
-	kchar_t temp[(sizeof(kutype_t) << 3) + 4];
-	kchar_t result = 0;
-	kint16_t count = 0, idx;
+    kchar_t temp[(sizeof(kutype_t) << 3) + 4];
+    kchar_t result = 0;
+    kint16_t count = 0, idx;
 
-	do
-	{
-		result = number - ((number >> 1) << 1);
-		number = number >> 1;
+    do
+    {
+        result = number - ((number >> 1) << 1);
+        number = number >> 1;
 
-		temp[count++] = result + '0';
-		
-	} while (number);
+        temp[count++] = result + '0';
+        
+    } while (number);
 
-	if (!buf)
-		goto END;
-	
-	*buf = '0';
-	*(buf + 1) = 'b';
+    if (!buf)
+        goto END;
+    
+    *buf = '0';
+    *(buf + 1) = 'b';
 
-	for (idx = 0; idx < count; idx++)
-		*(buf + idx + 2) = temp[count - idx - 1];
-	
+    for (idx = 0; idx < count; idx++)
+        *(buf + idx + 2) = temp[count - idx - 1];
+    
 END:
-	return (count + 2);
+    return (count + 2);
 }
 
 /*!
@@ -154,25 +175,30 @@ kutype_t ascii_to_dec(const kchar_t *str)
     kutype_t val = 0;
     kchar_t type = -1;
 
-    for (p = (kchar_t *)str; p && (*p != '\0'); p++) 
-	{
-        if (p == str) 
-		{
-            if ((*(p) == '0') && 
-                ((*(p + 1) == 'X') || (*(p + 1) == 'x')))
-                type = 16;
-            else if ((*(p) == '0') && 
-                ((*(p + 1) == 'B') || (*(p + 1) == 'b')))
-                type = 2;
-            else
-                type = 10;
+    p = (kchar_t *)str;
+    if (p) 
+    {
+        if ((*(p) == '0') && 
+            ((*(p + 1) == 'X') || (*(p + 1) == 'x')))
+            type = 16;
+        else if ((*(p) == '0') && 
+            ((*(p + 1) == 'B') || (*(p + 1) == 'b')))
+            type = 2;
+        else
+            type = 10;
 
-            if (type != 10)
-                p += 2;
+        if (type != 10)
+        {
+            p += 2;
+            if (!(*p))
+                goto fail;
         }
+    }
 
+    for (; p && (*p != '\0'); p++) 
+    {
         switch (type) 
-		{
+        {
             case 2:
                 if ((*p != '0') && (*p != '1'))
                     goto fail;
@@ -208,5 +234,21 @@ fail:
     print_err("%s: input argument error!\n", __FUNCTION__);
     return 0;
 }
+
+kutype_t random_val(void)
+{
+    struct common_random_state *sprt_rand;
+    kutype_t value;
+
+    sprt_rand = &sgrt_com_random_state;
+
+    spin_lock_irqsave(&sprt_rand->sgrt_lock);
+    value = (kutype_t)(((jiffies % 32767) * (sprt_rand->u.value + 345977126UL)) ^ 4298547119UL);
+    sprt_rand->u.value = value;
+    spin_unlock_irqrestore(&sprt_rand->sgrt_lock);
+
+    return value;
+}
+
 
 /* end of file */
