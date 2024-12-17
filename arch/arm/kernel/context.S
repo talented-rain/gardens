@@ -36,8 +36,9 @@ g_asm_context_info: .word 0x00000000
     add r2, r1, #ARCH_OFFSET_R3                     @ r1: specified sp
     stmia r2, { r3 - r12 }                          @ push r3 ~ r12 to sp (basic address)
 
-    str lr, [r1, #ARCH_OFFSET_LR]                   @ save lr
-    str lr, [r1, #ARCH_OFFSET_PC]                   @ save pc
+    mov r9, lr
+    add r2, r1, #ARCH_OFFSET_LR
+    stmia r2, { r9, lr }                            @ save lr
 .endm
 
 .macro _context_restore_params
@@ -110,17 +111,9 @@ _context_save:
 
     add r8, r9, #ARCH_FRAME_SIZE                    @ r8 = &flags
     ldr r7, [r8]                                    @ r7 = flags
-    orr r10, r7, #SCHED_NOT_FIRST                   @ r10 = flags | 0x02
-    str r10, [r8]                                   @ initial flags (marking the previous thread will no longer be scheduled for the first time)
+    orr r6, r7, #SCHED_NOT_FIRST                    @ r6 = flags | 0x02
+    str r6, [r8]                                    @ initial flags (marking the previous thread will no longer be scheduled for the first time)  
 
-    and r10, r7, #SCHED_FROM_IRQ
-    cmp r10, #0
-    beq 1f                                          @ judge if is from irq_handler
-
-    add sp, #8                                      @ jump over lr_irq and spsr_irq
-    ldr r0, g_asm_context_info                      @ get context_info from "__schedule_thread"
-
-1:
     str sp, [r9, #ARCH_OFFSET_SP]                   @ save sp
     b _context_restore
 
@@ -128,6 +121,8 @@ _context_save:
  * restore next context
  * -----------------------------------------------------------------------------*/
 _context_restore:
+    ldr r0, g_asm_context_info                      @ get context_info from "__schedule_thread"
+
     ldr r2, [r0, #CONTEXT_NEXT_SP]                  @ r2: next sp (frame register base)
     ldr r1, [r2]
 
@@ -136,14 +131,14 @@ _context_restore:
     beq _sched_first_ready                          @ first schedule    
 
     _context_restore_params
+    push { lr }                                     @ save lr
 
-    add r2, r1, #ARCH_OFFSET_PSR                    @ r2 = offset of spsr
-    ldr r0, [r2] 
-    push { r0, lr }
+    ldr r2, [r1, #ARCH_OFFSET_PSR]
+    push { r2 }                                     @ save spsr
 
-    add r0, r1, #ARCH_OFFSET_R1                     @ pointer to r1
-    ldmia r0, { r1, r2 }
-    ldr r0, [r0, #-4]
+    add r2, r1, #ARCH_OFFSET_R2                     @ pointer to r2
+    ldmdb r2, { r0, r1 }
+    ldr r2, [r2]
 
     b _sched_init_before
 
@@ -170,40 +165,42 @@ _sched_first_ready:
  * save curent context
  * -----------------------------------------------------------------------------*/
 _sched_init_before:
-    push { r0 - r12 }                               @ r1: next sp; r2: first; r7: address of [first]
+    push { r0 - r3, r12 }                           @ r1: next sp; r2: first; r7: address of [first]
     ldr r1, =__real_thread_init_before              @ init thread before running
     blx r1
 
 1:
     ldr r0, g_asm_context_info                      @ get context_info from "__schedule_thread"
     ldr r1, [r0, #CONTEXT_NEXT_SP]                  @ r1: next sp (frame register base)
-    ldr r9, [r1]
+    ldr r2, [r1]
 
-    add r8, r9, #ARCH_FRAME_SIZE                    @ r8 = &flags
-    ldr r7, [r8]                                    @ r7 = flags
-    and r10, r7, #SCHED_FROM_IRQ
-    cmp r10, #0
+    add r3, r2, #ARCH_FRAME_SIZE                    @ r8 = &flags
+    ldr r12, [r3]                                   @ r7 = flags
+    and r12, #SCHED_FROM_IRQ
+    cmp r12, #0
     beq 3f                                          @ judge if is from irq_handler
-    b 2f
 
 2:
-    pop { r0 - r12 }
+    pop { r0 - r3, r12 }
+    pop { lr }                                      @ spsr will be abandoned
+    pop { lr }                                      @ lr_svc will be used by current thread
+
     b _switch_to_irq                                @ ===> return irq_handler
 
 3:
-    pop { r0 - r12 }
+    pop { r0 - r3, r12 }
+    push { r12 }
+    ldr r12, [sp, #4]
+    msr spsr_cxsf, r12                              @ spsr will be used by current thread
+    pop { r12 }
+    add sp, #4
+
     b _switch_to_next                               @ ===> return thread
 
 /* -------------------------------------------------------------------------------
  * schedule new thread
  * -----------------------------------------------------------------------------*/
 _switch_to_next:
-    push { r12 }
-    ldr r12, [sp, #4]
-    msr spsr_cxsf, r12
-    pop { r12 }
-    add sp, #4
-
     _set_preempt_cnt sub                            @ preempt_enable
     pop { pc }
 
@@ -227,6 +224,7 @@ __schedule_before:
     _set_preempt_cnt add                            @ preempt_disable
 
     push { r0 - r2 }
+    push { lr }                                     @ important: save current thread's lr, which is not equaled to lr_irq !!!
     push { r3 - r12 }
 
     ldr r1, =__schedule_thread
@@ -234,10 +232,10 @@ __schedule_before:
     str r0, g_asm_context_info
 
     pop { r3 - r12 }
+    pop { lr }                                      @ get lr_svc
 
     add r2, sp, #12                                 @ pointer to lr_irq
-    ldr lr, [r2, #0]
-    ldr r1, [r2, #4]                                @ r1 = spsr_irq                          
+    ldr r1, [r2, #4]                                @ r1 = spsr_irq (lr_irq can be kept in sp all the time, does not need to be taken out)                    
     cmp r1, #0
     orreq r1, #ARCH_SVC_MODE
     msr spsr_cxsf, r1
@@ -260,14 +258,6 @@ __schedule_before:
  * schedule new thread (by IRQ)
  * -----------------------------------------------------------------------------*/
 _switch_to_irq:
-    push { r10 - r12 }
-    add r10, sp, #12
-    ldr r11, [r10, #0]
-    ldr r12, [r10, #4]                              @ r1 = spsr_irq       
-    str r11, [r10, #4]
-    str r12, [r10, #0]
-    pop { r10 - r12 }
-
     _set_preempt_cnt sub                            @ preempt_enable
 
 /* -------------------------------------------------------------------------------
