@@ -23,7 +23,7 @@ real_thread_init_t g_thread_init_tables[] =
     
     /*!< applications */
 //  lvgl_task_init,
-    lwip_task_init,
+//  lwip_task_init,
     
     /*!< end */
     mrt_nullptr,
