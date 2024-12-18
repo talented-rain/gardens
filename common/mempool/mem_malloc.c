@@ -17,10 +17,10 @@
 /*!< The globals */
 static struct mem_info sgrt_infoMalloc =
 {
-	.base	= 0,
-	.lenth	= 0,
+    .base	= 0,
+    .lenth	= 0,
 
-	.sprt_mem = mrt_nullptr,
+    .sprt_mem = mrt_nullptr,
 };
 
 /*!< API function */
@@ -32,30 +32,30 @@ static struct mem_info sgrt_infoMalloc =
  */
 __weak kuaddr_t _sbrk(kuint32_t incr)
 {
-	static kuint8_t *ptr_heapHead = mrt_nullptr;
-	kuint8_t *ptr_heapEnd;
-	kuint8_t *prev_heap;
-	kuaddr_t status;
+    static kuint8_t *ptr_heapHead = mrt_nullptr;
+    kuint8_t *ptr_heapEnd;
+    kuint8_t *prev_heap;
+    kuaddr_t status;
 
-	/*!< heap end */
-	ptr_heapEnd = (kuint8_t *)MEMORY_HEAP_END;
+    /*!< heap end */
+    ptr_heapEnd = (kuint8_t *)MEMORY_HEAP_END;
 
-	/*!< heap start */
-	if (ptr_heapHead == mrt_nullptr) 
-		ptr_heapHead = (kuint8_t *)MEMORY_HEAP_START;
-	
-	/*!< save memory base address */
-	prev_heap = ptr_heapHead;
+    /*!< heap start */
+    if (ptr_heapHead == mrt_nullptr) 
+        ptr_heapHead = (kuint8_t *)MEMORY_HEAP_START;
+    
+    /*!< save memory base address */
+    prev_heap = ptr_heapHead;
 
-	if (((ptr_heapHead + incr) <= ptr_heapEnd) && (prev_heap != mrt_nullptr)) 
-	{
-		ptr_heapHead += incr;
-		status = (kuaddr_t)((void *)prev_heap);
-	} 
-	else
-		status = (kuaddr_t) - 1;
+    if (((ptr_heapHead + incr) <= ptr_heapEnd) && (prev_heap != mrt_nullptr)) 
+    {
+        ptr_heapHead += incr;
+        status = (kuaddr_t)((void *)prev_heap);
+    } 
+    else
+        status = (kuaddr_t) - 1;
 
-	return status;
+    return status;
 }
 
 /*!
@@ -66,18 +66,18 @@ __weak kuaddr_t _sbrk(kuint32_t incr)
  */
 kbool_t malloc_block_initial(void)
 {
-	struct mem_info *sprt_info;
+    struct mem_info *sprt_info;
 
-	sprt_info = &sgrt_infoMalloc;
+    sprt_info = &sgrt_infoMalloc;
 
-	if (isValid(sprt_info->sprt_mem))
-		return false;
+    if (isValid(sprt_info->sprt_mem))
+        return false;
 
-	memory_simple_block_create(sprt_info, 
-							   MEMORY_HEAP_START, 
-							   MEMORY_HEAP_END - MEMORY_HEAP_START);
+    memory_simple_block_create(sprt_info, 
+                               MEMORY_HEAP_START, 
+                               MEMORY_HEAP_END - MEMORY_HEAP_START);
 
-	return true;
+    return true;
 }
 
 /*!
@@ -88,16 +88,16 @@ kbool_t malloc_block_initial(void)
  */
 kbool_t malloc_block_self_defines(kuaddr_t base, kusize_t size)
 {
-	struct mem_info *sprt_info;
+    struct mem_info *sprt_info;
 
-	sprt_info = &sgrt_infoMalloc;
+    sprt_info = &sgrt_infoMalloc;
 
-	if (isValid(sprt_info->sprt_mem))
-		return false;
+    if (isValid(sprt_info->sprt_mem))
+        return false;
 
-	memory_simple_block_create(sprt_info, base, size);
+    memory_simple_block_create(sprt_info, base, size);
 
-	return true;
+    return true;
 }
 
 /*!
@@ -108,7 +108,7 @@ kbool_t malloc_block_self_defines(kuaddr_t base, kusize_t size)
  */
 void malloc_block_destroy(void)
 {
-	memory_simple_block_destroy(&sgrt_infoMalloc);
+    memory_simple_block_destroy(&sgrt_infoMalloc);
 }
 
 /*!
@@ -119,7 +119,7 @@ void malloc_block_destroy(void)
  */
 __weak void *malloc(size_t __size)
 {
-	return alloc_spare_simple_memory(sgrt_infoMalloc.sprt_mem, __size);
+    return alloc_spare_simple_memory(sgrt_infoMalloc.sprt_mem, __size);
 }
 
 /*!
@@ -130,7 +130,7 @@ __weak void *malloc(size_t __size)
  */
 __weak void free(void *__ptr)
 {
-	free_employ_simple_memory(sgrt_infoMalloc.sprt_mem, __ptr);
+    free_employ_simple_memory(sgrt_infoMalloc.sprt_mem, __ptr);
 }
 
 /*!
@@ -141,9 +141,9 @@ __weak void free(void *__ptr)
  */
 __weak void *memset(void *__s, int __c, size_t __n)
 {
-	memory_set(__s, (kuint8_t)__c, __n);
+    kmemset(__s, (kuint8_t)__c, __n);
 
-	return __s;
+    return __s;
 }
 
 /*!
@@ -154,9 +154,9 @@ __weak void *memset(void *__s, int __c, size_t __n)
  */
 __weak void *memset_ex(void *__s, unsigned int __c, size_t __n)
 {
-	memory_compat_set(__s, __c, __n);
+    kmemset_ex(__s, __c, __n);
 
-	return __s;
+    return __s;
 }
 
 /*!
@@ -167,7 +167,7 @@ __weak void *memset_ex(void *__s, unsigned int __c, size_t __n)
  */
 __weak int memcmp(const void *__s1, const void *__s2, size_t __n)
 {
-	return memory_compare(__s1, __s2, __n);
+    return kmemcmp(__s1, __s2, __n);
 }
 
 /*!
@@ -178,7 +178,7 @@ __weak int memcmp(const void *__s1, const void *__s2, size_t __n)
  */
 __weak void *memcpy(void *__dest, const void *__src, size_t __n)
 {
-	return memory_copy(__dest, __src, __n);
+    return kmemcpy(__dest, __src, __n);
 }
 
 /* end of file */

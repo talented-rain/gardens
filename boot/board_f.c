@@ -42,7 +42,7 @@ void board_init_f_init_reserve(kuaddr_t base)
     srt_gd_t *sprt_gd;
 
     sprt_gd = (srt_gd_t *)base;
-    memory_reset(sprt_gd, sizeof(srt_gd_t));
+    kmemzero(sprt_gd, sizeof(srt_gd_t));
 
     /*!< save stack base address */
     sprt_gd->iboot_sp = (kuaddr_t)base;

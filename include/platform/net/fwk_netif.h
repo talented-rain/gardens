@@ -20,6 +20,8 @@
 #include <platform/net/fwk_skbuff.h>
 
 /*!< The defines */
+struct fwk_ip_hdr;
+
 #define mrt_htons(x)                mrt_cpu_to_be16(x)
 #define mrt_ntohs(x)                mrt_be16_to_cpu(x)
 #define mrt_htonl(x)                mrt_cpu_to_be32(x)
@@ -28,6 +30,11 @@
 /*!< The functions */
 TARGET_EXT kuint32_t fwk_inet_addr(const kchar_t *addr);
 TARGET_EXT void fwk_inet_random_addr(kuint8_t *buf, kusize_t lenth);
+TARGET_EXT kuint16_t fwk_ip_check_sum(struct fwk_ip_hdr *sprt_iphdr);
+TARGET_EXT kuint16_t fwk_icmp_check_sum(struct fwk_ip_hdr *sprt_iphdr, kuint8_t *icmp_msg);
+TARGET_EXT kuint16_t fwk_tcp_check_sum(struct fwk_ip_hdr *sprt_iphdr, kuint8_t *tcp_msg);
+TARGET_EXT kuint16_t fwk_udp_check_sum(struct fwk_ip_hdr *sprt_iphdr, kuint8_t *udp_msg);
+
 TARGET_EXT struct fwk_sk_buff_head *fwk_netif_rxq_get(void);
 
 TARGET_EXT kint32_t fwk_netif_open(const kchar_t *name);

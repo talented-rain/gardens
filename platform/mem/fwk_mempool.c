@@ -252,7 +252,7 @@ __weak void *kmalloc(size_t __size, nrt_gfp_t flags)
     }
 
     if (flags & NR_KMEM_ZERO)
-        memory_reset(p, __size);
+        kmemzero(p, __size);
 
 END:
     spin_unlock_irqrestore(&sprt_pool->sgrt_lock);

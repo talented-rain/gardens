@@ -159,7 +159,7 @@ static inline void hal_imx_pin_attribute_init(srt_hal_imx_pin_t *sprt_cfg, kuadd
                                                 kuint8_t  functionality)
 {
     /*!< clear all */
-    /* memory_reset(sprt_cfg, sizeof(srt_hal_imx_pin_t)); */
+    /* kmemzero(sprt_cfg, sizeof(srt_hal_imx_pin_t)); */
 
     /*!<
      * SW_MUX

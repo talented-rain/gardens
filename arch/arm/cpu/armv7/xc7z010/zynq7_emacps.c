@@ -2055,8 +2055,8 @@ kint32_t XEmacPs_DmaInit(void *args)
     volatile kuint32_t tempaddress;
     kuint32_t index;
     kuint32_t gigeversion;
-    XEmacPs_Bd *bdtxterminate;
-    XEmacPs_Bd *bdrxterminate;
+    XEmacPs_Bd *bdtxterminate = NULL;
+    XEmacPs_Bd *bdrxterminate = NULL;
     u32 *temp;
 
     xemac = (struct xemac_s *)args;

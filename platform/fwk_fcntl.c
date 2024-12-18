@@ -70,7 +70,7 @@ kint32_t __plat_init fwk_file_system_init(void)
     if (!sprt_table->max_fds)
         sprt_table->max_fds	= num_farray;
 
-    sprt_table->max_fdarr = mrt_ret_min2(sprt_table->max_fds, num_farray);
+    sprt_table->max_fdarr = CMP_MIN2(sprt_table->max_fds, num_farray);
     num_farray = ARRAY_SIZE(sgrt_fwk_file_stdio);
 
     if (sprt_table->max_fdarr < num_farray)

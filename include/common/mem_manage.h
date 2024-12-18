@@ -73,12 +73,12 @@ TARGET_EXT void *memset_ex(void *__s, unsigned int __c, size_t __n);
 
 /*!< API function */
 /*!
- * @brief   memory_set
+ * @brief   kmemset
  * @param   dest, data, size
  * @retval  none
  * @note    similar to "memset"
  */
-static inline void memory_set(void *dest, kuint8_t data, kusize_t size)
+static inline void kmemset(void *dest, kuint8_t data, kusize_t size)
 {
     kuaddr_t start_addr, end_addr;
     kuaddr_t result;
@@ -128,12 +128,12 @@ static inline void memory_set(void *dest, kuint8_t data, kusize_t size)
 }
 
 /*!
- * @brief   memory_compat_set
+ * @brief   kmemset_ex
  * @param   dest, data, size
  * @retval  none
  * @note    "memset" just allow set 1-byte data, but this func can set 4-bytes
  */
-static inline void memory_compat_set(void *dest, kuint32_t data, kusize_t size)
+static inline void kmemset_ex(void *dest, kuint32_t data, kusize_t size)
 {
     kuaddr_t start_addr, end_addr;
 //  kuaddr_t result;
@@ -148,7 +148,7 @@ static inline void memory_compat_set(void *dest, kuint32_t data, kusize_t size)
     if ((start_addr & 0x3) ||
         (end_addr & 0x3))
     {
-        memory_set(dest, data, size);
+        kmemset(dest, data, size);
         return;
     }
 
@@ -173,23 +173,24 @@ static inline void memory_compat_set(void *dest, kuint32_t data, kusize_t size)
 }
 
 /*!
- * @brief   memory_reset
+ * @brief   kmemzero
  * @param   dest, size
  * @retval  none
  * @note    fill memory with zero 
  */
-static inline void memory_reset(void *dest, kusize_t size)
+static inline void kmemzero(void *dest, kusize_t size)
 {
-    memory_set(dest, 0, size);
+    kmemset(dest, 0, size);
 }
+#define mrt_bzero(addr, size)       kmemzero(addr, size)
 
 /*!
- * @brief   memory_compare
+ * @brief   kmemcmp
  * @param   s1, s2, size
  * @retval  none
  * @note    compare between two string
  */
-static inline kuint8_t memory_compare(const void *s1, const void *s2, kusize_t size)
+static inline kuint8_t kmemcmp(const void *s1, const void *s2, kusize_t size)
 {
     kuaddr_t s1_addr, s2_addr, end_addr;
     kuaddr_t result1, result2;
@@ -255,12 +256,12 @@ static inline kuint8_t memory_compare(const void *s1, const void *s2, kusize_t s
 }
 
 /*!
- * @brief   memory_copy
+ * @brief   kmemcpy
  * @param   dest, src, size
  * @retval  none
  * @note    clone. unit: byte
  */
-static inline void *memory_copy(void *dest, const void *src, kusize_t size)
+static inline void *kmemcpy(void *dest, const void *src, kusize_t size)
 {
     kuaddr_t s1_addr, s2_addr, end_addr;
     kuaddr_t result1, result2;
@@ -321,6 +322,21 @@ static inline void *memory_copy(void *dest, const void *src, kusize_t size)
 #endif
 
     return (void *)s1_addr;
+}
+
+static inline void u32_set(kuint32_t *addr, kuint32_t *val)
+{
+    kmemcpy(addr, val, sizeof(kuint32_t));
+}
+
+static inline void u16_set(kuint16_t *addr, kuint16_t *val)
+{
+    kmemcpy(addr, val, sizeof(kuint16_t));
+}
+
+static inline void u8_set(kuint8_t *addr, kuint8_t *val)
+{
+    kmemcpy(addr, val, sizeof(kuint8_t));
 }
 
 #endif  /* __MEM_MANAGE_H */

@@ -54,7 +54,7 @@ g_asm_context_info: .word 0x00000000
  * -----------------------------------------------------------------------------*/
 ENTRY(__switch_to)
 __switch_to:
-    _set_preempt_cnt add
+    /*!< preemption is prohibited (g_asm_preempt_cnt > 0) */
 
     push { r1, r2 }
     str r0, g_asm_context_info
@@ -82,7 +82,7 @@ _context_save_first:
     mov r1, #1
     str r1, [r2]                                    @ set first to true
 
-    pop { r1, r2}
+    pop { r1, r2 }
 
     sub sp, sp, #ARCH_FRAME_SIZE                    @ sp: current position
     stmia sp, { r0 - r12 }                          @ push r0 ~ r12 to sp (basic address)
@@ -91,7 +91,7 @@ _context_save_first:
     str lr, [r8]                                    @ manually save lr (pc - 4) to stack (offset pc)
 
     add r8, sp, #ARCH_OFFSET_PSR                    @ offset psr
-    mrs r5, spsr                                    @ get spsr
+    mrs r5, spsr                                    @ get cpsr (schedule_thread: spsr = cpsr)
     str r5, [r8]                                    @ manually save spsr to stack (offset psr)
 
     b _sched_first_ready
@@ -152,7 +152,7 @@ _sched_first_ready:
 
     ldr r1, [r0, #CONTEXT_ENTRY_OFFSET]             @ address of entry
     ldr r8, [r1]                                    @ first schedule, lr = entry
-    mrs r7, cpsr
+    mrs r7, spsr
     push { r7, r8 }                                 @ push { cpsr, lr } ===> pop { spsr }, pop { pc }
 
     ldr r1, [r0, #CONTEXT_ARGS_OFFSET]              @ args
@@ -188,10 +188,9 @@ _sched_init_before:
     b _switch_to_irq                                @ ===> return irq_handler
 
 3:
-    pop { r0 - r3, r12 }
-    push { r12 }
+    pop { r0 - r3 }
     ldr r12, [sp, #4]
-    msr spsr_cxsf, r12                              @ spsr will be used by current thread
+    msr cpsr, r12                                   @ spsr will be used by current thread
     pop { r12 }
     add sp, #4
 

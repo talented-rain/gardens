@@ -405,7 +405,7 @@ void *tmalloc(size_t __size, nrt_gfp_t flags)
         return mrt_nullptr;
 
     if (flags & NR_KMEM_ZERO)
-        memory_reset(p, __size);
+        kmemzero(p, __size);
 
 END:
     return p;

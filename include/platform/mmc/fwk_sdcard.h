@@ -824,7 +824,7 @@ TARGET_EXT kbool_t fwk_sdcard_format_blocks(struct fwk_sdcard *sprt_card, kuint3
  */
 static inline kint32_t fwk_sdcard_initial_command(struct fwk_sdcard_cmd *sprt_cmd, kuint32_t index, kuint32_t args, kuint32_t response)
 {
-    memory_reset(sprt_cmd, sizeof(struct fwk_sdcard_cmd));
+    kmemzero(sprt_cmd, sizeof(struct fwk_sdcard_cmd));
 
     sprt_cmd->index = index & FWK_SDCARD_CMD_MASK;
     sprt_cmd->args = mrt_be32_to_cpu(args);

@@ -933,20 +933,21 @@ void schedule_thread(void)
 {
     struct scheduler_context *sprt_context;
 
-    spin_lock_irqsave(&__SCHED_LOCK);
+    mrt_preempt_disable();
+    __push_psr();
+    mrt_disable_cpu_irq();
 
     sprt_context = __schedule_thread();
     if (!sprt_context)
         goto END;
-
-    spin_unlock_irqrestore(&__SCHED_LOCK);
 
     /*!< sprt_context ===> r0 */
     context_switch(sprt_context);
     return;
 
 END:
-    spin_unlock_irqrestore(&__SCHED_LOCK);
+    __pop_psr();
+    mrt_preempt_enable();
 }
 
 /*!< end of file */

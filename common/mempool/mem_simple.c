@@ -70,8 +70,8 @@ void memory_simple_block_destroy(struct mem_info *sprt_info)
         return;
 
     /*!< clear all memory blocks */
-    memory_reset((void *)sprt_info->base, sprt_info->lenth);
-    memory_reset((void *)sprt_info, sizeof(struct mem_info));
+    kmemzero((void *)sprt_info->base, sprt_info->lenth);
+    kmemzero((void *)sprt_info, sizeof(struct mem_info));
 }
 
 /*!

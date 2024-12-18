@@ -39,7 +39,8 @@ struct fwk_icmp_echo
 {
     kuint16_t id;
     kuint16_t seq_no;
-};
+    
+} __packed;
 
 struct fwk_icmp_hdr
 {

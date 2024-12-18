@@ -40,11 +40,11 @@ struct fwk_lwip_data
 /*!< The globals */
 
 /*!< API functions */
-static kssize_t lwip_get_ip_proto_size(kuint16_t proto)
+static kssize_t lwip_get_ip_proto_size(kuint8_t proto)
 {
     kssize_t size = -1;
 
-    switch (mrt_htons(proto))
+    switch (proto)
     {
         case NET_IP_PROTO_ICMP:
             size = NET_ICMP_HDR_LEN;

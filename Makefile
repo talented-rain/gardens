@@ -125,6 +125,7 @@ BUILD_CFLAGS   	:=  -g3 -O0 -Wall -nostdlib	\
 					-fno-common \
                     -Werror-implicit-function-declaration \
                     -fno-tree-scev-cprop
+#					-munaligned-access
 
 MACROS			:=	-DCONFIG_DEBUG_JTAG
 

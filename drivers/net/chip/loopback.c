@@ -51,9 +51,12 @@ static kssize_t loopback_driver_recv(struct fwk_net_device *sprt_ndev, void *buf
     if (!isValid(data))
         goto fail;
 
+    memcpy(data, buffer, sprt_skb->len);
     sprt_skb->protocol = fwk_eth_type_trans(sprt_skb, sprt_ndev);
     sprt_skb->sprt_ndev = sprt_ndev;
-    memcpy(data, buffer, sprt_skb->len);
+
+    fwk_skb_set_mac_header(sprt_skb, 0);
+    fwk_skb_set_network_header(sprt_skb, NET_ETHER_HDR_LEN);
 
     /*!< commit to rx queue */
     fwk_netif_rx(sprt_skb);
@@ -85,34 +88,34 @@ static kssize_t loopback_driver_recycle(struct fwk_net_device *sprt_ndev, void *
     sprt_ethdr = (struct fwk_eth_hdr *)buffer;
 
     /*!< swap source and destination mac address */
-    memcpy(mac_address, sprt_ethdr->h_dest, NET_MAC_ETH_ALEN);
-    memcpy(sprt_ethdr->h_dest, sprt_ethdr->h_source, NET_MAC_ETH_ALEN);
-    memcpy(sprt_ethdr->h_source, mac_address, NET_MAC_ETH_ALEN);
+    kmemcpy(mac_address, sprt_ethdr->h_dest, NET_MAC_ETH_ALEN);
+    kmemcpy(sprt_ethdr->h_dest, sprt_ethdr->h_source, NET_MAC_ETH_ALEN);
+    kmemcpy(sprt_ethdr->h_source, mac_address, NET_MAC_ETH_ALEN);
 
     switch (mrt_htons(sprt_ethdr->h_proto))
     {
         case NET_ETH_PROTO_IP:
             sprt_iphdr = (struct fwk_ip_hdr *)(buffer + sizeof(*sprt_ethdr));
-            
-            /*!< swap source and destination ip address */
-            ipaddr = sprt_iphdr->daddr;
-            sprt_iphdr->daddr = sprt_iphdr->saddr;
-            sprt_iphdr->saddr = ipaddr;
 
             switch (sprt_iphdr->protocol)
             {
                 case NET_IP_PROTO_ICMP:
                     /*!< ICMP <0x00: rely; 0x08: ping> */
                     sprt_icmphdr = (struct fwk_icmp_hdr *)((kuint8_t *)sprt_iphdr + sizeof(*sprt_iphdr));
+
                     sprt_icmphdr->type = NET_PROTO_ICMP_ER;
+                    sprt_icmphdr->check_sum = fwk_icmp_check_sum(sprt_iphdr, (kuint8_t *)sprt_icmphdr);
 
                     break;
 
                 case NET_IP_PROTO_UDP:
                     sprt_udphdr = (struct fwk_udp_hdr *)((kuint8_t *)sprt_iphdr + sizeof(*sprt_iphdr));
-                    port = sprt_udphdr->dst_port;
-                    sprt_udphdr->src_port = port;
-                    sprt_udphdr->dst_port = port;
+                    
+                    u16_set(&port, &sprt_udphdr->dst_port);
+                    u16_set(&sprt_udphdr->src_port, &sprt_udphdr->dst_port);
+                    u16_set(&sprt_udphdr->dst_port, &port);
+
+                    sprt_udphdr->check_sum = fwk_udp_check_sum(sprt_iphdr, (kuint8_t *)sprt_udphdr);
 
                     break;
 
@@ -121,21 +124,28 @@ static kssize_t loopback_driver_recycle(struct fwk_net_device *sprt_ndev, void *
                     return -ER_UNVALID;
             }
 
+            /*!< swap source and destination ip address */
+            u32_set(&ipaddr, &sprt_iphdr->daddr);
+            u32_set(&sprt_iphdr->daddr, &sprt_iphdr->saddr);
+            u32_set(&sprt_iphdr->saddr, &ipaddr);
+
+            sprt_iphdr->check = fwk_ip_check_sum(sprt_iphdr);
+
             break;
 
         case NET_ETH_PROTO_ARP:
             sprt_arphdr = (struct fwk_arp_hdr *)(buffer + sizeof(*sprt_ethdr));
 
-            memcpy(mac_address, sprt_arphdr->mac_src, NET_MAC_ETH_ALEN);
-            memcpy(sprt_arphdr->mac_src, sprt_ndev->dev_addr, NET_MAC_ETH_ALEN);
-            memcpy(sprt_arphdr->mac_dst, mac_address, NET_MAC_ETH_ALEN);
+            kmemcpy(mac_address, sprt_arphdr->mac_src, NET_MAC_ETH_ALEN);
+            kmemcpy(sprt_arphdr->mac_src, sprt_ndev->dev_addr, NET_MAC_ETH_ALEN);
+            kmemcpy(sprt_arphdr->mac_dst, mac_address, NET_MAC_ETH_ALEN);
 
             /*!< swap source and destination ip address */
-            ipaddr = sprt_arphdr->ip_dst;
-            sprt_arphdr->ip_dst = sprt_arphdr->ip_src;
-            sprt_arphdr->ip_src = ipaddr;
+            u32_set(&ipaddr, &sprt_arphdr->ip_dst);
+            u32_set(&sprt_arphdr->ip_dst, &sprt_arphdr->ip_src);
+            u32_set(&sprt_arphdr->ip_src, &ipaddr);
 
-            sprt_arphdr->opcode = NET_ARPOP_REPLY;
+            sprt_arphdr->opcode = mrt_htons(NET_ARPOP_REPLY);
 
             break;
 

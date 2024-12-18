@@ -75,7 +75,7 @@ cpu_init_cp15:
     bic r0, r0, #CP15_SCTLR_BIT_M                   @ disable mmu
     bic r0, r0, #CP15_SCTLR_BIT_C                   @ disable D-Cache consistency
     bic r0, r0, #CP15_SCTLR_BIT_I                   @ disable I-Cache
-    orr r0, r0, #CP15_SCTLR_BIT_A                   @ enable alignment check
+    bic r0, r0, #CP15_SCTLR_BIT_A                   @ disable alignment check
     orr r0, r0, #CP15_SCTLR_BIT_Z                   @ enable branch prediction
     WRITE_CP15_SCTLR(r0)
 

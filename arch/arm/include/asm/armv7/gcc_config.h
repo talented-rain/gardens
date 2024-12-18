@@ -423,4 +423,42 @@ static inline void __set_cpsr(kuint32_t result)
     );
 }
 
+/*!
+ * @brief  	cpsr ---> spsr
+ * @param  	none
+ * @retval 	none
+ * @note   	save cpsr
+ */
+static inline void __push_psr(void)
+{
+    kuint32_t result = __get_cpsr();
+
+    __asm__ __volatile__ (
+        " msr spsr, %0  "
+        : 
+        : "r"(result)
+        : "memory"
+    );
+}
+
+/*!
+ * @brief  	spsr ---> cpsr
+ * @param  	none
+ * @retval 	none
+ * @note   	restore spsr
+ */
+static inline void __pop_psr(void)
+{
+    kuint32_t result = 0;
+
+    __asm__ __volatile__ (
+        " mrs %0, spsr  "
+        : "=&r"(result)
+        :
+        : "memory"
+    );
+
+    __set_cpsr(result);
+}
+
 #endif /* __GCC_CONFIG_H */

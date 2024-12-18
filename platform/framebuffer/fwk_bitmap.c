@@ -109,6 +109,7 @@ void fwk_display_dot_matrix_image(struct fwk_disp_info *sprt_disp, kuint32_t x_s
 
         for (px_cnt = 0; px_cnt < width; px_cnt++)
         {
+            rgb_data = 0;
             for (p_cnt = 0; p_cnt < image_bpp; p_cnt++)
             {
                 rgb_data <<= 8;
@@ -241,6 +242,7 @@ kint32_t fwk_display_bitmap(struct fwk_bmp_ctrl *sprt_bctl, const kuint8_t *imag
         /*!< offset = x + y * width */
         offset = sprt_disp->sprt_ops->get_offset(x_pos, y_offset, sprt_disp->width);
 
+        rgb_data = 0;
         for (p_cnt = 0; p_cnt < image_bpp; p_cnt++)
         {
             rgb_data <<= 8;
@@ -324,6 +326,7 @@ void fwk_display_whole_bitmap(struct fwk_bmp_ctrl *sprt_bctl, const kuint8_t *im
 
         for (px_cnt = 0; px_cnt < width; px_cnt++)
         {
+            rgb_data = 0;
             for (p_cnt = 0; p_cnt < image_bpp; p_cnt++)
             {
                 rgb_data <<= 8;

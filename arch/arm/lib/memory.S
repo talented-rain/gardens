@@ -16,8 +16,6 @@
     .text
     .arm
 
-    .global __memset_ex
-
 /*!
  * @param:  r0 (&start_addr), r12 (start_addr)
  * @param:  r1 (end_addr)

@@ -141,7 +141,7 @@ fail1:
 	fwk_kset_unregister(sprt_sys_fs);
 	kfree(sprt_sys_fs);
 
-	return retval;
+	return -ER_FAILD;
 }
 
 /*!
