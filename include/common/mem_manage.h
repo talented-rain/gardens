@@ -324,17 +324,17 @@ static inline void *kmemcpy(void *dest, const void *src, kusize_t size)
     return (void *)s1_addr;
 }
 
-static inline void u32_set(kuint32_t *addr, kuint32_t *val)
+static inline void u32_set(void *addr, void *val)
 {
     kmemcpy(addr, val, sizeof(kuint32_t));
 }
 
-static inline void u16_set(kuint16_t *addr, kuint16_t *val)
+static inline void u16_set(void *addr, void *val)
 {
     kmemcpy(addr, val, sizeof(kuint16_t));
 }
 
-static inline void u8_set(kuint8_t *addr, kuint8_t *val)
+static inline void u8_set(void *addr, void *val)
 {
     kmemcpy(addr, val, sizeof(kuint8_t));
 }

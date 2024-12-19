@@ -48,6 +48,7 @@
 #include <platform/fwk_mempool.h>
 #include <platform/fwk_uaccess.h>
 #include <platform/net/fwk_lwip.h>
+#include <platform/net/fwk_netif.h>
 
 #if LWIP_UDP
 
@@ -106,7 +107,7 @@ static void __lwip_udp_raw_recv(void *arg, struct udp_pcb *sprt_upcb, struct pbu
 
     sprt_data->sprt_upcb = sprt_upcb;
     sprt_data->sprt_ipaddr = (ip_addr_t *)sprt_ipaddr;
-    sprt_data->port = port;
+    sprt_data->port = mrt_htons(port);
     sprt_data->sprt_buf = sprt_buf;
 
     sprt_data->sgrt_pqd.release = lwip_udp_raw_free;
@@ -160,7 +161,10 @@ kssize_t lwip_udp_raw_sendto(struct udp_pcb *sprt_upcb, const ip_addr_t *sprt_de
 
     sprt_buf = pbuf_alloc(PBUF_TRANSPORT, size, PBUF_POOL);
     if (!sprt_buf)
+    {
+        print_err("allocate lwip pbuf failed!\n");
         return -ER_NOMEM;
+    }
 
     memcpy(sprt_buf->payload, buf, size);
     err = udp_sendto(sprt_upcb, sprt_buf, sprt_dest, dest_port);

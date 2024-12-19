@@ -41,12 +41,14 @@ static kssize_t loopback_driver_recv(struct fwk_net_device *sprt_ndev, void *buf
 {
     struct fwk_sk_buff *sprt_skb;
     void *data;
+    kuint32_t head_len;
 
-    sprt_skb = fwk_alloc_skb(len + 2 * ARCH_PER_SIZE, GFP_KERNEL);
+    head_len = SKB_DATA_HEAD_LEN(NET_ETHER_HDR_LEN);
+    sprt_skb = fwk_alloc_skb(len + 2 * head_len, GFP_KERNEL);
     if (!isValid(sprt_skb))
         return -ER_NOMEM;
 
-    fwk_skb_reserve(sprt_skb, ARCH_PER_SIZE);
+    fwk_skb_reserve(sprt_skb, head_len);
     data = fwk_skb_put(sprt_skb, len);
     if (!isValid(data))
         goto fail;
@@ -110,10 +112,10 @@ static kssize_t loopback_driver_recycle(struct fwk_net_device *sprt_ndev, void *
 
                 case NET_IP_PROTO_UDP:
                     sprt_udphdr = (struct fwk_udp_hdr *)((kuint8_t *)sprt_iphdr + sizeof(*sprt_iphdr));
-                    
-                    u16_set(&port, &sprt_udphdr->dst_port);
-                    u16_set(&sprt_udphdr->src_port, &sprt_udphdr->dst_port);
-                    u16_set(&sprt_udphdr->dst_port, &port);
+
+                    port = sprt_udphdr->dst_port;
+                    sprt_udphdr->src_port = sprt_udphdr->dst_port;
+                    sprt_udphdr->dst_port = port;
 
                     sprt_udphdr->check_sum = fwk_udp_check_sum(sprt_iphdr, (kuint8_t *)sprt_udphdr);
 
@@ -125,9 +127,9 @@ static kssize_t loopback_driver_recycle(struct fwk_net_device *sprt_ndev, void *
             }
 
             /*!< swap source and destination ip address */
-            u32_set(&ipaddr, &sprt_iphdr->daddr);
-            u32_set(&sprt_iphdr->daddr, &sprt_iphdr->saddr);
-            u32_set(&sprt_iphdr->saddr, &ipaddr);
+            ipaddr = sprt_iphdr->daddr;
+            sprt_iphdr->daddr = sprt_iphdr->saddr;
+            sprt_iphdr->saddr = ipaddr;
 
             sprt_iphdr->check = fwk_ip_check_sum(sprt_iphdr);
 

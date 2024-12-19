@@ -69,6 +69,7 @@ static err_t lwip_lowlevel_output(struct netif *sprt_netif, struct pbuf *sprt_bu
     struct pbuf *sprt_per, *sprt_cur;
     struct fwk_eth_hdr *sprt_ethhdr;
     struct fwk_ip_hdr *sprt_iphdr;
+    kuint32_t head_len;
     kssize_t transport_len = 0;
 
     if (!sprt_buf->tot_len)
@@ -80,12 +81,16 @@ static err_t lwip_lowlevel_output(struct netif *sprt_netif, struct pbuf *sprt_bu
     for (sprt_per = sprt_buf; sprt_per && sprt_per->len;)
     {
         sprt_ethhdr = (struct fwk_eth_hdr *)sprt_per->payload;
-
-        sprt_skb = fwk_alloc_skb(sprt_per->len + 2 * ARCH_PER_SIZE, GFP_KERNEL);
+    
+        head_len = SKB_DATA_HEAD_LEN(NET_ETHER_HDR_LEN);
+        sprt_skb = fwk_alloc_skb(sprt_per->len + 2 * head_len, GFP_KERNEL);
         if (!isValid(sprt_skb))
+        {
+            print_err("%s: allocate skb failed!\n", __FUNCTION__);
             goto END;
+        }
 
-        fwk_skb_reserve(sprt_skb, ARCH_PER_SIZE);
+        fwk_skb_reserve(sprt_skb, head_len);
         fwk_skb_put(sprt_skb, sprt_per->len);
         sprt_skb->sprt_ndev = sprt_data->ndev;
         sprt_skb->protocol = sprt_ethhdr->h_proto;
@@ -108,7 +113,10 @@ static err_t lwip_lowlevel_output(struct netif *sprt_netif, struct pbuf *sprt_bu
                 fwk_skb_set_transport_header(sprt_skb, NET_ETHER_HDR_LEN + NET_ARP_HDR_LEN);
                 break;
 
-            default: goto fail;
+            default: 
+                print_err("%s: unable to recognize network layer protocol (%d)!\n", 
+                        __FUNCTION__, mrt_htons(sprt_ethhdr->h_proto));
+                goto fail;
         }
 
         sprt_skb->data_len = sprt_skb->len - (fwk_skb_transport_offset(sprt_skb) + transport_len);
@@ -124,7 +132,9 @@ static err_t lwip_lowlevel_output(struct netif *sprt_netif, struct pbuf *sprt_bu
     END:
         sprt_cur = sprt_per;
         sprt_per = sprt_cur->next;
-//      pbuf_free(sprt_cur);
+
+        if (sprt_cur->type == PBUF_POOL)
+            pbuf_free(sprt_cur);
     }
 
     return ERR_OK;
@@ -347,11 +357,17 @@ static err_t lwip_lowlevel_input(struct netif *sprt_netif, struct fwk_sk_buff *s
 {
     struct fwk_eth_hdr *sprt_ethhdr;
     struct pbuf *sprt_buf;
+    kint32_t head_len;
 
-    sprt_buf = pbuf_alloc(PBUF_RAW, sprt_skb->len, PBUF_POOL);
+    head_len = SKB_DATA_HEAD_LEN(NET_ETHER_HDR_LEN);
+    sprt_buf = pbuf_alloc(PBUF_RAW, sprt_skb->len + head_len, PBUF_POOL);
     if (!sprt_buf)
+    {
+        print_err("%s: allocate lwip pbuf failed!\n", __FUNCTION__);
         goto END;
+    }
 
+    pbuf_header(sprt_buf, -head_len);
     pbuf_take(sprt_buf, sprt_skb->data, sprt_skb->len);
     sprt_ethhdr = (struct fwk_eth_hdr *)fwk_skb_mac_header(sprt_skb);
 

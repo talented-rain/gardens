@@ -105,15 +105,14 @@ kuint16_t fwk_ip_check_sum(struct fwk_ip_hdr *sprt_iphdr)
     kuint8_t *msg = (kuint8_t *)sprt_iphdr;
 
     sprt_iphdr->check = 0;
-    for (idx = 0; idx < NET_IP_HDR_LEN; idx += 2) {
+    for (idx = 0; idx < (sprt_iphdr->ihl * 4); idx += 2) 
+    {
         data = (msg[idx] << 8) | msg[idx + 1];
         chksum += data;
     }
 
     chksum = ((chksum & 0xffff0000) >> 16) + (chksum & 0x0000ffff);
-    chksum = 0xffff - chksum;
-
-    return mrt_htons((kuint16_t)chksum);
+    return mrt_htons((kuint16_t)(~chksum));
 }
 
 kuint16_t fwk_icmp_check_sum(struct fwk_ip_hdr *sprt_iphdr, kuint8_t *icmp_msg)
@@ -123,25 +122,25 @@ kuint16_t fwk_icmp_check_sum(struct fwk_ip_hdr *sprt_iphdr, kuint8_t *icmp_msg)
     kuint32_t chksum = 0;
     struct fwk_icmp_hdr *sprt_icmphdr;
 
-    data_len = sprt_iphdr->tot_len - NET_IP_HDR_LEN;
+    data_len = mrt_htons(sprt_iphdr->tot_len) - sprt_iphdr->ihl * 4;
 
     sprt_icmphdr = (struct fwk_icmp_hdr *)icmp_msg;
     sprt_icmphdr->check_sum = 0;
 
-    for (idx = 0; idx < data_len; idx += 2) {
+    for (idx = 0; idx < data_len; idx += 2) 
+    {
         data = (icmp_msg[idx] << 8) | icmp_msg[idx + 1];
         chksum += data;
     }
 
     chksum = ((chksum & 0xffff0000) >> 16) + (chksum & 0x0000ffff);
-    chksum = 0xffff - chksum;
-
-    return mrt_htons((kuint16_t)chksum);
+    return mrt_htons((kuint16_t)(~chksum));
 }
 
 kuint16_t fwk_tcp_check_sum(struct fwk_ip_hdr *sprt_iphdr, kuint8_t *tcp_msg)
 {
     kuint16_t data, idx;
+    kuint16_t data_len;
     kuint32_t chksum = 0;
     struct fwk_tcp_fakehdr sgrt_fhdr;
     struct fwk_tcp_hdr *sprt_tcphdr;
@@ -151,10 +150,13 @@ kuint16_t fwk_tcp_check_sum(struct fwk_ip_hdr *sprt_iphdr, kuint8_t *tcp_msg)
     sgrt_fhdr.daddr = sprt_iphdr->daddr;
     sgrt_fhdr.proto = sprt_iphdr->protocol;
     sgrt_fhdr.zero = 0;
-    sgrt_fhdr.len = sprt_iphdr->tot_len - NET_IP_HDR_LEN;
+
+    data_len = mrt_htons(sprt_iphdr->tot_len) - sprt_iphdr->ihl * 4;
+    sgrt_fhdr.len = mrt_htons(data_len);
 
     fake_msg = (kuint8_t *)&sgrt_fhdr;
-    for (idx = 0; idx < NET_TCP_FAKE_HDR_LEN; idx += 2) {
+    for (idx = 0; idx < sizeof(sgrt_fhdr); idx += 2) 
+    {
         data = (fake_msg[idx] << 8) | fake_msg[idx + 1];
         chksum += data;
     }
@@ -162,35 +164,36 @@ kuint16_t fwk_tcp_check_sum(struct fwk_ip_hdr *sprt_iphdr, kuint8_t *tcp_msg)
     sprt_tcphdr = (struct fwk_tcp_hdr *)tcp_msg;
     sprt_tcphdr->check_sum = 0;
 
-    for (idx = 0; idx < sgrt_fhdr.len; idx += 2) {
+    for (idx = 0; idx < data_len; idx += 2) 
+    {
         data = (tcp_msg[idx] << 8) | tcp_msg[idx + 1];
         chksum += data;
     }
 
     chksum = ((chksum & 0xffff0000) >> 16) + (chksum & 0x0000ffff);
-    chksum = 0xffff - chksum;
-
-    return mrt_htons((kuint16_t)chksum);
+    return mrt_htons((kuint16_t)(~chksum));
 }
 
 kuint16_t fwk_udp_check_sum(struct fwk_ip_hdr *sprt_iphdr, kuint8_t *udp_msg)
 {
     kuint16_t data, idx;
+    kuint16_t data_len;
     kuint32_t chksum = 0;
     struct fwk_udp_fakehdr sgrt_fhdr;
     struct fwk_udp_hdr *sprt_udphdr;
     kuint8_t *fake_msg;
 
-    u32_set(&sgrt_fhdr.saddr, &sprt_iphdr->saddr);
-    u32_set(&sgrt_fhdr.daddr, &sprt_iphdr->daddr);
-    u8_set(&sgrt_fhdr.proto, &sprt_iphdr->protocol);
-    u16_set(&sgrt_fhdr.len, &sprt_iphdr->tot_len);
-
+    sgrt_fhdr.saddr = sprt_iphdr->saddr;
+    sgrt_fhdr.daddr = sprt_iphdr->daddr;
+    sgrt_fhdr.proto = sprt_iphdr->protocol;
     sgrt_fhdr.zero = 0;
-    sgrt_fhdr.len -= NET_IP_HDR_LEN;
+
+    data_len = mrt_htons(sprt_iphdr->tot_len) - sprt_iphdr->ihl * 4;
+    sgrt_fhdr.len = mrt_htons(data_len);
 
     fake_msg = (kuint8_t *)&sgrt_fhdr;
-    for (idx = 0; idx < NET_UDP_FAKE_HDR_LEN; idx += 2) {
+    for (idx = 0; idx < sizeof(sgrt_fhdr); idx += 2) 
+    {
         data = (fake_msg[idx] << 8) | fake_msg[idx + 1];
         chksum += data;
     }
@@ -198,15 +201,14 @@ kuint16_t fwk_udp_check_sum(struct fwk_ip_hdr *sprt_iphdr, kuint8_t *udp_msg)
     sprt_udphdr = (struct fwk_udp_hdr *)udp_msg;
     sprt_udphdr->check_sum = 0;
 
-    for (idx = 0; idx < sgrt_fhdr.len; idx += 2) {
+    for (idx = 0; idx < data_len; idx += 2) 
+    {
         data = (udp_msg[idx] << 8) | udp_msg[idx + 1];
         chksum += data;
     }
 
     chksum = ((chksum & 0xffff0000) >> 16) + (chksum & 0x0000ffff);
-    chksum = 0xffff - chksum;
-
-    return mrt_htons((kuint16_t)chksum);
+    return mrt_htons((kuint16_t)(~chksum));
 }
 
 struct fwk_sk_buff_head *fwk_netif_rxq_get(void)

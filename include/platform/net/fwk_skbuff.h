@@ -20,6 +20,8 @@
 /*!< The defines */
 typedef kuint8_t*			sk_buff_data_t;
 
+#define SKB_DATA_HEAD_LEN(mac_len)                          (mrt_align(mac_len, ARCH_PER_SIZE) - mac_len)
+
 struct fwk_sk_buff
 {
     /*!< These two members must be first. */
