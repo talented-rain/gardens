@@ -77,7 +77,9 @@ __switch_to:
 
     b _context_save
 
-/*!< scheduled for first time */
+/* -------------------------------------------------------------------------------
+ * scheduled for first time
+ * -----------------------------------------------------------------------------*/
 _context_save_first:
     mov r1, #1
     str r1, [r2]                                    @ set first to true
@@ -166,7 +168,7 @@ _sched_first_ready:
  * -----------------------------------------------------------------------------*/
 _sched_init_before:
     push { r0 - r3, r12 }                           @ r1: next sp; r2: first; r7: address of [first]
-    ldr r1, =__real_thread_init_before              @ init thread before running
+    ldr r1, =__thread_init_before              @ init thread before running
     blx r1
 
 1:

@@ -10,18 +10,18 @@
  *
  */
 
-#ifndef __KEL_INSTANCE_H_
-#define __KEL_INSTANCE_H_
+#ifndef __KERNEL_INSTANCE_H_
+#define __KERNEL_INSTANCE_H_
 
 /*!< The includes */
 #include <kernel/kernel.h>
 #include <kernel/thread.h>
 
 /*!< The defines */
-typedef kint32_t (*real_thread_init_t)(void);
+typedef kint32_t (*thread_init_t)(void);
 
 /*!< The globals */
-TARGET_EXT real_thread_init_t g_thread_init_tables[];
+TARGET_EXT thread_init_t g_thread_init_tables[];
 
 /*!< The functions */
 TARGET_EXT kint32_t rest_init(void);
@@ -37,9 +37,9 @@ TARGET_EXT kint32_t init_proc_init(void);
  * @retval 	none
  * @note   	only for user thread; called by init_proc
  */
-static inline void init_real_thread_table(void)
+static inline void init_thread_table(void)
 {
-    const real_thread_init_t *pFunc_init;
+    const thread_init_t *pFunc_init;
     
     for (pFunc_init = g_thread_init_tables; (*pFunc_init); pFunc_init++)
     {
@@ -48,4 +48,4 @@ static inline void init_real_thread_table(void)
     }
 }
 
-#endif /* __KEL_CONTEXT_H_ */
+#endif /* __KERNEL_CONTEXT_H_ */

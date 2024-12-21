@@ -23,6 +23,12 @@
 
 
 /*!< API functions */
+/*!
+ * @brief   get network protocol
+ * @param   sprt_skb, sprt_ndev
+ * @retval  protocol
+ * @note    none
+ */
 kint16_t fwk_eth_type_trans(struct fwk_sk_buff *sprt_skb, struct fwk_net_device *sprt_ndev)
 {
     struct fwk_eth_hdr *sprt_ethdr;

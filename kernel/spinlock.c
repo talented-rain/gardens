@@ -45,7 +45,6 @@ void spin_lock(struct spin_lock *sprt_lock)
     while (spin_is_locked(sprt_lock));
     
     mrt_preempt_disable();
-    mrt_barrier();
     atomic_inc(&sprt_lock->sgrt_atc);
 }
 
@@ -61,7 +60,6 @@ void spin_unlock(struct spin_lock *sprt_lock)
         return;
 
     atomic_dec(&sprt_lock->sgrt_atc);
-    mrt_barrier();
     mrt_preempt_enable();
 }
 
@@ -77,7 +75,6 @@ kint32_t spin_try_lock(struct spin_lock *sprt_lock)
         return -ER_LOCKED;
 
     mrt_preempt_disable();
-    mrt_barrier();
     atomic_inc(&sprt_lock->sgrt_atc);
     
     return ER_NORMAL;
@@ -93,6 +90,7 @@ kint32_t spin_try_lock(struct spin_lock *sprt_lock)
 void spin_lock_irq(struct spin_lock *sprt_lock)
 {
     spin_lock(sprt_lock);
+    mrt_barrier();
     mrt_disable_cpu_irq();
 }
 
@@ -109,6 +107,7 @@ kint32_t spin_try_lock_irq(struct spin_lock *sprt_lock)
 
     mrt_barrier();
     mrt_disable_cpu_irq();
+    
     return ER_NORMAL;
 }
 
@@ -138,6 +137,8 @@ void spin_lock_irqsave(struct spin_lock *sprt_lock)
 {
     spin_lock(sprt_lock);
     sprt_lock->flag = __get_cpsr();
+
+    mrt_barrier();
     mrt_disable_cpu_irq();
 }
 

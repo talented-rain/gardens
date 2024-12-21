@@ -27,8 +27,8 @@
 #include <configs/mach_configs.h>
 
 /*<! The defines */
-#define RET_BOOT_ERR                        (mrt_true)
-#define RET_BOOT_PASS                       (mrt_false)
+#define RET_BOOT_ERR                        (1)
+#define RET_BOOT_PASS                       (0)
 
 /*<! global data */
 struct global_data

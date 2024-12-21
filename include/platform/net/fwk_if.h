@@ -46,6 +46,7 @@ struct fwk_in_addr
     kuint32_t s_addr;
 };
 
+/*!< ip, port and so on */
 struct fwk_sockaddr_in 
 {
     fwk_sa_family_t	sin_family;                                             /*!< Address family */
@@ -56,6 +57,7 @@ struct fwk_sockaddr_in
     kuint8_t zero[FWK_SOCKADDR_SIZE - sizeof(fwk_sa_family_t) - sizeof(kuint16_t) - sizeof(struct fwk_in_addr)];
 };
 
+/*!< network device node */
 struct fwk_network_if
 {
 	kchar_t ifname[NET_IFNAME_SIZE];
@@ -70,6 +72,7 @@ struct fwk_network_if
     void *private_data;
 };
 
+/*!< sockets descripter */
 struct fwk_network_com
 {
     kint32_t domain;
@@ -88,6 +91,7 @@ struct fwk_network_object
     struct radix_link sgrt_radix;
 };
 
+/*!< network node: operations */
 struct fwk_network_if_ops
 {
     kint32_t (*init)(struct fwk_network_com *sprt_socket);
@@ -194,6 +198,12 @@ TARGET_EXT struct fwk_network_if *network_find_node(const kchar_t *name, struct 
 TARGET_EXT struct fwk_network_if *network_next_node(struct fwk_network_if *sprt_if);
 
 /*!< API functions */
+/*!
+ * @brief   configure default if operations
+ * @param   sprt_oprts
+ * @retval  none
+ * @note    none
+ */
 static inline void network_set_default_ops(const struct fwk_network_if_ops *sprt_oprts)
 {
     sprt_fwk_network_if_oprts = (struct fwk_network_if_ops *)sprt_oprts;

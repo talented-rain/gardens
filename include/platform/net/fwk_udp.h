@@ -19,17 +19,7 @@
 
 /*!< The defines */
 #define NET_UDP_HDR_LEN                         (8)
-#define NET_UDP_FAKE_HDR_LEN                    (12)
-
-struct fwk_udp_fakehdr
-{
-    kuint32_t saddr;                                        /*!< source ip address */
-    kuint32_t daddr;                                        /*!< destination IP address */
-    kuint8_t zero;                                          /*!< 0 */
-    kuint8_t proto;                                         /*!< NET_IP_PROTO_UDP */
-    kuint16_t len;                                          /*!< NET_UDP_HDR_LEN + data_len */
-    
-} __packed ;
+#define NET_UDP_FAKE_HDR_LEN                    (NET_IP_FAKE_HDR_LEN)
 
 struct fwk_udp_hdr
 {

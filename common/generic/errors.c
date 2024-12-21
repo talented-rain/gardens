@@ -27,7 +27,6 @@
 void deal_assert_fail(const kchar_t *__assertion, const kchar_t *__file,
                                kuint32_t __line, const kchar_t *__function)
 {
-#ifdef CONFIG_DEBUG_JTAG
     print_err("\n");
     print_err("Program Aborted. Here is Error Information:\n");
 
@@ -39,8 +38,8 @@ void deal_assert_fail(const kchar_t *__assertion, const kchar_t *__file,
 
     if (mrt_current)
     {
-        struct real_thread *sprt_thread = mrt_current;
-        struct scheduler_context_regs *sprt_regs = real_thread_get_context(sprt_thread->sprt_attr);
+        struct thread *sprt_thread = mrt_current;
+        struct scheduler_context_regs *sprt_regs = thread_get_context(sprt_thread->sprt_attr);
 
         if (*sprt_thread->name)
             print_err("current thread name: %s\n", sprt_thread->name);
@@ -64,7 +63,6 @@ void deal_assert_fail(const kchar_t *__assertion, const kchar_t *__file,
 
     print_err("\n");
     print_err("Please check for errors in time !\n");
-#endif
 
     /*!< quit program */
     while (true)

@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef __KEL_SIGNAL_H_
-#define __KEL_SIGNAL_H_
+#ifndef __KERNEL_SIGNAL_H_
+#define __KERNEL_SIGNAL_H_
 
 /*!< The includes */
 #include <kernel/kernel.h>
@@ -57,4 +57,4 @@
 #define SIGRTMIN	                        32
 #define SIGRTMAX	                        64
 
-#endif /* __KEL_SIGNAL_H_ */
+#endif /* __KERNEL_SIGNAL_H_ */

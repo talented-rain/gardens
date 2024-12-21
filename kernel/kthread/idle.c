@@ -18,10 +18,10 @@
 #include <kernel/instance.h>
 
 /*!< The defines */
-#define IDLE_THREAD_STACK_SIZE                      REAL_THREAD_STACK_QUAR(1)    /*!< 1/4 page (1kbytes) */
+#define IDLE_THREAD_STACK_SIZE                      THREAD_STACK_QUAR(1)    /*!< 1/4 page (1kbytes) */
 
 /*!< The globals */
-static struct real_thread_attr sgrt_idle_attr;
+static struct thread_attr sgrt_idle_attr;
 static kuint32_t g_idle_stack[IDLE_THREAD_STACK_SIZE];
 
 /*!< API functions */
@@ -33,13 +33,13 @@ static kuint32_t g_idle_stack[IDLE_THREAD_STACK_SIZE];
  */
 static void *rest_entry(void *args)
 {
-    real_thread_set_self_name(__FUNCTION__);
+    thread_set_self_name(__FUNCTION__);
 
     for (;;)
     {   
 #if (!CONFIG_PREEMPT)
         /*!< check priority */
-        struct real_thread *sprt_ready = get_first_ready_thread();
+        struct thread *sprt_ready = get_first_ready_thread();
         if (!sprt_ready || (sprt_ready == mrt_current))
             continue;
 
@@ -58,18 +58,18 @@ static void *rest_entry(void *args)
  */
 kint32_t rest_init(void)
 {
-    struct real_thread_attr *sprt_attr = &sgrt_idle_attr;
+    struct thread_attr *sprt_attr = &sgrt_idle_attr;
 
-	sprt_attr->detachstate = REAL_THREAD_CREATE_JOINABLE;
-	sprt_attr->inheritsched	= REAL_THREAD_INHERIT_SCHED;
-	sprt_attr->schedpolicy = REAL_THREAD_SCHED_FIFO;
+	sprt_attr->detachstate = THREAD_CREATE_JOINABLE;
+	sprt_attr->inheritsched	= THREAD_INHERIT_SCHED;
+	sprt_attr->schedpolicy = THREAD_SCHED_FIFO;
 
     /*!< thread stack */
-	real_thread_set_stack(sprt_attr, mrt_nullptr, g_idle_stack, sizeof(g_idle_stack));
+	thread_set_stack(sprt_attr, mrt_nullptr, g_idle_stack, sizeof(g_idle_stack));
     /*!< lowest priority */
-	real_thread_set_priority(sprt_attr, REAL_THREAD_PROTY_IDLE);
+	thread_set_priority(sprt_attr, THREAD_PROTY_IDLE);
     /*!< default time slice */
-    real_thread_set_time_slice(sprt_attr, REAL_THREAD_TIME_DEFUALT);
+    thread_set_time_slice(sprt_attr, THREAD_TIME_DEFUALT);
 
     /*!< register idle thread */
     return kernel_thread_idle_create(sprt_attr, rest_entry, mrt_nullptr);

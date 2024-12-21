@@ -27,11 +27,11 @@
 #include "test_app.h"
 
 /*!< The defines */
-#define TSCAPP_THREAD_STACK_SIZE                          REAL_THREAD_STACK_HALF(1)    /*!< 1/2 page (2kbytes) */
+#define TSCAPP_THREAD_STACK_SIZE                          THREAD_STACK_HALF(1)    /*!< 1/2 page (2kbytes) */
 
 /*!< The globals */
 static tid_t g_tsc_app_tid;
-static struct real_thread_attr sgrt_tsc_app_attr;
+static struct thread_attr sgrt_tsc_app_attr;
 static kuint32_t g_tsc_app_stack[TSCAPP_THREAD_STACK_SIZE];
 
 /*!< API functions */
@@ -82,24 +82,24 @@ END:
  */
 kint32_t tsc_app_init(void)
 {
-    struct real_thread_attr *sprt_attr = &sgrt_tsc_app_attr;
+    struct thread_attr *sprt_attr = &sgrt_tsc_app_attr;
     kint32_t retval;
 
-	sprt_attr->detachstate = REAL_THREAD_CREATE_JOINABLE;
-	sprt_attr->inheritsched	= REAL_THREAD_INHERIT_SCHED;
-	sprt_attr->schedpolicy = REAL_THREAD_SCHED_FIFO;
+	sprt_attr->detachstate = THREAD_CREATE_JOINABLE;
+	sprt_attr->inheritsched	= THREAD_INHERIT_SCHED;
+	sprt_attr->schedpolicy = THREAD_SCHED_FIFO;
 
     /*!< thread stack */
-	real_thread_set_stack(sprt_attr, mrt_nullptr, g_tsc_app_stack, sizeof(g_tsc_app_stack));
+	thread_set_stack(sprt_attr, mrt_nullptr, g_tsc_app_stack, sizeof(g_tsc_app_stack));
     /*!< lowest priority */
-	real_thread_set_priority(sprt_attr, __THREAD_HIGHER_DEFAULT(0));
+	thread_set_priority(sprt_attr, __THREAD_HIGHER_DEFAULT(0));
     /*!< default time slice */
-    real_thread_set_time_slice(sprt_attr, REAL_THREAD_TIME_DEFUALT);
+    thread_set_time_slice(sprt_attr, THREAD_TIME_DEFUALT);
 
     /*!< register thread */
-    retval = real_thread_create(&g_tsc_app_tid, sprt_attr, tsc_app_entry, mrt_nullptr);
+    retval = thread_create(&g_tsc_app_tid, sprt_attr, tsc_app_entry, mrt_nullptr);
     if (!retval)
-        real_thread_set_name(g_tsc_app_tid, "tsc_app_entry");
+        thread_set_name(g_tsc_app_tid, "tsc_app_entry");
 
     return retval;
 }

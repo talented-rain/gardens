@@ -24,6 +24,12 @@ static DECLARE_LIST_HEAD(sgrt_fwk_net_device_list);
 static kuint32_t g_fwk_allocated_ins[mrt_num_align(NETDEV_IF_INS_MAX, RET_BITS_PER_INT) / RET_BITS_PER_INT] = { 0 };
 
 /*!< API function */
+/*!
+ * @brief   net name refactoring
+ * @param   sprt_ndev
+ * @retval  errno
+ * @note    such as "enet%d" ===> enet0, enet1, ...
+ */
 static kint32_t fwk_net_validate_name(struct fwk_net_device *sprt_ndev)
 {
     kchar_t new_name[NET_IFNAME_SIZE];
@@ -57,6 +63,12 @@ END:
     return ER_NORMAL;
 }
 
+/*!
+ * @brief   return the net name number
+ * @param   sprt_ndev
+ * @retval  none
+ * @note    none
+ */
 static void fwk_net_invalidate_name(struct fwk_net_device *sprt_ndev)
 {
     kchar_t old_name[NET_IFNAME_SIZE];
@@ -143,6 +155,12 @@ void fwk_free_netdev(struct fwk_net_device *sprt_ndev)
     kfree(sprt_ndev);
 }
 
+/*!
+ * @brief   get netdev by name
+ * @param   name
+ * @retval  netdev
+ * @note    none
+ */
 struct fwk_net_device *fwk_ifname_to_ndev(const kchar_t *name)
 {
     struct fwk_net_device *sprt_ndev;
@@ -156,6 +174,12 @@ struct fwk_net_device *fwk_ifname_to_ndev(const kchar_t *name)
     return mrt_nullptr;
 }
 
+/*!
+ * @brief   register network device
+ * @param   sprt_ndev
+ * @retval  errno
+ * @note    add sprt_ndev to global device list
+ */
 kint32_t fwk_register_netdevice(struct fwk_net_device *sprt_ndev)
 {
     struct fwk_device *sprt_dev;
@@ -199,6 +223,12 @@ fail1:
     return -ER_FAILD;
 }
 
+/*!
+ * @brief   unregister network device
+ * @param   sprt_ndev
+ * @retval  errno
+ * @note    del sprt_ndev from global device list
+ */
 kint32_t fwk_unregister_netdevice(struct fwk_net_device *sprt_ndev)
 {
     struct fwk_device *sprt_dev;

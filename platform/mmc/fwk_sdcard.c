@@ -268,7 +268,6 @@ static kint32_t fwk_sdcard_command_get_cid(struct fwk_sdcard_cmd *sprt_cmd, stru
     sprt_card->sgrt_cid.productSerialNumber |= (kuint32_t)((sprt_cmd->resp[0] >> 24U) & 0x000000ffU);
     sprt_card->sgrt_cid.manufacturerData = (kuint16_t)(sprt_cmd->resp[0] >> 8U);
     
-
     return iRetval;
 }
 
@@ -1630,11 +1629,11 @@ kbool_t fwk_sdcard_to_normal(struct fwk_sdcard *sprt_card)
 
     /*!<
      * for imx6ull:
-     *  åªæ›´æ”¹å¡æˆ–ä¸»æœºçš„ä½å®½, CMD6å¯å›žå¤DATA, ä¸é˜»å¡ž, ä¸”ç»“æžœæ­£ç¡®;
-     *  åªæ›´æ”¹å¡çš„ä½å®½, CMD17è¯»å‘½ä»¤ä¸é˜»å¡ž(æœ‰æ•°æ®å¯è¯»), ä½†è¯»å–ç»“æžœé”™è¯¯;
-     *  åªæ›´æ”¹ä¸»æœºä½å®½, CMD17è¯»å‘½ä»¤é˜»å¡ž(æ— æ•°æ®å¯è¯»)
+     *  Ö»¸ü¸Ä¿¨»òÖ÷»úµÄÎ»¿í, CMD6¿É»Ø¸´DATA, ²»×èÈû, ÇÒ½á¹ûÕýÈ·;
+     *  Ö»¸ü¸Ä¿¨µÄÎ»¿í, CMD17¶ÁÃüÁî²»×èÈû(ÓÐÊý¾Ý¿É¶Á), µ«¶ÁÈ¡½á¹û´íÎó;
+     *  Ö»¸ü¸ÄÖ÷»úÎ»¿í, CMD17¶ÁÃüÁî×èÈû(ÎÞÊý¾Ý¿É¶Á)
      * 
-     *  åˆ†æž: å¤§æ¦‚çŽ‡æ˜¯ä¸»æœºçš„é—®é¢˜
+     *  ·ÖÎö: ´ó¸ÅÂÊÊÇÖ÷»úµÄÎÊÌâ
      */
     /*!< set card DATA bus width = 4bit */
 	iRetval = fwk_sdcard_send_app_command(sprt_card, fwk_sdcard_command_set_buswidth, FWK_SDCARD_ACMD6_BUS_WIDTH_4);

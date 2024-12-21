@@ -32,6 +32,12 @@ static kuint32_t g_allocated_sockets[mrt_align(NET_SOCKETS_MAX, RET_BITS_PER_INT
             radix_tree_next_entry(&sgrt_sockets_radix_tree, struct fwk_network_object, sgrt_radix, sockfd)
 
 /*!< API functions */
+/*!
+ * @brief   find sprt_if by name or ip
+ * @param   name, sprt_ip
+ * @retval  sprt_if
+ * @note    none
+ */
 struct fwk_network_if *network_find_node(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip)
 {
     struct fwk_network_if *sprt_if;
@@ -49,6 +55,12 @@ struct fwk_network_if *network_find_node(const kchar_t *name, struct fwk_sockadd
     return mrt_nullptr;
 }
 
+/*!
+ * @brief   get next sprt_if from list
+ * @param   sprt_if (base)
+ * @retval  sprt_if
+ * @note    none
+ */
 struct fwk_network_if *network_next_node(struct fwk_network_if *sprt_if)
 {
     if (!sprt_if)
@@ -59,7 +71,13 @@ struct fwk_network_if *network_next_node(struct fwk_network_if *sprt_if)
     return mrt_list_next_entry(sprt_if, sgrt_link);
 }
 
-kint32_t network_link_up(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip, 
+/*!
+ * @brief   start/enable net node
+ * @param   name, sprt_ip, sprt_gw, sprt_mask
+ * @retval  errno
+ * @note    create sprt_if for per network node
+ */
+kint32_t net_link_up(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip, 
                     struct fwk_sockaddr_in *sprt_gw, struct fwk_sockaddr_in *sprt_mask)
 {
     struct fwk_network_if *sprt_if;
@@ -103,6 +121,12 @@ fail:
     return -ER_FAILD;
 }
 
+/*!
+ * @brief   change ip
+ * @param   name, sprt_ip
+ * @retval  errno
+ * @note    none
+ */
 kint32_t network_set_ip(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip)
 {
     struct fwk_network_if *sprt_if;
@@ -121,7 +145,13 @@ kint32_t network_set_ip(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip)
     return ER_NORMAL;
 }
 
-kint32_t network_link_down(const kchar_t *name)
+/*!
+ * @brief   close net node
+ * @param   name
+ * @retval  errno
+ * @note    none
+ */
+kint32_t net_link_down(const kchar_t *name)
 {
     struct fwk_network_if *sprt_if;
 
@@ -139,6 +169,13 @@ kint32_t network_link_down(const kchar_t *name)
     return ER_NORMAL;
 }
 
+/*!
+ * @brief   create sprt_socket, and allocate a descripter (sockfd)
+ * @param   domain: AP_INET/PF_INET
+ * @param   type: NR_SOCK_STREAM/NR_SOCK_DGRAM
+ * @retval  sockfd
+ * @note    none
+ */
 kint32_t network_socket(kint32_t domain, kint32_t type, kint32_t protocol)
 {
     struct fwk_network_object *sprt_obj;
@@ -181,6 +218,12 @@ kint32_t network_socket(kint32_t domain, kint32_t type, kint32_t protocol)
     return (index + NETWORK_SOCKETS_BASE);
 }
 
+/*!
+ * @brief   destrot sprt_socket
+ * @param   sockfd
+ * @retval  none
+ * @note    none
+ */
 void network_close(kint32_t sockfd)
 {
     struct fwk_network_object *sprt_obj;
@@ -214,6 +257,12 @@ void network_close(kint32_t sockfd)
     }
 }
 
+/*!
+ * @brief   bind ip for sprt_socket
+ * @param   sockfd, sprt_addr, ...
+ * @retval  errno
+ * @note    none
+ */
 kint32_t network_bind(kint32_t sockfd, const struct fwk_sockaddr *sprt_addr, fwk_socklen_t addrlen)
 {
     struct fwk_network_object *sprt_obj;
@@ -249,6 +298,12 @@ kint32_t network_bind(kint32_t sockfd, const struct fwk_sockaddr *sprt_addr, fwk
     return 0;
 }
 
+/*!
+ * @brief   wait server response
+ * @param   sockfd, sprt_addr, ...
+ * @retval  errno
+ * @note    none
+ */
 kint32_t network_accept(kint32_t sockfd, struct fwk_sockaddr *sprt_addr, fwk_socklen_t *addrlen)
 {
     kint32_t index;
@@ -261,6 +316,12 @@ kint32_t network_accept(kint32_t sockfd, struct fwk_sockaddr *sprt_addr, fwk_soc
     return 0;
 }
 
+/*!
+ * @brief   send msg (udp)
+ * @param   sockfd, buf, len, ...
+ * @retval  size
+ * @note    none
+ */
 kssize_t network_sendto(kint32_t sockfd, const void *buf, kssize_t len, 
                         kint32_t flags, const struct fwk_sockaddr *sprt_dest, fwk_socklen_t addrlen)
 {
@@ -284,6 +345,12 @@ kssize_t network_sendto(kint32_t sockfd, const void *buf, kssize_t len,
     return -ER_FORBID;
 }
 
+/*!
+ * @brief   recv msg (udp)
+ * @param   sockfd, buf, len, ...
+ * @retval  size
+ * @note    none
+ */
 kssize_t network_recvfrom(kint32_t sockfd, void *buf, size_t len, 
                         kint32_t flags, struct fwk_sockaddr *sprt_src, fwk_socklen_t *addrlen)
 {
@@ -309,28 +376,46 @@ kssize_t network_recvfrom(kint32_t sockfd, void *buf, size_t len,
 
 /*!< ----------------------------------------------------------------- */
 /*!
- * @brief   virt_socket
+ * @brief   net_socket
  * @param   none
  * @retval  none
  * @note    The interface is provided for use by the application layer
  */
-kint32_t virt_socket(kint32_t domain, kint32_t type, kint32_t protocol)
+kint32_t net_socket(kint32_t domain, kint32_t type, kint32_t protocol)
 {
     return network_socket(domain, type, protocol);
 }
 
-kint32_t virt_bind(kint32_t sockfd, const struct fwk_sockaddr *sprt_addr, fwk_socklen_t addrlen)
+/*!
+ * @brief   bind socket
+ * @param   sockfd, sprt_addr, addrlen, ...
+ * @retval  errno
+ * @note    none
+ */
+kint32_t socket_bind(kint32_t sockfd, const struct fwk_sockaddr *sprt_addr, fwk_socklen_t addrlen)
 {
     return network_bind(sockfd, sprt_addr, addrlen);
 }
 
-kssize_t virt_sendto(kint32_t sockfd, const void *buf, kssize_t len, 
+/*!
+ * @brief   send msg (udp)
+ * @param   sockfd, buf, len, ...
+ * @retval  size
+ * @note    none
+ */
+kssize_t socket_sendto(kint32_t sockfd, const void *buf, kssize_t len, 
                         kint32_t flags, const struct fwk_sockaddr *sprt_dest, fwk_socklen_t addrlen)
 {
     return network_sendto(sockfd, buf, len, flags, sprt_dest, addrlen);
 }
 
-kssize_t virt_recvfrom(kint32_t sockfd, void *buf, size_t len, 
+/*!
+ * @brief   recv msg (udp)
+ * @param   sockfd, buf, len, ...
+ * @retval  size
+ * @note    none
+ */
+kssize_t socket_recvfrom(kint32_t sockfd, void *buf, size_t len, 
                         kint32_t flags, struct fwk_sockaddr *sprt_src, fwk_socklen_t *addrlen)
 {
     return network_recvfrom(sockfd, buf, len, flags, sprt_src, addrlen);

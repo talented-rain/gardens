@@ -28,9 +28,9 @@
  * @retval  none
  * @note    timeout function
  */
-static void real_thread_sleep_timeout(kuint32_t args)
+static void thread_sleep_timeout(kuint32_t args)
 {
-    struct real_thread *sprt_thread = (struct real_thread *)args;
+    struct thread *sprt_thread = (struct thread *)args;
     struct spin_lock *sprt_lock = scheduler_lock();
 
     if (spin_is_locked(sprt_lock))
@@ -49,14 +49,14 @@ static void real_thread_sleep_timeout(kuint32_t args)
 void schedule_timeout(kutime_t count)
 {
     struct timer_list sgrt_tm;
-    struct real_thread *sprt_thread = mrt_current;
+    struct thread *sprt_thread = mrt_current;
     struct spin_lock *sprt_lock = scheduler_lock();
 
     if (!count)
         schedule_thread();
 	
 	spin_lock_irqsave(sprt_lock);
-    setup_timer(&sgrt_tm, real_thread_sleep_timeout, (kuint32_t)sprt_thread);
+    setup_timer(&sgrt_tm, thread_sleep_timeout, (kuint32_t)sprt_thread);
     spin_unlock_irqrestore(sprt_lock);
     
     mod_timer(&sgrt_tm, count);

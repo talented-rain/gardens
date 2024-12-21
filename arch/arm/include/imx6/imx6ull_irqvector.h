@@ -13,7 +13,7 @@
 #ifndef __IMX6ULL_IRQVECTOR_H
 #define __IMX6ULL_IRQVECTOR_H
 
-#include <asm/armv7/ca7_gic.h>
+#include <asm/armv7/gic_basic.h>
 #include <common/basic_types.h>
 #include <common/error_types.h>
 #include <common/generic.h>

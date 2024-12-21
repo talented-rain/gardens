@@ -22,6 +22,13 @@
 
 
 /*!< API functions */
+/*!
+ * @brief   allocate skb
+ * @param   data_size: length (tail - data)
+ * @param   flags (GFP_KERNEL/GFP_ATOMIC, but allocated from GFP_SOCK)
+ * @retval  skb
+ * @note    none
+ */
 struct fwk_sk_buff *fwk_alloc_skb(kuint32_t data_size, nrt_gfp_t flags)
 {
     struct fwk_sk_buff *sprt_skb;
@@ -51,6 +58,12 @@ struct fwk_sk_buff *fwk_alloc_skb(kuint32_t data_size, nrt_gfp_t flags)
     return sprt_skb;
 }
 
+/*!
+ * @brief   release skb
+ * @param   sprt_skb
+ * @retval  none
+ * @note    none
+ */
 void kfree_skb(struct fwk_sk_buff *sprt_skb)
 {
     if (!sprt_skb)
@@ -61,11 +74,23 @@ void kfree_skb(struct fwk_sk_buff *sprt_skb)
     kfree(sprt_skb);
 }
 
+/*!
+ * @brief   add skb to skb_list
+ * @param   sprt_head, sprt_skb
+ * @retval  errno
+ * @note    none
+ */
 kint32_t fwk_skb_enqueue(struct fwk_sk_buff_head *sprt_head, struct fwk_sk_buff *sprt_skb)
 {
     return fwk_skb_add_tail(sprt_head, sprt_skb);
 }
 
+/*!
+ * @brief   del skb from skb_list
+ * @param   sprt_head
+ * @retval  errno
+ * @note    none
+ */
 struct fwk_sk_buff *fwk_skb_dequeue(struct fwk_sk_buff_head *sprt_head)
 {
     struct fwk_sk_buff *sprt_skb;

@@ -16,6 +16,7 @@
 /*!< The includes */
 #include <common/generic.h>
 #include <common/io_stream.h>
+#include <board/board_config.h>
 
 /*!< dynamic init/exit sections*/
 #define __DYNC_INIT_SEC(n)							__section(".dync_init."#n)
@@ -126,9 +127,15 @@ TARGET_EXT kuaddr_t __sk_buffer_end;
 #define SK_BUFFER_SIZE                      ((kusize_t)((kuaddr_t)(&__sk_buffer_end) - (kuaddr_t)(&__sk_buffer_start)))
 
 /*!< API functions */
+/*!
+ * @brief   print text and section information
+ * @param   none
+ * @retval  none
+ * @note    it should be called by board_init_r()
+ */
 static inline void boot_text_print(void)
 {
-    print_info("memory pool base address: %x, size = %d KB\n", MEMORY_POOL_BASE, MEMORY_POOL_SIZE >> 10);
+    print_info("memory pool base address: %x, size = %d KB\n", MEMORY_POOL_BASE, __BYTES_TO_KB(MEMORY_POOL_SIZE));
     if (MEMORY_POOL_END <= MEMORY_POOL_BASE)
     {
         /*!< memory pool is only used after kernel starting; bootloader uses another areas */
@@ -136,8 +143,20 @@ static inline void boot_text_print(void)
         mrt_assert(false);
     }
     
-    print_info("framebuffer base address: %x, size = %d KB\n", FBUFFER_DRAM_BASE, FBUFFER_DRAM_SIZE >> 10);
-    print_info("network     base address: %x, size = %d KB\n", SK_BUFFER_BASE, SK_BUFFER_SIZE >> 10);
+    print_info("framebuffer base address: %x, size = %d KB\n", FBUFFER_DRAM_BASE, __BYTES_TO_KB(FBUFFER_DRAM_SIZE));
+    print_info("sock buffer base address: %x, size = %d KB\n", SK_BUFFER_BASE, __BYTES_TO_KB(SK_BUFFER_SIZE));
+
+    /*!< stack */
+    print_info("svc stack   top  address: %x, size = %d KB\n", SVC_MODE_STACK_BASE, __BYTES_TO_KB(SVC_MODE_STACK_SIZE));
+//  print_info("usr stack   top  address: %x, size = %d KB\n", SYS_MODE_STACK_BASE, __BYTES_TO_KB(SYS_MODE_STACK_SIZE));
+    print_info("sys stack   top  address: %x, size = %d KB\n", SYS_MODE_STACK_BASE, __BYTES_TO_KB(SYS_MODE_STACK_SIZE));
+    print_info("abt stack   top  address: %x, size = %d KB\n", ABT_MODE_STACK_BASE, __BYTES_TO_KB(ABT_MODE_STACK_SIZE));
+    print_info("irq stack   top  address: %x, size = %d KB\n", IRQ_MODE_STACK_BASE, __BYTES_TO_KB(IRQ_MODE_STACK_SIZE));
+    print_info("fiq stack   top  address: %x, size = %d KB\n", FIQ_MODE_STACK_BASE, __BYTES_TO_KB(FIQ_MODE_STACK_SIZE));
+    print_info("und stack   top  address: %x, size = %d KB\n", UND_MODE_STACK_BASE, __BYTES_TO_KB(UND_MODE_STACK_SIZE));
+
+    /*!< heap */
+    print_info("__brk heap  base address: %x, size = %d KB\n", MEMORY_HEAP_START, __BYTES_TO_KB(MEMORY_HEAP_END));
 }
 
 #endif /* __BOOT_TEXT_H */

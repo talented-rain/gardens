@@ -45,11 +45,11 @@ void lwip_task_startup(void *args)
     sgrt_gw.sin_addr.s_addr = fwk_inet_addr(DEFAULT_GW_ADDRESS);
     sgrt_netmask.sin_addr.s_addr = fwk_inet_addr(DEFAULT_IP_MASK);
 
-    retval = network_link_up("lo", &sgrt_ip, &sgrt_gw, &sgrt_netmask);
+    retval = net_link_up("lo", &sgrt_ip, &sgrt_gw, &sgrt_netmask);
     if (retval)
         return;
 
-    sockfd = virt_socket(NET_AF_INET, NR_SOCK_DGRAM, 0);
+    sockfd = net_socket(NET_AF_INET, NR_SOCK_DGRAM, 0);
     if (sockfd < 0)
         goto fail1;
 
@@ -58,7 +58,7 @@ void lwip_task_startup(void *args)
     sgrt_local.sin_addr.s_addr = fwk_inet_addr(DEFAULT_IP_ADDRESS);
     memset(sgrt_local.zero, 0, sizeof(sgrt_local.zero));
 
-    retval = virt_bind(sockfd, (struct fwk_sockaddr *)&sgrt_local, sizeof(struct fwk_sockaddr));
+    retval = socket_bind(sockfd, (struct fwk_sockaddr *)&sgrt_local, sizeof(struct fwk_sockaddr));
     if (retval)
         goto fail2;
 
@@ -68,7 +68,7 @@ void lwip_task_startup(void *args)
 fail2:
     virt_close(sockfd);
 fail1:
-    network_link_down("lo");
+    net_link_down("lo");
 }
 
 /*!
@@ -94,7 +94,7 @@ void lwip_task(void *args)
     sgrt_remote.sin_addr.s_addr = fwk_inet_addr(DEFAULT_IP_ADDRESS);
     memset(sgrt_remote.zero, 0, sizeof(sgrt_remote.zero));
 
-    len = virt_sendto(sprt_data->fd, msg, strlen(msg) + 1, 0, 
+    len = socket_sendto(sprt_data->fd, msg, strlen(msg) + 1, 0, 
                     (struct fwk_sockaddr *)&sgrt_remote, sizeof(struct fwk_sockaddr));
     if (len <= 0)
     {
@@ -103,7 +103,7 @@ void lwip_task(void *args)
     }
 
     /*!< blocking */
-    len = virt_recvfrom(sprt_data->fd, sprt_data->rx_buffer, 128, 0, 
+    len = socket_recvfrom(sprt_data->fd, sprt_data->rx_buffer, 128, 0, 
                     (struct fwk_sockaddr *)&sgrt_remote, &addrlen);
     if (len <= 0)
     {

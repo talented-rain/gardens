@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef __KEL_CONTEXT_H_
-#define __KEL_CONTEXT_H_
+#ifndef __KERNEL_CONTEXT_H_
+#define __KERNEL_CONTEXT_H_
 
 /*!< The globals */
 #include <kernel/kernel.h>
@@ -65,5 +65,4 @@ static inline void context_switch(struct scheduler_context *sprt_info)
 	__switch_to((kuaddr_t)sprt_info);
 }
 
-
-#endif /* __KEL_CONTEXT_H_ */
+#endif /* __KERNEL_CONTEXT_H_ */

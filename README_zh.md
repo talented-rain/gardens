@@ -45,8 +45,10 @@
 -  提供驱动程序: 触摸屏tsc2007驱动、环境传感器ap3216c、eeprom芯片at24c02等;
 -  已支持的cpu: imx6ull, xc7z010;
 -  支持内核配置自由化, 可通过创建和编写"configs/mach/xxxx_defconfig", 自动生成auto.conf and autoconf.h;
--  支持"lib/"路径下第三方项目源码单独编译, 生成静态库文件并链接到内核镜像 
-    
+-  支持"lib/"路径下第三方项目源码单独编译, 生成静态库文件并链接到内核镜像;
+-  支持lvgl开源图形库, 可直接调取lvgl函数接口设计图形化界面;
+-  支持网络设备驱动架构, 内嵌lwip开源ip协议栈, 并二次封装: 可直接通过sk_buff与net_device结构体传递数据与设备信息, 无需关注lwip实现
+
 ## 使用方法
     make all        编译整个工程;
     make            自动调用make all;

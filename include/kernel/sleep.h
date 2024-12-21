@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef __KEL_SLEEP_H_
-#define __KEL_SLEEP_H_
+#ifndef __KERNEL_SLEEP_H_
+#define __KERNEL_SLEEP_H_
 
 /*!< The includes */
 #include <kernel/kernel.h>
@@ -24,4 +24,4 @@ TARGET_EXT void schedule_delay(kuint32_t seconds);
 TARGET_EXT void schedule_delay_ms(kuint32_t milseconds);
 TARGET_EXT void schedule_delay_us(kuint32_t useconds);
 
-#endif /* __KEL_SLEEP_H_ */
+#endif /* __KERNEL_SLEEP_H_ */

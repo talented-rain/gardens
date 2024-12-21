@@ -213,7 +213,7 @@ static kint32_t xsdk_gem_driver_probe_dt(struct fwk_platdev *sprt_pdev, struct x
         return PTR_ERR(sprt_phy);
 
     base = (void *)fwk_platform_get_address(sprt_pdev, 0);
-    sprt_data->base = fwk_io_remap(base);
+    sprt_data->base = fwk_io_remap(base, ARCH_PER_SIZE);
     sprt_data->irq = fwk_platform_get_irq(sprt_pdev, 0);
 
     fwk_of_property_read_u16_array(sprt_phy, "local-mac-address", sprt_data->hwaddr, NET_MAC_ETH_ALEN);

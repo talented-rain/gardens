@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef __KEL_WAIT_H_
-#define __KEL_WAIT_H_
+#ifndef __KERNEL_WAIT_H_
+#define __KERNEL_WAIT_H_
 
 /*!< The includes */
 #include <kernel/kernel.h>
@@ -41,7 +41,7 @@ typedef struct wait_queue_head
 
 typedef struct wait_queue
 {
-    struct real_thread *sprt_task;
+    struct thread *sprt_task;
     struct list_head sgrt_link;
 
 } srt_wait_queue_t;
@@ -74,7 +74,7 @@ TARGET_EXT void wake_up_common(struct wait_queue_head *sprt_wqh, kuint32_t state
     else {  \
         init_list_head(&sgrt_wq.sgrt_link); \
         add_wait_queue(sprt_wqh, &sgrt_wq); \
-        real_thread_state_signal(sgrt_wq.sprt_task, state, true);   \
+        thread_state_signal(sgrt_wq.sprt_task, state, true);   \
         \
         for (;;) {   \
             \
@@ -83,14 +83,14 @@ TARGET_EXT void wake_up_common(struct wait_queue_head *sprt_wqh, kuint32_t state
                 break;  \
             \
             /*!< signal pending (by calling "wake_up") */   \
-            if (__wait_is_interruptible(&sgrt_wq) && real_thread_state_pending(sgrt_wq.sprt_task)) \
+            if (__wait_is_interruptible(&sgrt_wq) && thread_state_pending(sgrt_wq.sprt_task)) \
                 break;  \
             \
             func; \
             \
         }   \
         \
-        real_thread_state_signal(sgrt_wq.sprt_task, state, false);   \
+        thread_state_signal(sgrt_wq.sprt_task, state, false);   \
         remove_wait_queue(sprt_wqh, &sgrt_wq);  \
     }   \
 })
@@ -133,4 +133,4 @@ TARGET_EXT void wake_up_common(struct wait_queue_head *sprt_wqh, kuint32_t state
         wake_up_common(sprt_wqh, NR_THREAD_SIG_INTR);    \
     } while (0)
 
-#endif /* __KEL_WAIT_H_ */
+#endif /* __KERNEL_WAIT_H_ */

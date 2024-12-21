@@ -82,18 +82,18 @@ enum __ERT_NET_SOCK_TYPE
 #define NET_MSG_EOF                                 MSG_FIN
 
 /*!< The functions */
-TARGET_EXT kint32_t virt_socket(kint32_t domain, kint32_t type, kint32_t protocol);
-TARGET_EXT kint32_t virt_bind(kint32_t sockfd, const struct fwk_sockaddr *sprt_addr, fwk_socklen_t addrlen);
-TARGET_EXT kssize_t virt_sendto(kint32_t sockfd, const void *buf, kssize_t len, 
+TARGET_EXT kint32_t net_link_up(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip, 
+                            struct fwk_sockaddr_in *sprt_gw, struct fwk_sockaddr_in *sprt_mask);
+TARGET_EXT kint32_t net_link_down(const kchar_t *name);
+TARGET_EXT kint32_t net_socket(kint32_t domain, kint32_t type, kint32_t protocol);
+
+TARGET_EXT kint32_t socket_bind(kint32_t sockfd, const struct fwk_sockaddr *sprt_addr, fwk_socklen_t addrlen);
+TARGET_EXT kssize_t socket_sendto(kint32_t sockfd, const void *buf, kssize_t len, 
                             kint32_t flags, const struct fwk_sockaddr *sprt_dest, fwk_socklen_t addrlen);
-TARGET_EXT kssize_t virt_recvfrom(kint32_t sockfd, void *buf, size_t len, 
+TARGET_EXT kssize_t socket_recvfrom(kint32_t sockfd, void *buf, size_t len, 
                             kint32_t flags, struct fwk_sockaddr *sprt_src, fwk_socklen_t *addrlen);
 
-TARGET_EXT kint32_t network_link_up(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip, 
-                            struct fwk_sockaddr_in *sprt_gw, struct fwk_sockaddr_in *sprt_mask);
-TARGET_EXT kint32_t network_link_down(const kchar_t *name);
 TARGET_EXT kint32_t network_set_ip(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip);
-
 TARGET_EXT kint32_t network_socket(kint32_t domain, kint32_t type, kint32_t protocol);
 TARGET_EXT void network_close(kint32_t sockfd);
 TARGET_EXT kint32_t network_bind(kint32_t sockfd, const struct fwk_sockaddr *addr, fwk_socklen_t addrlen);

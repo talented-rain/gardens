@@ -892,7 +892,7 @@ static kint32_t imx_iomuxc_driver_probe(struct fwk_platdev *sprt_pdev)
 
     /*!< get the reg address of "iomuxc"/"iomuxc_snvs" */
     sprt_data->base = fwk_of_iomap(sprt_node, 0);
-    sprt_data->base = fwk_io_remap(sprt_data->base);
+    sprt_data->base = fwk_io_remap(sprt_data->base, ARCH_PER_SIZE);
     if (!sprt_data->base)
         goto fail1;
 

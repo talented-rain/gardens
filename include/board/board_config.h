@@ -37,8 +37,11 @@
 #define BIG_ENDIAN_FORMAT                       (0)
 #define LIT_ENDIAN_FORMAT                       (1)
 
-#define __BYTES_UNIT_KB(x)                      ((x) << 10)
-#define __BYTES_UNIT_MB(x)                      ((x) << 20)
+#define __KB_TO_BYTES(x)                        ((x) << 10)
+#define __MB_TO_BYTES(x)                        ((x) << 20)
+#define __BYTES_TO_KB(x)                        ((x) >> 10)
+#define __BYTES_TO_MB(x)                        ((x) >> 20)
+
 #define __ALIGN_DEC_8(x)                        ((x) & (~0x07))
 #define __ALIGN_INC_8(x)						(((x) + 0x07) & (~0x07))
 

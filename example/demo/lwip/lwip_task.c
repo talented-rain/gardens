@@ -33,11 +33,11 @@
 #include "app/app.h"
 
 /*!< The defines */
-#define LWIP_TASK_THREAD_STACK_SIZE                       REAL_THREAD_STACK_PAGE(1)    /*!< 1 page (4kbytes) */
+#define LWIP_TASK_THREAD_STACK_SIZE                       THREAD_STACK_PAGE(1)    /*!< 1 page (4kbytes) */
 
 /*!< The globals */
 static tid_t g_lwip_task_tid;
-static struct real_thread_attr sgrt_lwip_task_attr;
+static struct thread_attr sgrt_lwip_task_attr;
 static kuint32_t g_lwip_task_stack[LWIP_TASK_THREAD_STACK_SIZE];
 
 static struct lwip_task_data sgrt_lwip_task_data;
@@ -70,24 +70,24 @@ static void *lwip_task_entry(void *args)
  */
 kint32_t lwip_task_init(void)
 {
-    struct real_thread_attr *sprt_attr = &sgrt_lwip_task_attr;
+    struct thread_attr *sprt_attr = &sgrt_lwip_task_attr;
     kint32_t retval;
 
-	sprt_attr->detachstate = REAL_THREAD_CREATE_JOINABLE;
-	sprt_attr->inheritsched	= REAL_THREAD_INHERIT_SCHED;
-	sprt_attr->schedpolicy = REAL_THREAD_SCHED_FIFO;
+	sprt_attr->detachstate = THREAD_CREATE_JOINABLE;
+	sprt_attr->inheritsched	= THREAD_INHERIT_SCHED;
+	sprt_attr->schedpolicy = THREAD_SCHED_FIFO;
 
     /*!< thread stack */
-	real_thread_set_stack(sprt_attr, mrt_nullptr, &g_lwip_task_stack[0], sizeof(g_lwip_task_stack));
+	thread_set_stack(sprt_attr, mrt_nullptr, &g_lwip_task_stack[0], sizeof(g_lwip_task_stack));
     /*!< lowest priority */
-	real_thread_set_priority(sprt_attr, REAL_THREAD_PROTY_DEFAULT);
+	thread_set_priority(sprt_attr, THREAD_PROTY_DEFAULT);
     /*!< default time slice */
-    real_thread_set_time_slice(sprt_attr, 100);
+    thread_set_time_slice(sprt_attr, 100);
 
     /*!< register thread */
-    retval = real_thread_create(&g_lwip_task_tid, sprt_attr, lwip_task_entry, mrt_nullptr);
+    retval = thread_create(&g_lwip_task_tid, sprt_attr, lwip_task_entry, mrt_nullptr);
     if (!retval)
-        real_thread_set_name(g_lwip_task_tid, "lwip_task_entry");
+        thread_set_name(g_lwip_task_tid, "lwip_task_entry");
 
     return retval;
 }

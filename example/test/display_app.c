@@ -32,11 +32,11 @@
 #include "test_app.h"
 
 /*!< The defines */
-#define DISPLAY_APP_THREAD_STACK_SIZE                       REAL_THREAD_STACK_PAGE(1)    /*!< 1 page (4kbytes) */
+#define DISPLAY_APP_THREAD_STACK_SIZE                       THREAD_STACK_PAGE(1)    /*!< 1 page (4kbytes) */
 
 /*!< The globals */
 static tid_t g_display_app_tid;
-static struct real_thread_attr sgrt_display_app_attr;
+static struct thread_attr sgrt_display_app_attr;
 static kuint32_t g_display_app_stack[DISPLAY_APP_THREAD_STACK_SIZE];
 
 static kchar_t g_display_buffer[((1920 * 1080) / (FWK_FONT_16 * FWK_FONT_16)) * 2 + 4] __align(4);
@@ -298,24 +298,24 @@ fail1:
  */
 kint32_t display_app_init(void)
 {
-    struct real_thread_attr *sprt_attr = &sgrt_display_app_attr;
+    struct thread_attr *sprt_attr = &sgrt_display_app_attr;
     kint32_t retval;
 
-	sprt_attr->detachstate = REAL_THREAD_CREATE_JOINABLE;
-	sprt_attr->inheritsched	= REAL_THREAD_INHERIT_SCHED;
-	sprt_attr->schedpolicy = REAL_THREAD_SCHED_FIFO;
+	sprt_attr->detachstate = THREAD_CREATE_JOINABLE;
+	sprt_attr->inheritsched	= THREAD_INHERIT_SCHED;
+	sprt_attr->schedpolicy = THREAD_SCHED_FIFO;
 
     /*!< thread stack */
-	real_thread_set_stack(sprt_attr, mrt_nullptr, &g_display_app_stack[0], sizeof(g_display_app_stack));
+	thread_set_stack(sprt_attr, mrt_nullptr, &g_display_app_stack[0], sizeof(g_display_app_stack));
     /*!< lowest priority */
-	real_thread_set_priority(sprt_attr, REAL_THREAD_PROTY_DEFAULT);
+	thread_set_priority(sprt_attr, THREAD_PROTY_DEFAULT);
     /*!< default time slice */
-    real_thread_set_time_slice(sprt_attr, 100);
+    thread_set_time_slice(sprt_attr, 100);
 
     /*!< register thread */
-    retval = real_thread_create(&g_display_app_tid, sprt_attr, display_app_entry, mrt_nullptr);
+    retval = thread_create(&g_display_app_tid, sprt_attr, display_app_entry, mrt_nullptr);
     if (!retval)
-        real_thread_set_name(g_display_app_tid, "display_app_entry");
+        thread_set_name(g_display_app_tid, "display_app_entry");
 
     return retval;
 }

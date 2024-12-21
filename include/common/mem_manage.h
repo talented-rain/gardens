@@ -324,19 +324,56 @@ static inline void *kmemcpy(void *dest, const void *src, kusize_t size)
     return (void *)s1_addr;
 }
 
+/*!
+ * @brief   copy *val to *addr
+ * @param   addr, val
+ * @retval  none
+ * @note    if addr or val is not in 4-bytes-alignment, using u32_set()
+ */
 static inline void u32_set(void *addr, void *val)
 {
+#if 1
     kmemcpy(addr, val, sizeof(kuint32_t));
+
+#else
+    *((kuint8_t *)addr++) = *((kuint8_t *)val++);
+    *((kuint8_t *)addr++) = *((kuint8_t *)val++);
+    *((kuint8_t *)addr++) = *((kuint8_t *)val++);
+    *((kuint8_t *)addr++) = *((kuint8_t *)val++);
+#endif
 }
 
+/*!
+ * @brief   copy *val to *addr
+ * @param   addr, val
+ * @retval  none
+ * @note    if addr or val is not in 2-bytes-alignment, using u32_set()
+ */
 static inline void u16_set(void *addr, void *val)
 {
+#if 0
     kmemcpy(addr, val, sizeof(kuint16_t));
+
+#else
+    *((kuint8_t *)addr++) = *((kuint8_t *)val++);
+    *((kuint8_t *)addr++) = *((kuint8_t *)val++);
+#endif
 }
 
+/*!
+ * @brief   copy *val to *addr
+ * @param   addr, val
+ * @retval  none
+ * @note    none
+ */
 static inline void u8_set(void *addr, void *val)
 {
+#if 0
     kmemcpy(addr, val, sizeof(kuint8_t));
+
+#else
+    *((kuint8_t *)addr++) = *((kuint8_t *)val++);
+#endif
 }
 
 #endif  /* __MEM_MANAGE_H */

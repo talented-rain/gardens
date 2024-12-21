@@ -85,12 +85,26 @@ TARGET_EXT kint32_t fwk_skb_enqueue(struct fwk_sk_buff_head *sprt_head, struct f
 TARGET_EXT struct fwk_sk_buff *fwk_skb_dequeue(struct fwk_sk_buff_head *sprt_head);
 
 /*!< API functions */
+/*!
+ * @brief   reserve head (len = data - head)
+ * @param   sprt_skb
+ * @param   len: ip_hdr must be 4-bytes align, therefore, len can be ALIGN4(sizeof(ether_hdr)) - sizeof(ether_hdr)
+ * @retval  none
+ * @note    len can be 2 usually, and sizeof(ether_hdr) is 14 ===> ip_hdr = 14 + 2 = 16, it's 4-bytes align
+ */
 static inline void fwk_skb_reserve(struct fwk_sk_buff *sprt_skb, kuint32_t len)
 {
     sprt_skb->data += len;
     sprt_skb->tail += len;
 }
 
+/*!
+ * @brief   increase data length for buffer (keep data, and change tail)
+ * @param   sprt_skb
+ * @param   len: sizeof(eth_hdr) + sizeof(network_hdr) + sizeof(transport_hdr) + data_len
+ * @retval  none
+ * @note    none
+ */
 static inline void *fwk_skb_put(struct fwk_sk_buff *sprt_skb, kuint32_t len)
 {
     kuint8_t *tail = sprt_skb->tail + len;
@@ -103,6 +117,13 @@ static inline void *fwk_skb_put(struct fwk_sk_buff *sprt_skb, kuint32_t len)
     return (void *)sprt_skb->data;
 }
 
+/*!
+ * @brief   increase data length for buffer (keep tail, and change data)
+ * @param   sprt_skb
+ * @param   len
+ * @retval  none
+ * @note    none
+ */
 static inline void *fwk_skb_push(struct fwk_sk_buff *sprt_skb, kuint32_t len)
 {
     kuint8_t *data = sprt_skb->data - len;
@@ -115,6 +136,13 @@ static inline void *fwk_skb_push(struct fwk_sk_buff *sprt_skb, kuint32_t len)
     return (void *)sprt_skb->data;
 }
 
+/*!
+ * @brief   decrease data length for buffer (keep tail, and change data)
+ * @param   sprt_skb
+ * @param   len
+ * @retval  none
+ * @note    none
+ */
 static inline void *fwk_skb_pull(struct fwk_sk_buff *sprt_skb, kuint32_t len)
 {
     kuint8_t *data = sprt_skb->data + len;
@@ -127,6 +155,7 @@ static inline void *fwk_skb_pull(struct fwk_sk_buff *sprt_skb, kuint32_t len)
     return (void *)sprt_skb->data;
 }
 
+/*!< ---------------------------------------------------------------------------- */
 #define mrt_skb_reset_header(sprt_skb, _member)  \
     do { (sprt_skb)->_member = (sprt_skb)->data - (sprt_skb)->head; } while (0)
 
@@ -138,71 +167,164 @@ static inline void *fwk_skb_pull(struct fwk_sk_buff *sprt_skb, kuint32_t len)
 
 #define mrt_skb_get_header(sprt_skb, _member)                ((sprt_skb)->head + (sprt_skb)->_member)
 
+/*!
+ * @brief   reset mac_header
+ * @param   sprt_skb
+ * @retval  none
+ * @note    none
+ */
 static inline void fwk_skb_reset_mac_header(struct fwk_sk_buff *sprt_skb)
 {
+    /*!< sprt_skb->mac_header = sprt_skb->data - sprt_skb->head */
     mrt_skb_reset_header(sprt_skb, mac_header);
 }
 
+/*!
+ * @brief   set the offset between head and mac_header
+ * @param   sprt_skb
+ * @param   offset: it can be sizeof(eth_hdr) usually
+ * @retval  none
+ * @note    none
+ */
 static inline void fwk_skb_set_mac_header(struct fwk_sk_buff *sprt_skb, const kint32_t offset)
 {
+    /*!< sprt_skb->mac_header += offset */
     mrt_skb_set_header(sprt_skb, mac_header, offset);
 }
 
+/*!
+ * @brief   get mac_header base address
+ * @param   sprt_skb
+ * @retval  mac_header base address
+ * @note    none
+ */
 static inline kuint8_t *fwk_skb_mac_header(struct fwk_sk_buff *sprt_skb)
 {
+    /*!< sprt_skb->head + sprt_skb->mac_header */
     return mrt_skb_get_header(sprt_skb, mac_header);
 }
 
+/*!
+ * @brief   get the offset between data and mac_header
+ * @param   sprt_skb
+ * @retval  offset
+ * @note    none
+ */
 static inline kint32_t fwk_skb_mac_offset(struct fwk_sk_buff *sprt_skb)
 {
     return fwk_skb_mac_header(sprt_skb) - sprt_skb->data;
 }
 
+/*!
+ * @brief   reset network_header
+ * @param   sprt_skb
+ * @retval  none
+ * @note    none
+ */
 static inline void fwk_skb_reset_network_header(struct fwk_sk_buff *sprt_skb)
 {
+    /*!< sprt_skb->network_header = sprt_skb->data - sprt_skb->head */
     mrt_skb_reset_header(sprt_skb, network_header);
 }
 
+/*!
+ * @brief   set the offset between head and network_header
+ * @param   sprt_skb
+ * @param   offset: it can be sizeof(ip_hdr) usually
+ * @retval  none
+ * @note    none
+ */
 static inline void fwk_skb_set_network_header(struct fwk_sk_buff *sprt_skb, const kint32_t offset)
 {
     mrt_skb_set_header(sprt_skb, network_header, offset);
 }
 
+/*!
+ * @brief   get network_header base address
+ * @param   sprt_skb
+ * @retval  network_header base address
+ * @note    none
+ */
 static inline kuint8_t *fwk_skb_network_header(struct fwk_sk_buff *sprt_skb)
 {
     return mrt_skb_get_header(sprt_skb, network_header);
 }
 
+/*!
+ * @brief   get the offset between data and network_header
+ * @param   sprt_skb
+ * @retval  offset
+ * @note    none
+ */
 static inline kint32_t fwk_skb_network_offset(struct fwk_sk_buff *sprt_skb)
 {
     return fwk_skb_network_header(sprt_skb) - sprt_skb->data;
 }
 
+/*!
+ * @brief   reset transport_header
+ * @param   sprt_skb
+ * @retval  none
+ * @note    none
+ */
 static inline void fwk_skb_reset_transport_header(struct fwk_sk_buff *sprt_skb)
 {
+    /*!< sprt_skb->transport_header = sprt_skb->data - sprt_skb->head */
     mrt_skb_reset_header(sprt_skb, transport_header);
 }
 
+/*!
+ * @brief   set the offset between head and transport_header
+ * @param   sprt_skb
+ * @param   offset: it can be sizeof(tcp_hdr) or sizeof(udp_hdr) usually
+ * @retval  none
+ * @note    none
+ */
 static inline void fwk_skb_set_transport_header(struct fwk_sk_buff *sprt_skb, const kint32_t offset)
 {
     mrt_skb_set_header(sprt_skb, transport_header, offset);
 }
 
+/*!
+ * @brief   get transport_header base address
+ * @param   sprt_skb
+ * @retval  transport_header base address
+ * @note    none
+ */
 static inline kuint8_t *fwk_skb_transport_header(struct fwk_sk_buff *sprt_skb)
 {
     return mrt_skb_get_header(sprt_skb, transport_header);
 }
 
+/*!
+ * @brief   get the offset between data and transport_header
+ * @param   sprt_skb
+ * @retval  offset
+ * @note    none
+ */
 static inline kint32_t fwk_skb_transport_offset(struct fwk_sk_buff *sprt_skb)
 {
     return fwk_skb_transport_header(sprt_skb) - sprt_skb->data;
 }
 
+/*!< ---------------------------------------------------------------------------- */
+/*!
+ * @brief   initialize skb list
+ * @param   sprt_head
+ * @retval  none
+ * @note    none
+ */
 static inline void fwk_skb_list_init(struct fwk_sk_buff_head *sprt_head)
 {
     sprt_head->sprt_prev = sprt_head->sprt_next = (struct fwk_sk_buff *)sprt_head;
 }
 
+/*!
+ * @brief   add to tail of the global skb_list
+ * @param   sprt_head, sprt_skb
+ * @retval  errno
+ * @note    none
+ */
 static inline kint32_t fwk_skb_add_tail(struct fwk_sk_buff_head *sprt_head, struct fwk_sk_buff *sprt_skb)
 {
     struct fwk_sk_buff *sprt_prev = sprt_head->sprt_prev;
@@ -217,6 +339,12 @@ static inline kint32_t fwk_skb_add_tail(struct fwk_sk_buff_head *sprt_head, stru
     return ER_NORMAL;
 }
 
+/*!
+ * @brief   del from the global skb_list
+ * @param   sprt_head, sprt_skb
+ * @retval  none
+ * @note    none
+ */
 static inline void fwk_skb_unlink(struct fwk_sk_buff_head *sprt_head, struct fwk_sk_buff *sprt_skb)
 {
     struct fwk_sk_buff *sprt_prev = sprt_skb->sprt_prev;
@@ -229,16 +357,6 @@ static inline void fwk_skb_unlink(struct fwk_sk_buff_head *sprt_head, struct fwk
     
     sprt_skb->sprt_prev = sprt_skb->sprt_next = mrt_nullptr;
     sprt_head->qlen--;
-}
-
-static inline void fwk_skb_set_queue_mapping(struct fwk_sk_buff *sprt_skb, kuint16_t queue_mapping)
-{
-    sprt_skb->queue_mapping = queue_mapping;
-}
-
-static inline kuint16_t fwk_skb_get_queue_mapping(const struct fwk_sk_buff *sprt_skb)
-{
-    return sprt_skb->queue_mapping;
 }
 
 #endif /*!< __FWK_SKBUFF_H_ */

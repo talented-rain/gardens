@@ -285,5 +285,4 @@ static inline void io_clrbit(kuaddr_t addr, kuint32_t val)
     *((volatile kuaddr_t *)addr) &= ~val;
 }
 
-
 #endif /* __IO_STREAM_H */

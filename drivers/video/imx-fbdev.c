@@ -434,7 +434,7 @@ static kint32_t imx_fbdev_driver_probe(struct fwk_platdev *sprt_pdev)
 		return -ER_NOMEM;
 
 	base = (void *)fwk_platform_get_address(sprt_pdev, 0);
-	base = fwk_io_remap(base);
+	base = fwk_io_remap(base, ARCH_PER_SIZE);
 	if (!isValid(base))
 		goto fail1;
 

@@ -452,10 +452,10 @@ kint32_t __fwk_init imx_clks_driver_init(void)
 		return -ER_NOTFOUND;
 
     reg = fwk_of_iomap(sprt_anatop, 0);
-    sprt_pll = (srt_hal_imx_ccm_pll_t *)fwk_io_remap(reg);
+    sprt_pll = (srt_hal_imx_ccm_pll_t *)fwk_io_remap(reg, ARCH_PER_SIZE);
 
 	reg = fwk_of_iomap(sprt_clks, 0);
-    sprt_ccm = (srt_hal_imx_ccm_t *)fwk_io_remap(reg);
+    sprt_ccm = (srt_hal_imx_ccm_t *)fwk_io_remap(reg, ARCH_PER_SIZE);
 
     if (!isValid(sprt_pll) || !isValid(sprt_ccm))
         return -ER_UNVALID;

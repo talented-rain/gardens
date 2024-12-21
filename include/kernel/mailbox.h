@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef __KEL_MAILBOX_H_
-#define __KEL_MAILBOX_H_
+#ifndef __KERNEL_MAILBOX_H_
+#define __KERNEL_MAILBOX_H_
 
 /*!< The includes */
 #include <kernel/kernel.h>
@@ -89,4 +89,4 @@ TARGET_EXT kint32_t mail_send(const kchar_t *mb_name, struct mail *sprt_mail);
 TARGET_EXT struct mail *mail_recv(struct mailbox *sprt_mb, kutime_t timeout);
 TARGET_EXT void mail_recv_finish(struct mail *sprt_mail);
 
-#endif /* __KEL_MAILBOX_H_ */
+#endif /* __KERNEL_MAILBOX_H_ */

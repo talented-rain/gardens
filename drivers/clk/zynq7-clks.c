@@ -241,8 +241,8 @@ kint32_t __fwk_init zynq7_clks_driver_init(void)
 
     sprt_data->sprt_clkc = sprt_clkc;
     sprt_data->sprt_sclr = sprt_sclr;
-    sprt_data->clkc_base = fwk_io_remap((void *)clkc_reg);
-    sprt_data->sclr_base = fwk_io_remap((void *)sclr_reg);
+    sprt_data->clkc_base = fwk_io_remap((void *)clkc_reg, ARCH_PER_SIZE);
+    sprt_data->sclr_base = fwk_io_remap((void *)sclr_reg, ARCH_PER_SIZE);
 
     return zynq7_clks_driver_of_init(sprt_data);
 }

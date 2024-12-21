@@ -257,12 +257,12 @@ __force_inline static inline kbool_t isPower2(kutype_t number)
 }
 
 /*!
- * @brief   api_reverse_byte32
+ * @brief   reverse_byte32
  * @param   val
  * @retval  result
  * @note    swap high byte and low byte for 4 bytes val
  */
-static inline kuint32_t api_reverse_byte32(kuint32_t val)
+static inline kuint32_t reverse_byte32(kuint32_t val)
 {
     kuint32_t result;
 
@@ -277,12 +277,12 @@ static inline kuint32_t api_reverse_byte32(kuint32_t val)
 }
 
 /*!
- * @brief   api_reverse_byte16
+ * @brief   reverse_byte16
  * @param   val
  * @retval  result
  * @note    swap high byte and low byte for 2 bytes val
  */
-static inline kuint16_t api_reverse_byte16(kuint16_t val)
+static inline kuint16_t reverse_byte16(kuint16_t val)
 {
     kuint16_t result;
 
@@ -297,12 +297,12 @@ static inline kuint16_t api_reverse_byte16(kuint16_t val)
 }
 
 /*!
- * @brief   api_reverse_bit
+ * @brief   reverse_bit
  * @param   val
  * @retval  result
  * @note    swap high bit and low bit for a byte
  */
-static inline kuint8_t api_reverse_bit(kuint8_t val)
+static inline kuint8_t reverse_bit(kuint8_t val)
 {
     kuint8_t result, i;
 

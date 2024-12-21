@@ -37,6 +37,12 @@ static struct loopback_drv_data sgrt_loopback_drv_data;
 /*!< The functions */
 
 /*!< API function */
+/*!
+ * @brief   rx handler
+ * @param   sprt_ndev, buffer, len
+ * @retval  size received
+ * @note    none
+ */
 static kssize_t loopback_driver_recv(struct fwk_net_device *sprt_ndev, void *buffer, kssize_t len)
 {
     struct fwk_sk_buff *sprt_skb;
@@ -74,17 +80,17 @@ fail:
     return -ER_FAILD;
 }
 
+/*!
+ * @brief   loopback: tx ---> rx
+ * @param   sprt_ndev, buffer, len
+ * @retval  size received
+ * @note    none
+ */
 static kssize_t loopback_driver_recycle(struct fwk_net_device *sprt_ndev, void *buffer, kssize_t len)
 {
     struct fwk_eth_hdr *sprt_ethdr;
-    struct fwk_ip_hdr *sprt_iphdr;
-    struct fwk_arp_hdr *sprt_arphdr;
-    struct fwk_icmp_hdr *sprt_icmphdr;
-    struct fwk_udp_hdr *sprt_udphdr;
-
     kuint8_t mac_address[NET_MAC_ETH_ALEN];
     kuint32_t ipaddr;
-    kuint16_t port;
     kssize_t recv_len;
 
     sprt_ethdr = (struct fwk_eth_hdr *)buffer;
@@ -97,30 +103,38 @@ static kssize_t loopback_driver_recycle(struct fwk_net_device *sprt_ndev, void *
     switch (mrt_htons(sprt_ethdr->h_proto))
     {
         case NET_ETH_PROTO_IP:
+        {
+            struct fwk_ip_hdr *sprt_iphdr;
             sprt_iphdr = (struct fwk_ip_hdr *)(buffer + sizeof(*sprt_ethdr));
 
             switch (sprt_iphdr->protocol)
             {
                 case NET_IP_PROTO_ICMP:
-                    /*!< ICMP <0x00: rely; 0x08: ping> */
+                {
+                    struct fwk_icmp_hdr *sprt_icmphdr;
                     sprt_icmphdr = (struct fwk_icmp_hdr *)((kuint8_t *)sprt_iphdr + sizeof(*sprt_iphdr));
 
+                    /*!< ICMP <0x00: rely; 0x08: ping> */
                     sprt_icmphdr->type = NET_PROTO_ICMP_ER;
-                    sprt_icmphdr->check_sum = fwk_icmp_check_sum(sprt_iphdr, (kuint8_t *)sprt_icmphdr);
+                    sprt_icmphdr->check_sum = fwk_ip_slow_csum(sprt_iphdr, sprt_iphdr->ihl);
 
                     break;
-
+                }
                 case NET_IP_PROTO_UDP:
+                {
+                    struct fwk_udp_hdr *sprt_udphdr;
+                    kuint16_t port;
+
                     sprt_udphdr = (struct fwk_udp_hdr *)((kuint8_t *)sprt_iphdr + sizeof(*sprt_iphdr));
 
                     port = sprt_udphdr->dst_port;
                     sprt_udphdr->src_port = sprt_udphdr->dst_port;
                     sprt_udphdr->dst_port = port;
 
-                    sprt_udphdr->check_sum = fwk_udp_check_sum(sprt_iphdr, (kuint8_t *)sprt_udphdr);
+                    sprt_udphdr->check_sum = fwk_ip_slow_csum(sprt_iphdr, sprt_iphdr->ihl);
 
                     break;
-
+                }
                 /*!< tcp requires establishing connection first, not suitable for loopback */
                 default:
                     return -ER_UNVALID;
@@ -131,11 +145,13 @@ static kssize_t loopback_driver_recycle(struct fwk_net_device *sprt_ndev, void *
             sprt_iphdr->daddr = sprt_iphdr->saddr;
             sprt_iphdr->saddr = ipaddr;
 
-            sprt_iphdr->check = fwk_ip_check_sum(sprt_iphdr);
+            sprt_iphdr->check = fwk_ip_slow_csum(sprt_iphdr, 0);
 
             break;
-
+        }
         case NET_ETH_PROTO_ARP:
+        {
+            struct fwk_arp_hdr *sprt_arphdr;
             sprt_arphdr = (struct fwk_arp_hdr *)(buffer + sizeof(*sprt_ethdr));
 
             kmemcpy(mac_address, sprt_arphdr->mac_src, NET_MAC_ETH_ALEN);
@@ -150,7 +166,7 @@ static kssize_t loopback_driver_recycle(struct fwk_net_device *sprt_ndev, void *
             sprt_arphdr->opcode = mrt_htons(NET_ARPOP_REPLY);
 
             break;
-
+        }
         default: 
             return -ER_UNVALID;
     }
@@ -159,12 +175,24 @@ static kssize_t loopback_driver_recycle(struct fwk_net_device *sprt_ndev, void *
     return (recv_len > 0) ? len : (-ER_TRXERR);
 }
 
+/*!
+ * @brief   tx handler
+ * @param   sprt_ndev, buffer, len
+ * @retval  size sent
+ * @note    none
+ */
 static kssize_t loopback_driver_send(struct fwk_net_device *sprt_ndev, void *buffer, kssize_t len)
 {
     /*!< loopback */
     return loopback_driver_recycle(sprt_ndev, buffer, len);
 }
 
+/*!
+ * @brief   init
+ * @param   sprt_ndev
+ * @retval  errno
+ * @note    called on fwk_register_netdevice()
+ */
 static kint32_t loopback_init(struct fwk_net_device *sprt_ndev)
 {
     kuint8_t mac_address[NET_MAC_ETH_ALEN] = LOOPBACK_MAC_ADDR;
@@ -173,6 +201,12 @@ static kint32_t loopback_init(struct fwk_net_device *sprt_ndev)
     return ER_NORMAL;
 }
 
+/*!
+ * @brief   open
+ * @param   sprt_ndev
+ * @retval  errno
+ * @note    called on link_up()
+ */
 static kint32_t loopback_open(struct fwk_net_device *sprt_ndev)
 {
     sprt_ndev->sgrt_stats.tx_bytes = 0;
@@ -184,6 +218,12 @@ static kint32_t loopback_open(struct fwk_net_device *sprt_ndev)
     return ER_NORMAL;
 }
 
+/*!
+ * @brief   stop
+ * @param   sprt_ndev
+ * @retval  errno
+ * @note    called on link_down()
+ */
 static kint32_t loopback_stop(struct fwk_net_device *sprt_ndev)
 {
     fwk_netif_stop_queue(sprt_ndev);
@@ -196,6 +236,12 @@ static kint32_t loopback_stop(struct fwk_net_device *sprt_ndev)
     return ER_NORMAL;
 }
 
+/*!
+ * @brief   data send (application layer ---> driver layer)
+ * @param   sprt_skb, sprt_ndev
+ * @retval  size sent
+ * @note    called by tx_entry (function calling, or thread/process)
+ */
 static netdev_tx_t loopback_start_xmit(struct fwk_sk_buff *sprt_skb, struct fwk_net_device *sprt_ndev)
 {
     netdev_tx_t size;
@@ -211,6 +257,7 @@ static netdev_tx_t loopback_start_xmit(struct fwk_sk_buff *sprt_skb, struct fwk_
     return size;
 }
 
+/*!< net device operations*/
 static const struct fwk_netdev_ops sgrt_loopback_drv_oprts =
 {
     .ndo_init = loopback_init,
@@ -219,6 +266,12 @@ static const struct fwk_netdev_ops sgrt_loopback_drv_oprts =
     .ndo_start_xmit = loopback_start_xmit,
 };
 
+/*!
+ * @brief   setup
+ * @param   sprt_ndev
+ * @retval  none
+ * @note    called on fwk_alloc_netdev
+ */
 static void loopback_driver_setup(struct fwk_net_device *sprt_ndev)
 {
     sprt_ndev->mtu = 1500;

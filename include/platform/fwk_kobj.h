@@ -62,7 +62,6 @@ struct fwk_kobj_map
 /*!< The globals */
 TARGET_EXT struct fwk_kobj_map *sprt_fwk_chrdev_map;
 TARGET_EXT struct fwk_kobj_map *sprt_fwk_blkdev_map;
-TARGET_EXT struct fwk_kobj_map *sprt_fwk_netdev_map;
 
 /*!< The functions */
 /*!< -------------------------------------------------------------- */

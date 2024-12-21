@@ -1,7 +1,7 @@
 /*
  * Assembly Header Defines For ARM Cortex-A7
  *
- * File Name:   ca7_gic.h
+ * File Name:   gic_basic.h
  * Author:      Yang Yujun
  * E-mail:      <yujiantianhu@163.com>
  * Created on:  2023.11.15
@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef __CA7_GIC_H
-#define __CA7_GIC_H
+#ifndef __GIC_BASIC_H
+#define __GIC_BASIC_H
 
 #include <common/generic.h>
 #include <common/io_stream.h>
@@ -23,7 +23,7 @@
 #define GIC_SPI                                     0
 #define GIC_PPI                                     1
 
-typedef struct ca7_gic
+typedef struct gic_common
 {
     void *dest_base;
     void *cpu_base;
@@ -31,21 +31,21 @@ typedef struct ca7_gic
     kuint32_t gic_irqs;
     void *sprt_domain;
 
-} srt_ca7_gic_t;
+} srt_gic_t;
 
-#define CA7_MAX_GIC_NR                              (1)
-#define CA7_GIC_NULL                                ((srt_ca7_gic_t *)0)
+#define GIC_MAX_NR                                  (1)
+#define GIC_NULL                                    ((srt_gic_t *)0)
 
 /*!< Number of Bits used for Priority Levels */
-#define __CA7_GIC_PRIO_BITS                         5   
-#define __CA7_GIC_MAX_IRQS                          1020
+#define __GIC_PRIO_BITS                             5   
+#define __GIC_MAX_IRQS                              1020
 
-typedef struct ca7_gic_des
+typedef struct gic_dist
 {
     /*!< distributor */
 //  kuint32_t RESERVED0[1024];
 
-#define CA7_GIC_DES_HEAD_OFFSET                     (1024 << 2)
+#define GIC_DIST_HEAD_OFFSET                        (1024 << 2)
 
     kuint32_t D_CTLR;                               /*!< Offset: 0x1000 (R/W) Distributor Control Register */
     kuint32_t D_TYPER;                              /*!< Offset: 0x1004 (R/ )  Interrupt Controller Type Register */
@@ -92,9 +92,9 @@ typedef struct ca7_gic_des
     kuint32_t D_CIDR2;                              /*!< Offset: 0x1FF8 (R/ ) Component ID2 Register */
     kuint32_t D_CIDR3;                              /*!< Offset: 0x1FFC (R/ ) Component ID3 Register */
 
-} srt_ca7_gic_des_t;
+} srt_gic_dist_t;
 
-typedef struct ca7_gic_cpu
+typedef struct gic_cpu
 {
     /*!< cpu interface */
     kuint32_t C_CTLR;                               /*!< Offset: 0x2000 (R/W) CPU Interface Control Register */
@@ -117,20 +117,20 @@ typedef struct ca7_gic_cpu
     kuint32_t RESERVED18[960];
     kuint32_t C_DIR;                                /*!< Offset: 0x3000 ( /W) Deactivate Interrupt Register */
 
-} srt_ca7_gic_cpu_t;
+} srt_gic_cpu_t;
 
-#define __mrt_get_gic_destributor() \
-    (srt_ca7_gic_des_t *)(mrt_mask(__get_cp15_cbar(), 0xffff0000U) + CA7_GIC_DES_HEAD_OFFSET)
+#define __mrt_get_gic_distributor() \
+    (srt_gic_dist_t *)(mrt_mask(__get_cp15_cbar(), 0xffff0000U) + GIC_DIST_HEAD_OFFSET)
 #define __mrt_get_gic_interface()   \
-    (srt_ca7_gic_cpu_t *)(mrt_mask(__get_cp15_cbar(), 0xffff0000U) + CA7_GIC_DES_HEAD_OFFSET + sizeof(srt_ca7_gic_des_t))
+    (srt_gic_cpu_t *)(mrt_mask(__get_cp15_cbar(), 0xffff0000U) + GIC_DIST_HEAD_OFFSET + sizeof(srt_gic_dist_t))
 
-#define mrt_get_gic_destributor(gic)  \
-    (((gic) && ((gic)->dest_base)) ? (srt_ca7_gic_des_t *)((gic)->dest_base) : __mrt_get_gic_destributor())
+#define mrt_get_gic_distributor(gic)  \
+    (((gic) && ((gic)->dest_base)) ? (srt_gic_dist_t *)((gic)->dest_base) : __mrt_get_gic_distributor())
 #define mrt_get_gic_interface(gic)    \
-    (((gic) && ((gic)->cpu_base))  ? (srt_ca7_gic_cpu_t *)((gic)->cpu_base)  : __mrt_get_gic_interface())
+    (((gic) && ((gic)->cpu_base))  ? (srt_gic_cpu_t *)((gic)->cpu_base)  : __mrt_get_gic_interface())
 
 /* The functions */
-TARGET_EXT srt_ca7_gic_t *fwk_get_gic_data(kuint32_t gic_nr);
+TARGET_EXT srt_gic_t *fwk_get_gic_data(kuint32_t gic_nr);
 TARGET_EXT kint32_t fwk_gic_to_actual_irq(kint32_t hwirq);
 TARGET_EXT kint32_t fwk_gpc_to_gic_irq(kint32_t virq);
 
@@ -142,16 +142,16 @@ TARGET_EXT kint32_t fwk_gpc_to_gic_irq(kint32_t virq);
  */
 static inline void local_irq_enable(kint32_t irq_number)
 {
-    srt_ca7_gic_t *sprt_gic = fwk_get_gic_data(0);
-    srt_ca7_gic_des_t *sprt_dest;
+    srt_gic_t *sprt_gic = fwk_get_gic_data(0);
+    srt_gic_dist_t *sprt_dist;
     kint32_t hwirq;
 
     hwirq = fwk_gpc_to_gic_irq(irq_number);
     if (hwirq < 0)
         return;
 
-    sprt_dest = mrt_get_gic_destributor(sprt_gic);
-    mrt_setbit_towords(hwirq, &sprt_dest->D_ISENABLER);
+    sprt_dist = mrt_get_gic_distributor(sprt_gic);
+    mrt_setbit_towords(hwirq, &sprt_dist->D_ISENABLER);
 }
 
 /*!
@@ -162,16 +162,16 @@ static inline void local_irq_enable(kint32_t irq_number)
  */
 static inline void local_irq_disable(kint32_t irq_number)
 {
-    srt_ca7_gic_t *sprt_gic = fwk_get_gic_data(0);
-    srt_ca7_gic_des_t *sprt_dest;
+    srt_gic_t *sprt_gic = fwk_get_gic_data(0);
+    srt_gic_dist_t *sprt_dist;
     kint32_t hwirq;
 
     hwirq = fwk_gpc_to_gic_irq(irq_number);
     if (hwirq < 0)
         return;
 
-    sprt_dest = mrt_get_gic_destributor(sprt_gic);
-    mrt_setbit_towords(hwirq, &sprt_dest->D_ICENABLER);
+    sprt_dist = mrt_get_gic_distributor(sprt_gic);
+    mrt_setbit_towords(hwirq, &sprt_dist->D_ICENABLER);
 }
 
 /*!
@@ -182,8 +182,8 @@ static inline void local_irq_disable(kint32_t irq_number)
  */
 static inline kint32_t local_irq_acknowledge(void)
 {
-    srt_ca7_gic_t *sprt_gic = fwk_get_gic_data(0);
-    srt_ca7_gic_cpu_t *sprt_cpu;
+    srt_gic_t *sprt_gic = fwk_get_gic_data(0);
+    srt_gic_cpu_t *sprt_cpu;
 
     sprt_cpu = mrt_get_gic_interface(sprt_gic);
     return mrt_mask(sprt_cpu->C_IAR, 0x1fffU);
@@ -197,8 +197,8 @@ static inline kint32_t local_irq_acknowledge(void)
  */
 static inline void local_irq_deactivate(kuint32_t value)
 {
-    srt_ca7_gic_t *sprt_gic = fwk_get_gic_data(0);
-    srt_ca7_gic_cpu_t *sprt_cpu;
+    srt_gic_t *sprt_gic = fwk_get_gic_data(0);
+    srt_gic_cpu_t *sprt_cpu;
 
     sprt_cpu = mrt_get_gic_interface(sprt_gic);
     mrt_writel(value, &sprt_cpu->C_EOIR);
@@ -210,10 +210,10 @@ static inline void local_irq_deactivate(kuint32_t value)
  * @retval  none
  * @note    get current interrupt priority
  */
-static inline kuint32_t local_irq_getRunningPriority(void)
+static inline kuint32_t local_irq_get_running_priority(void)
 {
-    srt_ca7_gic_t *sprt_gic = fwk_get_gic_data(0);
-    srt_ca7_gic_cpu_t *sprt_cpu;
+    srt_gic_t *sprt_gic = fwk_get_gic_data(0);
+    srt_gic_cpu_t *sprt_cpu;
 
     sprt_cpu = mrt_get_gic_interface(sprt_gic);
     return mrt_mask(sprt_cpu->C_RPR, 0xffU);
@@ -225,10 +225,10 @@ static inline kuint32_t local_irq_getRunningPriority(void)
  * @retval  none
  * @note    configure priority group
  */
-static inline void local_irq_setPriorityGrouping(kuint32_t priorityGroup)
+static inline void local_irq_set_priority_grouping(kuint32_t priorityGroup)
 {
-    srt_ca7_gic_t *sprt_gic = fwk_get_gic_data(0);
-    srt_ca7_gic_cpu_t *sprt_cpu;
+    srt_gic_t *sprt_gic = fwk_get_gic_data(0);
+    srt_gic_cpu_t *sprt_cpu;
 
     sprt_cpu = mrt_get_gic_interface(sprt_gic);
     mrt_writel(mrt_mask(priorityGroup, 0x7U), &sprt_cpu->C_BPR);
@@ -240,10 +240,10 @@ static inline void local_irq_setPriorityGrouping(kuint32_t priorityGroup)
  * @retval  none
  * @note    get priority group
  */
-static inline kuint32_t local_irq_getPriorityGrouping(void)
+static inline kuint32_t local_irq_get_priority_grouping(void)
 {
-    srt_ca7_gic_t *sprt_gic = fwk_get_gic_data(0);
-    srt_ca7_gic_cpu_t *sprt_cpu;
+    srt_gic_t *sprt_gic = fwk_get_gic_data(0);
+    srt_gic_cpu_t *sprt_cpu;
 
     sprt_cpu = mrt_get_gic_interface(sprt_gic);
     return mrt_mask(sprt_cpu->C_BPR, 0x7U);
@@ -255,18 +255,18 @@ static inline kuint32_t local_irq_getPriorityGrouping(void)
  * @retval  none
  * @note    set "irq_number" interrupt priority
  */
-static inline void local_irq_setPriority(kuint32_t irq_number, kuint32_t priority)
+static inline void local_irq_set_priority(kuint32_t irq_number, kuint32_t priority)
 {
-    srt_ca7_gic_t *sprt_gic = fwk_get_gic_data(0);
-    srt_ca7_gic_des_t *sprt_dest;
+    srt_gic_t *sprt_gic = fwk_get_gic_data(0);
+    srt_gic_dist_t *sprt_dist;
     kint32_t hwirq;
 
     hwirq = fwk_gpc_to_gic_irq(irq_number);
     if (hwirq < 0)
         return;
 
-    sprt_dest = mrt_get_gic_destributor(sprt_gic);
-    mrt_writeb(mrt_bit_mask(priority, 0xffU, 8U - __CA7_GIC_PRIO_BITS), &sprt_dest->D_IPRIORITYR[hwirq]);
+    sprt_dist = mrt_get_gic_distributor(sprt_gic);
+    mrt_writeb(mrt_bit_mask(priority, 0xffU, 8U - __GIC_PRIO_BITS), &sprt_dist->D_IPRIORITYR[hwirq]);
 }
 
 /*!
@@ -275,18 +275,18 @@ static inline void local_irq_setPriority(kuint32_t irq_number, kuint32_t priorit
  * @retval  none
  * @note    get "irq_number" interrupt priority
  */
-static inline kuint32_t local_irq_getPriority(kuint32_t irq_number)
+static inline kuint32_t local_irq_get_priority(kuint32_t irq_number)
 {
-    srt_ca7_gic_t *sprt_gic = fwk_get_gic_data(0);
-    srt_ca7_gic_des_t *sprt_dest;
+    srt_gic_t *sprt_gic = fwk_get_gic_data(0);
+    srt_gic_dist_t *sprt_dist;
     kint32_t hwirq;
 
     hwirq = fwk_gpc_to_gic_irq(irq_number);
     if (hwirq < 0)
         return 0;
 
-    sprt_dest = mrt_get_gic_destributor(sprt_gic);
-    return (kuint32_t)mrt_getbit_u8(0xffU, 8U - __CA7_GIC_PRIO_BITS, &sprt_dest->D_IPRIORITYR[hwirq]);
+    sprt_dist = mrt_get_gic_distributor(sprt_gic);
+    return (kuint32_t)mrt_getbit_u8(0xffU, 8U - __GIC_PRIO_BITS, &sprt_dist->D_IPRIORITYR[hwirq]);
 }
 
-#endif /* __CA7_GIC_H */
+#endif /* __GIC_BASIC_H */

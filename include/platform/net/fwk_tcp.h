@@ -19,17 +19,7 @@
 
 /*!< The defines */
 #define NET_TCP_HDR_LEN                         (20)
-#define NET_TCP_FAKE_HDR_LEN                    (12)
-
-struct fwk_tcp_fakehdr
-{
-    kuint32_t saddr;                                        /*!< source ip address */
-    kuint32_t daddr;                                        /*!< destination IP address */
-    kuint8_t zero;                                          /*!< 0 */
-    kuint8_t proto;                                         /*!< NET_IP_PROTO_TCP */
-    kuint16_t len;                                          /*!< NET_TCP_HDR_LEN + data_len */
-    
-} __packed;
+#define NET_TCP_FAKE_HDR_LEN                    (NET_IP_FAKE_HDR_LEN)
 
 struct fwk_tcp_hdr
 {

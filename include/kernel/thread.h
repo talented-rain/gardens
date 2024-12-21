@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef __REAL_THREAD_H_
-#define __REAL_THREAD_H_
+#ifndef __THREAD_H_
+#define __THREAD_H_
 
 /*!< The includes */
 #include <common/generic.h>
@@ -31,97 +31,97 @@
 typedef kint32_t tid_t;
 
 /*!< maximum number of threads that can be created */
-#define REAL_THREAD_MAX_NUM						(128)
+#define THREAD_MAX_NUM						(128)
 
 /*!< minimum space for thread stack (unit: byte) */
-#define REAL_THREAD_STACK8(byte)				(mrt_align4(byte) >> 0)
-#define REAL_THREAD_STACK16(half)				(mrt_align4(half) >> 1)
-#define REAL_THREAD_STACK32(word)				(mrt_align4(word) >> 2)
+#define THREAD_STACK8(byte)				    (mrt_align4(byte) >> 0)
+#define THREAD_STACK16(half)				(mrt_align4(half) >> 1)
+#define THREAD_STACK32(word)				(mrt_align4(word) >> 2)
 
 /*!< 1 page = 4 kbytes; half page = (1 / 2) page; quarter = (1 / 4) page */
-#define REAL_THREAD_STACK_PAGE(page)			(REAL_THREAD_STACK32(((kuint32_t)(page)) << 12))
-#define REAL_THREAD_STACK_HALF(page)			(REAL_THREAD_STACK32(((kuint32_t)(page)) << 11))
-#define REAL_THREAD_STACK_QUAR(page)			(REAL_THREAD_STACK32(((kuint32_t)(page)) << 10))
+#define THREAD_STACK_PAGE(page)			    (THREAD_STACK32(((kuint32_t)(page)) << 12))
+#define THREAD_STACK_HALF(page)			    (THREAD_STACK32(((kuint32_t)(page)) << 11))
+#define THREAD_STACK_QUAR(page)			    (THREAD_STACK32(((kuint32_t)(page)) << 10))
 
-#define REAL_THREAD_STACK_MIN					REAL_THREAD_STACK8(1024)
-#define REAL_THREAD_STACK_DEFAULT				REAL_THREAD_STACK8(2056)
+#define THREAD_STACK_MIN					THREAD_STACK8(1024)
+#define THREAD_STACK_DEFAULT				THREAD_STACK8(2056)
 
 /*!<
  * tid base 
- * 0 ~ 31: kernel thread; 31 ~ REAL_THREAD_MAX_NUM: user thread
+ * 0 ~ 31: kernel thread; 31 ~ THREAD_MAX_NUM: user thread
  */
-#define REAL_THREAD_TID_START					(32)
+#define THREAD_TID_START					(32)
 
-#define REAL_THREAD_TID_IDLE                    (0)                 /*!< idle thread */
-#define REAL_THREAD_TID_BASE                    (1)                 /*!< kernel thread (parent) */
-#define REAL_THREAD_TID_INIT                    (2)                 /*!< init thread */
+#define THREAD_TID_IDLE                     (0)                 /*!< idle thread */
+#define THREAD_TID_BASE                     (1)                 /*!< kernel thread (parent) */
+#define THREAD_TID_INIT                     (2)                 /*!< init thread */
 
-#define REAL_THREAD_TID_SOCKRX                  (19)
-#define REAL_THREAD_TID_SOCKTX                  (20)
+#define THREAD_TID_SOCKRX                   (19)
+#define THREAD_TID_SOCKTX                   (20)
 
 /*!<
  * priority
  * kernel thread requires higher priority (0 ~ 19)
  * The lower the value, the higher the priority
  */
-#define REAL_THREAD_PROTY_START					(99)
-#define REAL_THREAD_PROTY_DEFAULT				(80)
-#define REAL_THREAD_PROTY_MAX					(0)
+#define THREAD_PROTY_START					(99)
+#define THREAD_PROTY_DEFAULT				(80)
+#define THREAD_PROTY_MAX					(0)
 
-#define REAL_THREAD_PROTY_IDLE				    (98)
-#define REAL_THREAD_PROTY_KERNEL				(REAL_THREAD_PROTY_MAX)
-#define REAL_THREAD_PROTY_INIT					(REAL_THREAD_PROTY_KERNEL + 1)
-#define REAL_THREAD_PROTY_KWORKER				(REAL_THREAD_PROTY_KERNEL + 1)
+#define THREAD_PROTY_IDLE				    (98)
+#define THREAD_PROTY_KERNEL				    (THREAD_PROTY_MAX)
+#define THREAD_PROTY_INIT					(THREAD_PROTY_KERNEL + 1)
+#define THREAD_PROTY_KWORKER				(THREAD_PROTY_KERNEL + 1)
 
-#define REAL_THREAD_PROTY_SOCKRX                (19)
-#define REAL_THREAD_PROTY_SOCKTX                (20)
+#define THREAD_PROTY_SOCKRX                 (19)
+#define THREAD_PROTY_SOCKTX                 (20)
 
-#define __THREAD_IS_LOW_PRIO(prio, prio2)		((prio2) <= (prio))
-#define __THREAD_HIGHER_DEFAULT(val)			(REAL_THREAD_PROTY_DEFAULT - (val))	
+#define __THREAD_IS_LOW_PRIO(prio, prio2)	((prio2) <= (prio))
+#define __THREAD_HIGHER_DEFAULT(val)		(THREAD_PROTY_DEFAULT - (val))	
 
 /*!< preempt period */
-#define REAL_THREAD_PREEMPT_PERIOD              (20)                /*!< unit: ms */
+#define THREAD_PREEMPT_PERIOD               (20)                /*!< unit: ms */
 
 /*!< time slice */
-#define REAL_THREAD_TIME_DEFUALT                (40)				/*!< unit: ms */
+#define THREAD_TIME_DEFUALT                 (40)				/*!< unit: ms */
 
 /*!< policy */
-enum __ERT_REAL_THREAD_DETACH
+enum __ERT_THREAD_DETACH
 {
     /*!< joinable */
-    REAL_THREAD_CREATE_JOINABLE = 0,
+    THREAD_CREATE_JOINABLE = 0,
 
     /*!< detached */
-    REAL_THREAD_CREATE_DETACHED
+    THREAD_CREATE_DETACHED
 };
 
 /*!<
  * inheritance policy
  * whether to inherit the attributes of the parent thread, this setting takes effect during the thread creation phase
  */
-enum __ERT_REAL_THREAD_SCHED
+enum __ERT_THREAD_SCHED
 {
     /*!< inherit */
-    REAL_THREAD_INHERIT_SCHED = 0,
+    THREAD_INHERIT_SCHED = 0,
 
     /*!< explicit */
-    REAL_THREAD_EXPLICIT_SCHED
+    THREAD_EXPLICIT_SCHED
 };
 
 /*!< schedule policy */
-enum __ERT_REAL_THREAD_POLICY
+enum __ERT_THREAD_POLICY
 {
     /*!< normal */
-    REAL_THREAD_SCHED_OTHER = 0,
+    THREAD_SCHED_OTHER = 0,
 
     /*!< preemptive schedule */
-    REAL_THREAD_SCHED_FIFO,
+    THREAD_SCHED_FIFO,
 
     /*!< polling schedule */
-    REAL_THREAD_SCHED_RR
+    THREAD_SCHED_RR
 };
 
-struct kel_sched_param
+struct sched_param
 {
     kint32_t sched_priority;
     kint32_t sched_curpriority;
@@ -147,55 +147,55 @@ struct kel_sched_param
 #define mrt_sched_init_budget				    ugrt_ss.sgrt_ss.__ss_init_budget
 };
 
-struct real_thread_attr
+struct thread_attr
 {
-    kint32_t detachstate;                       /*!< refer to "__ERT_REAL_THREAD_DETACH" */
-    kint32_t schedpolicy;                       /*!< refer to "__ERT_REAL_THREAD_SCHED" */
-    struct kel_sched_param sgrt_param;          /*!< schedule parameters */
-    kint32_t inheritsched;                      /*!< refer to "__ERT_REAL_THREAD_POLICY" */
+    kint32_t detachstate;                       /*!< refer to "__ERT_THREAD_DETACH" */
+    kint32_t schedpolicy;                       /*!< refer to "__ERT_THREAD_SCHED" */
+    struct sched_param sgrt_param;              /*!< schedule parameters */
+    kint32_t inheritsched;                      /*!< refer to "__ERT_THREAD_POLICY" */
     kint32_t scope;                             /*!< the scope of threads */
     kssize_t guardsize;                         /*!< the size of the alert buffer at the end of the thread stack */
 
     void *ptr_stack_start;                      /*!< thread stack address base (from dynamic allocation) */
     kutype_t stack_addr;                        /*!< thread stack top, 8 byte anlignment  */
-    kusize_t stacksize;                         /*!< thread stack size (unit: byte), the minimum can be set to REAL_THREAD_STACK_MIN */
+    kusize_t stacksize;                         /*!< thread stack size (unit: byte), the minimum can be set to THREAD_STACK_MIN */
 
     struct mem_info sgrt_pool;                  /*!< thread memory pool */
 };
-typedef struct real_thread_attr srt_real_thread_attr_t;
+typedef struct thread_attr srt_thread_attr_t;
 
 /*!< The defines */
 TARGET_EXT tid_t kernel_thread_create(tid_t tid, 
-                                        struct real_thread_attr *sprt_attr, 
+                                        struct thread_attr *sprt_attr, 
                                         void *(*pfunc_start_routine) (void *), 
                                         void *ptr_args);
 
-TARGET_EXT kint32_t real_thread_create(tid_t *ptr_id, 
-                                        struct real_thread_attr *sprt_attr, 
+TARGET_EXT kint32_t thread_create(tid_t *ptr_id, 
+                                        struct thread_attr *sprt_attr, 
                                         void *(*pfunc_start_routine) (void *), 
                                         void *ptr_args);
 
-TARGET_EXT kint32_t kernel_thread_idle_create(struct real_thread_attr *sprt_attr, 
+TARGET_EXT kint32_t kernel_thread_idle_create(struct thread_attr *sprt_attr, 
                                         void *(*pfunc_start_routine) (void *), 
                                         void *ptr_args);
 
-TARGET_EXT kint32_t kernel_thread_base_create(struct real_thread_attr *sprt_attr, 
+TARGET_EXT kint32_t kernel_thread_base_create(struct thread_attr *sprt_attr, 
                                         void *(*pfunc_start_routine) (void *), 
                                         void *ptr_args);
                                                 
-TARGET_EXT kint32_t kernel_thread_init_create(struct real_thread_attr *sprt_attr, 
+TARGET_EXT kint32_t kernel_thread_init_create(struct thread_attr *sprt_attr, 
                                         void *(*pfunc_start_routine) (void *), 
                                         void *ptr_args);
 
-TARGET_EXT void *real_thread_attr_init(struct real_thread_attr *sprt_attr);
-TARGET_EXT void *real_thread_attr_revise(struct real_thread_attr *sprt_attr);
-TARGET_EXT void real_thread_attr_destroy(struct real_thread_attr *sprt_attr);
-TARGET_EXT struct real_thread_attr *real_thread_attr_get(tid_t tid);
-TARGET_EXT void *real_thread_set_stack(struct real_thread_attr *sprt_attr, 
+TARGET_EXT void *thread_attr_init(struct thread_attr *sprt_attr);
+TARGET_EXT void *thread_attr_revise(struct thread_attr *sprt_attr);
+TARGET_EXT void thread_attr_destroy(struct thread_attr *sprt_attr);
+TARGET_EXT struct thread_attr *thread_attr_get(tid_t tid);
+TARGET_EXT void *thread_set_stack(struct thread_attr *sprt_attr, 
                                     void *ptr_dync, void *ptr_stack, kusize_t stacksize);
 
-TARGET_EXT kint32_t real_thread_create_mempool(struct real_thread_attr *sprt_attr, void *base, kusize_t size);
-TARGET_EXT void real_thread_release_mempool(struct real_thread_attr *sprt_attr);
+TARGET_EXT kint32_t thread_create_mempool(struct thread_attr *sprt_attr, void *base, kusize_t size);
+TARGET_EXT void thread_release_mempool(struct thread_attr *sprt_attr);
 TARGET_EXT void *tmalloc(size_t __size, nrt_gfp_t flags);
 TARGET_EXT void *tcalloc(size_t __size, size_t __n, nrt_gfp_t flags);
 TARGET_EXT void *tzalloc(size_t __size, nrt_gfp_t flags);
@@ -208,7 +208,7 @@ TARGET_EXT void tfree(void *__ptr);
  * @retval 	priority
  * @note   	none
  */
-static inline kuint32_t real_thread_get_priority(struct real_thread_attr *sprt_attr)
+static inline kuint32_t thread_get_priority(struct thread_attr *sprt_attr)
 {
     return sprt_attr->sgrt_param.sched_curpriority;
 }
@@ -219,9 +219,9 @@ static inline kuint32_t real_thread_get_priority(struct real_thread_attr *sprt_a
  * @retval 	none
  * @note   	none
  */
-static inline void real_thread_set_priority(struct real_thread_attr *sprt_attr, kuint32_t priority)
+static inline void thread_set_priority(struct thread_attr *sprt_attr, kuint32_t priority)
 {
-    sprt_attr->sgrt_param.sched_priority = __THREAD_IS_LOW_PRIO(priority, REAL_THREAD_PROTY_MAX) ? priority : REAL_THREAD_PROTY_MAX;
+    sprt_attr->sgrt_param.sched_priority = __THREAD_IS_LOW_PRIO(priority, THREAD_PROTY_MAX) ? priority : THREAD_PROTY_MAX;
     sprt_attr->sgrt_param.sched_curpriority = sprt_attr->sgrt_param.sched_priority;
 }
 
@@ -231,7 +231,7 @@ static inline void real_thread_set_priority(struct real_thread_attr *sprt_attr, 
  * @retval 	none
  * @note   	none
  */
-static inline void real_thread_set_time_slice(struct real_thread_attr *sprt_attr, kutime_t mseconds)
+static inline void thread_set_time_slice(struct thread_attr *sprt_attr, kutime_t mseconds)
 {
     struct time_spec sgrt_tm;
     
@@ -245,7 +245,7 @@ static inline void real_thread_set_time_slice(struct real_thread_attr *sprt_attr
  * @retval 	milseconds
  * @note   	none
  */
-static inline kuint32_t real_thread_get_sched_msecs(struct real_thread_attr *sprt_attr)
+static inline kuint32_t thread_get_sched_msecs(struct thread_attr *sprt_attr)
 {
     return time_spec_to_msecs(&sprt_attr->sgrt_param.mrt_sched_init_budget);
 }
@@ -254,11 +254,11 @@ static inline kuint32_t real_thread_get_sched_msecs(struct real_thread_attr *spr
  * @brief	set stack size
  * @param  	sprt_attr, stacksize
  * @retval 	none
- * @note   	stack-size of each thread must more than REAL_THREAD_STACK_MIN
+ * @note   	stack-size of each thread must more than THREAD_STACK_MIN
  */
-static inline void real_thread_attr_setstacksize(struct real_thread_attr *sprt_attr, kusize_t stacksize)
+static inline void thread_attr_setstacksize(struct thread_attr *sprt_attr, kusize_t stacksize)
 {
-    sprt_attr->stacksize = (stacksize >= REAL_THREAD_STACK_MIN) ? stacksize : REAL_THREAD_STACK_MIN;
+    sprt_attr->stacksize = (stacksize >= THREAD_STACK_MIN) ? stacksize : THREAD_STACK_MIN;
 }
 
 /*!
@@ -267,7 +267,7 @@ static inline void real_thread_attr_setstacksize(struct real_thread_attr *sprt_a
  * @retval 	stack size
  * @note   	none
  */
-static inline kuint32_t real_thread_attr_getstacksize(struct real_thread_attr *sprt_attr)
+static inline kuint32_t thread_attr_getstacksize(struct thread_attr *sprt_attr)
 {
     return sprt_attr->stacksize;
 }
@@ -278,7 +278,7 @@ static inline kuint32_t real_thread_attr_getstacksize(struct real_thread_attr *s
  * @retval 	context structure
  * @note   	none
  */
-static inline struct scheduler_context_regs *real_thread_get_context(struct real_thread_attr *sprt_attr)
+static inline struct scheduler_context_regs *thread_get_context(struct thread_attr *sprt_attr)
 {
     kutype_t base;
 
@@ -294,7 +294,7 @@ static inline struct scheduler_context_regs *real_thread_get_context(struct real
  * @retval 	&sprt_attr->stack_addr
  * @note   	stack = *(&sprt_attr->stack_addr) (excluding scheduler_context_regs)
  */
-static inline kutype_t real_thread_get_stack(struct real_thread_attr *sprt_attr)
+static inline kutype_t thread_get_stack(struct thread_attr *sprt_attr)
 {
     return (kutype_t)(&sprt_attr->stack_addr);
 }
@@ -305,7 +305,7 @@ static inline kutype_t real_thread_get_stack(struct real_thread_attr *sprt_attr)
  * @retval 	none
  * @note   	none
  */
-static inline void real_thread_attr_setdetachstate(struct real_thread_attr *sprt_attr, kuint32_t state)
+static inline void thread_attr_setdetachstate(struct thread_attr *sprt_attr, kuint32_t state)
 {
     sprt_attr->detachstate = state;
 }
@@ -316,7 +316,7 @@ static inline void real_thread_attr_setdetachstate(struct real_thread_attr *sprt
  * @retval 	detach state
  * @note   	none
  */
-static inline kuint32_t real_thread_attr_getdetachstate(struct real_thread_attr *sprt_attr)
+static inline kuint32_t thread_attr_getdetachstate(struct thread_attr *sprt_attr)
 {
     return sprt_attr->detachstate;
 }
@@ -327,7 +327,7 @@ static inline kuint32_t real_thread_attr_getdetachstate(struct real_thread_attr 
  * @retval 	none
  * @note   	none
  */
-static inline void real_thread_attr_setinheritsched(struct real_thread_attr *sprt_attr, kuint32_t sched)
+static inline void thread_attr_setinheritsched(struct thread_attr *sprt_attr, kuint32_t sched)
 {
     sprt_attr->inheritsched	= sched;
 }
@@ -338,7 +338,7 @@ static inline void real_thread_attr_setinheritsched(struct real_thread_attr *spr
  * @retval 	inherit policy
  * @note   	none
  */
-static inline kuint32_t real_thread_attr_getinheritsched(struct real_thread_attr *sprt_attr)
+static inline kuint32_t thread_attr_getinheritsched(struct thread_attr *sprt_attr)
 {
     return sprt_attr->inheritsched;
 }
@@ -349,7 +349,7 @@ static inline kuint32_t real_thread_attr_getinheritsched(struct real_thread_attr
  * @retval 	none
  * @note   	none
  */
-static inline void real_thread_attr_setschedpolicy(struct real_thread_attr *sprt_attr, kuint32_t policy)
+static inline void thread_attr_setschedpolicy(struct thread_attr *sprt_attr, kuint32_t policy)
 {
     sprt_attr->schedpolicy = policy;
 }
@@ -360,7 +360,7 @@ static inline void real_thread_attr_setschedpolicy(struct real_thread_attr *sprt
  * @retval 	schedule policy
  * @note   	none
  */
-static inline kuint32_t real_thread_attr_getschedpolicy(struct real_thread_attr *sprt_attr)
+static inline kuint32_t thread_attr_getschedpolicy(struct thread_attr *sprt_attr)
 {
     return sprt_attr->schedpolicy;
 }
@@ -371,9 +371,9 @@ static inline kuint32_t real_thread_attr_getschedpolicy(struct real_thread_attr 
  * @retval 	none
  * @note   	copy param to attribute
  */
-static inline void real_thread_attr_setschedparam(struct real_thread_attr *sprt_attr, struct kel_sched_param *sprt_param)
+static inline void thread_attr_setschedparam(struct thread_attr *sprt_attr, struct sched_param *sprt_param)
 {
-    memcpy(&sprt_attr->sgrt_param, sprt_param, sizeof(struct kel_sched_param));
+    memcpy(&sprt_attr->sgrt_param, sprt_param, sizeof(struct sched_param));
 }
 
 /*!
@@ -382,9 +382,9 @@ static inline void real_thread_attr_setschedparam(struct real_thread_attr *sprt_
  * @retval 	none
  * @note   	copy param from attribute
  */
-static inline void real_thread_attr_getschedparam(struct real_thread_attr *sprt_attr, struct kel_sched_param *sprt_param)
+static inline void thread_attr_getschedparam(struct thread_attr *sprt_attr, struct sched_param *sprt_param)
 {
-    memcpy(sprt_param, &sprt_attr->sgrt_param, sizeof(struct kel_sched_param));
+    memcpy(sprt_param, &sprt_attr->sgrt_param, sizeof(struct sched_param));
 }
 
-#endif /* _REAL_THREAD_H_ */
+#endif /* _THREAD_H_ */

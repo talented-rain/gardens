@@ -16,7 +16,7 @@
 /*!< The includes */
 #include "asm_config.h"
 #include "gcc_config.h"
-#include "ca7_gic.h"
+#include "gic_basic.h"
 
 /*!< The defines */
 #if (defined(CONFIG_OF))
@@ -25,8 +25,8 @@
 
 #define mrt_enable_irq(irqNumber)                           local_irq_enable(irqNumber)
 #define mrt_disable_irq(irqNumber)                          local_irq_disable(irqNumber)
-#define mrt_get_irq_pri(irqNumber)                          local_irq_getPriority(irqNumber)
-#define mrt_set_irq_pri(irqNumber, pri)                     local_irq_setPriority(irqNumber, pri)
+#define mrt_get_irq_pri(irqNumber)                          local_irq_get_priority(irqNumber)
+#define mrt_set_irq_pri(irqNumber, pri)                     local_irq_set_priority(irqNumber, pri)
 
 /*!< API function */
 /*!

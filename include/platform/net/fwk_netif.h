@@ -30,10 +30,9 @@ struct fwk_ip_hdr;
 /*!< The functions */
 TARGET_EXT kuint32_t fwk_inet_addr(const kchar_t *addr);
 TARGET_EXT void fwk_inet_random_addr(kuint8_t *buf, kusize_t lenth);
-TARGET_EXT kuint16_t fwk_ip_check_sum(struct fwk_ip_hdr *sprt_iphdr);
-TARGET_EXT kuint16_t fwk_icmp_check_sum(struct fwk_ip_hdr *sprt_iphdr, kuint8_t *icmp_msg);
-TARGET_EXT kuint16_t fwk_tcp_check_sum(struct fwk_ip_hdr *sprt_iphdr, kuint8_t *tcp_msg);
-TARGET_EXT kuint16_t fwk_udp_check_sum(struct fwk_ip_hdr *sprt_iphdr, kuint8_t *udp_msg);
+TARGET_EXT kuint16_t fwk_ip_network_csum(struct fwk_ip_hdr *sprt_iphdr);
+TARGET_EXT kuint16_t fwk_ip_transport_csum(struct fwk_ip_hdr *sprt_iphdr, kuint8_t *msg);
+TARGET_EXT kuint16_t fwk_ip_slow_csum(struct fwk_ip_hdr *sprt_iphdr, kuint16_t offset);
 
 TARGET_EXT struct fwk_sk_buff_head *fwk_netif_rxq_get(void);
 
@@ -46,16 +45,34 @@ TARGET_EXT kint32_t fwk_dev_queue_xmit(struct fwk_sk_buff *sprt_skb);
 TARGET_EXT void fwk_netif_init(void (*pfunc_rx)(void *rxq, void *args), void *args);
 
 /*!< API functions */
+/*!
+ * @brief   start tx queue
+ * @param   sprt_ndev
+ * @retval  none
+ * @note    none
+ */
 static inline void fwk_netif_start_queue(struct fwk_net_device *sprt_ndev)
 {
 
 }
 
+/*!
+ * @brief   stop tx queue
+ * @param   sprt_ndev
+ * @retval  none
+ * @note    none
+ */
 static inline void fwk_netif_stop_queue(struct fwk_net_device *sprt_ndev)
 {
 
 }
 
+/*!
+ * @brief   restart tx queue
+ * @param   sprt_ndev
+ * @retval  none
+ * @note    none
+ */
 static inline void fwk_netif_wake_queue(struct fwk_net_device *sprt_ndev)
 {
 

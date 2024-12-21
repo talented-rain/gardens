@@ -22,7 +22,8 @@
 /*!< API function */
 /*!
  * @brief   create queue
- * @param   none
+ * @param   type: NR_PQ_DROP/NR_PQ_RING
+ * @param   data_len: length of queue member
  * @retval  pq_queue
  * @note    none
  */
@@ -41,6 +42,12 @@ struct pq_queue *pq_queue_create(kint32_t type, kusize_t data_len)
     return sprt_pq;
 }
 
+/*!
+ * @brief   destroy queue
+ * @param   sprt_pq
+ * @retval  none
+ * @note    sprt_pqd->release: function used to destroy sprt_pqd
+ */
 void pq_queue_destroy(struct pq_queue *sprt_pq)
 {
     struct pq_data *sprt_pqd;
@@ -61,6 +68,12 @@ END:
     kfree(sprt_pq);
 }
 
+/*!
+ * @brief   queue add new member
+ * @param   sprt_pq, sprt_data (new)
+ * @retval  error code
+ * @note    if it is a ring queue and the queue is full, delete the oldest member
+ */
 kint32_t pq_enqueue(struct pq_queue *sprt_pq, struct pq_data *sprt_data)
 {
     if (sprt_pq->len < sprt_pq->tot_len)
@@ -87,6 +100,12 @@ kint32_t pq_enqueue(struct pq_queue *sprt_pq, struct pq_data *sprt_data)
     return ER_NORMAL;
 }
 
+/*!
+ * @brief   get member from queue
+ * @param   sprt_pq
+ * @retval  member
+ * @note    none
+ */
 void *pq_dequeue(struct pq_queue *sprt_pq)
 {
     struct pq_data *sprt_pqd;
@@ -101,6 +120,13 @@ void *pq_dequeue(struct pq_queue *sprt_pq)
     return sprt_pqd;
 }
 
+/*!
+ * @brief   get member from queue after checking
+ * @param   sprt_pq
+ * @param   limit: the size of buffer (if buffer is too small, forbiden dequeue)
+ * @retval  member
+ * @note    none
+ */
 void *pq_dequeue_with_chk(struct pq_queue *sprt_pq, kusize_t limit)
 {
     struct pq_data *sprt_pqd;
@@ -121,6 +147,12 @@ void *pq_dequeue_with_chk(struct pq_queue *sprt_pq, kusize_t limit)
     return sprt_pqd;
 }
 
+/*!
+ * @brief   get current number of members
+ * @param   sprt_pq
+ * @retval  lenth
+ * @note    none
+ */
 kint32_t pq_queue_get_size(struct pq_queue *sprt_pq)
 {
     return sprt_pq->len;

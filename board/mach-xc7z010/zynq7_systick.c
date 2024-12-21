@@ -80,9 +80,7 @@ void zynq7_systick_init(void)
     /*!< enable interrupt */
     retval = fwk_request_irq(irq, zynq7_systick_isr, 0, "zynq7-systick", sprt_timer);
     if (!retval)
-    {
         XScuTimer_EnableInterrupt(sprt_timer);
-    }
 
     /*!< 10ms */
     XScuTimer_LoadTimer(sprt_timer, ZYNQ7_SCUTIMER0_FREQ_HZ / TICK_HZ);

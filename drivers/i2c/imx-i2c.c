@@ -701,7 +701,7 @@ static kint32_t imx_i2c_driver_probe(struct fwk_platdev *sprt_pdev)
     mutex_init(&sprt_data->sgrt_lock);
 
 	reg = fwk_platform_get_address(sprt_pdev, 0);
-	sprt_data->reg = fwk_io_remap((void *)reg);
+	sprt_data->reg = fwk_io_remap((void *)reg, ARCH_PER_SIZE);
 	if (!sprt_data->reg)
 		goto fail1;
 

@@ -40,6 +40,12 @@ struct fwk_lwip_data
 /*!< The globals */
 
 /*!< API functions */
+/*!
+ * @brief   get size according to the proto type
+ * @param   proto
+ * @retval  size
+ * @note    none
+ */
 static kssize_t lwip_get_ip_proto_size(kuint8_t proto)
 {
     kssize_t size = -1;
@@ -61,6 +67,12 @@ static kssize_t lwip_get_ip_proto_size(kuint8_t proto)
     return size;
 }
 
+/*!
+ * @brief   convert pbuf to skb, and add to tx queue
+ * @param   sprt_netif, sprt_buf
+ * @retval  errno
+ * @note    none
+ */
 static err_t lwip_lowlevel_output(struct netif *sprt_netif, struct pbuf *sprt_buf)
 {
     struct fwk_network_if *sprt_if;
@@ -133,6 +145,7 @@ static err_t lwip_lowlevel_output(struct netif *sprt_netif, struct pbuf *sprt_bu
         sprt_cur = sprt_per;
         sprt_per = sprt_cur->next;
 
+        /*!< PBUF_RAW will be released by lwip-lib sources code */
         if (sprt_cur->type == PBUF_POOL)
             pbuf_free(sprt_cur);
     }
@@ -140,6 +153,12 @@ static err_t lwip_lowlevel_output(struct netif *sprt_netif, struct pbuf *sprt_bu
     return ERR_OK;
 }
 
+/*!
+ * @brief   lwip enet initialization
+ * @param   sprt_netif
+ * @retval  errno
+ * @note    none
+ */
 static err_t lwip_enet_init(struct netif *sprt_netif)
 {
     struct fwk_network_if *sprt_if;
@@ -185,6 +204,12 @@ static err_t lwip_enet_init(struct netif *sprt_netif)
     return ERR_OK;
 }
 
+/*!
+ * @brief   lwip enet tx thread: send skbs one by one
+ * @param   args: sprt_netif (private argument)
+ * @retval  args
+ * @note    none
+ */
 static void *fwk_lwip_tx_entry(void *args)
 {
     struct netif *sprt_netif;
@@ -207,6 +232,12 @@ static void *fwk_lwip_tx_entry(void *args)
     return args;
 }
 
+/*!
+ * @brief   lwip start (called by net_link_up())
+ * @param   sprt_if
+ * @retval  errno
+ * @note    none
+ */
 static kint32_t fwk_lwip_link_up(struct fwk_network_if *sprt_if)
 {
     struct fwk_lwip_data *sprt_data;
@@ -239,7 +270,7 @@ static kint32_t fwk_lwip_link_up(struct fwk_network_if *sprt_if)
 	netif_set_up(&sprt_data->sgrt_netif);
 
     sprt_data->txd = kernel_thread_create(-1, mrt_nullptr, fwk_lwip_tx_entry, &sprt_data->sgrt_netif);
-    real_thread_set_priority(mrt_tid_attr(sprt_data->txd), REAL_THREAD_PROTY_SOCKTX);
+    thread_set_priority(mrt_tid_attr(sprt_data->txd), THREAD_PROTY_SOCKTX);
 
     return ER_NORMAL;
 
@@ -248,12 +279,24 @@ fail:
     return -ER_FAILD;
 }
 
+/*!
+ * @brief   lwip close (called by net_link_down())
+ * @param   sprt_if
+ * @retval  errno
+ * @note    none
+ */
 static kint32_t fwk_lwip_link_down(struct fwk_network_if *sprt_if)
 {
     fwk_netif_close(sprt_if->ifname);
     return ER_NORMAL;
 }
 
+/*!
+ * @brief   lwip init for transport layer (called by socket_bind())
+ * @param   sprt_socket
+ * @retval  errno
+ * @note    bind control block with ip/port/...
+ */
 static kint32_t fwk_lwip_init(struct fwk_network_com *sprt_socket)
 {
     ip_addr_t *sprt_ip = (ip_addr_t *)&sprt_socket->sgrt_sin.sin_addr;
@@ -284,11 +327,23 @@ fail:
     return -ER_FAILD;
 }
 
+/*!
+ * @brief   corresonding to fwk_lwip_init
+ * @param   sprt_socket
+ * @retval  none
+ * @note    none
+ */
 static void fwk_lwip_exit(struct fwk_network_com *sprt_socket)
 {
 
 }
 
+/*!
+ * @brief   listen port
+ * @param   sprt_socket
+ * @retval  none
+ * @note    none
+ */
 static void fwk_lwip_listen(struct fwk_network_com *sprt_socket)
 {
     struct tcp_pcb *sprt_tcp;
@@ -298,11 +353,23 @@ static void fwk_lwip_listen(struct fwk_network_com *sprt_socket)
     sprt_socket->private_data = sprt_tcp;
 }
 
+/*!
+ * @brief   send message (for tcp)
+ * @param   sprt_socket, buf, size
+ * @retval  size sent
+ * @note    none
+ */
 static kssize_t fwk_lwip_send(struct fwk_network_com *sprt_socket, const void *buf, kssize_t size)
 {
     return 0;
 }
 
+/*!
+ * @brief   send message (for udp)
+ * @param   sprt_socket, buf, size
+ * @retval  size sent
+ * @note    none
+ */
 static kssize_t fwk_lwip_sendto(struct fwk_network_com *sprt_socket, const void *buf, kssize_t len, 
                         kint32_t flags, const struct fwk_sockaddr *sprt_dest, fwk_socklen_t addrlen)
 {
@@ -316,11 +383,23 @@ static kssize_t fwk_lwip_sendto(struct fwk_network_com *sprt_socket, const void 
                             sgrt_saddr.sin_port, buf, len);
 }
 
+/*!
+ * @brief   recv message (for tcp)
+ * @param   sprt_socket, buf, size
+ * @retval  size received
+ * @note    none
+ */
 static kssize_t fwk_lwip_recv(struct fwk_network_com *sprt_socket, void *buf, kssize_t size)
 {
     return 0;
 }
 
+/*!
+ * @brief   recv message (for udp)
+ * @param   sprt_socket, buf, size
+ * @retval  size received
+ * @note    none
+ */
 static kssize_t fwk_lwip_recvfrom(struct fwk_network_com *sprt_socket, void *buf, size_t len, 
                         kint32_t flags, struct fwk_sockaddr *sprt_src, fwk_socklen_t *addrlen)
 {
@@ -338,6 +417,7 @@ static kssize_t fwk_lwip_recvfrom(struct fwk_network_com *sprt_socket, void *buf
     return size;
 }
 
+/*!< network device node operations of lwip interface */
 static const struct fwk_network_if_ops sgrt_fwk_lwip_if_oprts =
 {
     .init       = fwk_lwip_init,
@@ -353,6 +433,12 @@ static const struct fwk_network_if_ops sgrt_fwk_lwip_if_oprts =
     .link_down  = fwk_lwip_link_down,
 };
 
+/*!
+ * @brief   deal with per skb received
+ * @param   sprt_socket, sprt_skb
+ * @retval  errno
+ * @note    skb ---> pbuf ---> lwip ---> application layer
+ */
 static err_t lwip_lowlevel_input(struct netif *sprt_netif, struct fwk_sk_buff *sprt_skb)
 {
     struct fwk_eth_hdr *sprt_ethhdr;
@@ -388,6 +474,12 @@ END:
     return ERR_OK;
 }
 
+/*!
+ * @brief   recv callback (called by main loop or rx thread continuously)
+ * @param   rxq: global rx queue
+ * @retval  none
+ * @note    get every skb from rx queue, and deal with it
+ */
 static void fwk_lwip_input(void *rxq, void *args)
 {
     struct fwk_network_if *sprt_if;
@@ -415,6 +507,13 @@ static void fwk_lwip_input(void *rxq, void *args)
     }
 }
 
+/*!< -------------------------------------------------------------------- */
+/*!
+ * @brief   lwip interface init
+ * @param   none
+ * @retval  none
+ * @note    none
+ */
 kint32_t __plat_init fwk_lwip_if_init(void)
 {
     lwip_init();

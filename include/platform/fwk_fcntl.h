@@ -192,5 +192,4 @@ static inline void fwk_fdtable_put(struct fwk_file_table *sprt_table)
 	sprt_table->ref_fdarr = (sprt_table->ref_fdarr > DEVICE_MAJOR_BASE) ? (sprt_table->ref_fdarr - 1) : DEVICE_MAJOR_BASE;
 }
 
-
 #endif /*!< __FWK_FCNTL_H_ */

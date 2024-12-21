@@ -26,11 +26,11 @@
 #include "test_app.h"
 
 /*!< The defines */
-#define BUTTONAPP_THREAD_STACK_SIZE                          REAL_THREAD_STACK_HALF(1)    /*!< 1/2 page (1kbytes) */
+#define BUTTONAPP_THREAD_STACK_SIZE                          THREAD_STACK_HALF(1)    /*!< 1/2 page (1kbytes) */
 
 /*!< The globals */
 static tid_t g_button_app_tid;
-static struct real_thread_attr sgrt_button_app_attr;
+static struct thread_attr sgrt_button_app_attr;
 static kuint32_t g_button_app_stack[BUTTONAPP_THREAD_STACK_SIZE];
 static struct mailbox sgrt_button_app_mailbox;
 
@@ -101,24 +101,24 @@ END:
  */
 kint32_t button_app_init(void)
 {
-    struct real_thread_attr *sprt_attr = &sgrt_button_app_attr;
+    struct thread_attr *sprt_attr = &sgrt_button_app_attr;
     kint32_t retval;
 
-	sprt_attr->detachstate = REAL_THREAD_CREATE_JOINABLE;
-	sprt_attr->inheritsched	= REAL_THREAD_INHERIT_SCHED;
-	sprt_attr->schedpolicy = REAL_THREAD_SCHED_FIFO;
+	sprt_attr->detachstate = THREAD_CREATE_JOINABLE;
+	sprt_attr->inheritsched	= THREAD_INHERIT_SCHED;
+	sprt_attr->schedpolicy = THREAD_SCHED_FIFO;
 
     /*!< thread stack */
-	real_thread_set_stack(sprt_attr, mrt_nullptr, g_button_app_stack, sizeof(g_button_app_stack));
+	thread_set_stack(sprt_attr, mrt_nullptr, g_button_app_stack, sizeof(g_button_app_stack));
     /*!< lowest priority */
-	real_thread_set_priority(sprt_attr, __THREAD_HIGHER_DEFAULT(1));
+	thread_set_priority(sprt_attr, __THREAD_HIGHER_DEFAULT(1));
     /*!< default time slice */
-    real_thread_set_time_slice(sprt_attr, REAL_THREAD_TIME_DEFUALT);
+    thread_set_time_slice(sprt_attr, THREAD_TIME_DEFUALT);
 
     /*!< register thread */
-    retval = real_thread_create(&g_button_app_tid, sprt_attr, button_app_entry, mrt_nullptr);
+    retval = thread_create(&g_button_app_tid, sprt_attr, button_app_entry, mrt_nullptr);
     if (!retval)
-        real_thread_set_name(g_button_app_tid, "button_app_entry");
+        thread_set_name(g_button_app_tid, "button_app_entry");
 
     return retval;
 }

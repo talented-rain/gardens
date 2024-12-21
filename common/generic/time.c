@@ -228,11 +228,12 @@ void mod_timer(struct timer_list *sprt_timer, kutime_t expires)
 	sprt_timer->expires = expires;
 	
 #if 0
-	if (!find_timer(sprt_timer))
+	if (!find_timer(sprt_timer)) {
 #else
-	if (mrt_list_head_empty(&sprt_timer->sgrt_link))
+	if (mrt_list_head_empty(&sprt_timer->sgrt_link)) {
 #endif
 		add_timer(sprt_timer);
+	}
 }
 
 /*!

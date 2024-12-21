@@ -156,9 +156,9 @@ TARGET_EXT struct fdt_params *sprt_fwk_fdt_params;
  * @retval  none
  * @note    reserved interface (phy_addr ---> virt_addr)
  */
-static inline void *fwk_io_remap(void *phy_addr)
+static inline void *fwk_io_remap(void *phy_addr, kusize_t size)
 {
-	return phy_addr ? phy_addr : mrt_nullptr;
+	return (phy_addr && size) ? phy_addr : mrt_nullptr;
 }
 
 /*!

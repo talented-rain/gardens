@@ -16,13 +16,13 @@
 /*!< The defines */
 
 /*!< The globals */
-real_thread_init_t g_thread_init_tables[] =
+thread_init_t g_thread_init_tables[] =
 {
     /*!< test app */
     mrt_test_app_list,
     
     /*!< applications */
-//  lvgl_task_init,
+    lvgl_task_init,
     lwip_task_init,
     
     /*!< end */

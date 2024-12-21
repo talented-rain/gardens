@@ -44,7 +44,9 @@
     17) support virtual file system (kset, kobject and inode) and operations, such as virt_open/virt_close, ...;
     18) support touchscreen driver of "tsc2007", environment sensor driver "ap3216c", eeprom driver "at24c02";
     19) support cpu zynq7 (boot and running);
-    20) support configure resources freely by "configs/mach/xxxx_defconfig', and generate auto.conf and autoconf.h
+    20) support configure resources freely by "configs/mach/xxxx_defconfig', and generate auto.conf and autoconf.h;
+    21) support lvgl;
+    22) suuport lwip (code packaging: network drivers and application layer commuicate with sk_buff and net_device)
     
 ## Methods
     make:           build the whole project;
@@ -88,6 +90,10 @@
     platform/:      the generic abstract framework for system operations, provides methods to standardize programming specifications;
 
 ## Updating Logs
+### 2024.12.21
+    author: Yang Yujun
+    commit: add network platform interface, support lwip libraries, and ARP, IP (UDP) loopback
+
 ### 2024.11.17
     author: Yang Yujun
     commit: 

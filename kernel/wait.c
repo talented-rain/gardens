@@ -69,12 +69,12 @@ void remove_wait_queue(struct wait_queue_head *sprt_wqh, struct wait_queue *sprt
  * @retval  none
  * @note    none
  */
-static void __wake_up_common(struct real_thread *sprt_thread, kuint32_t state)
+static void __wake_up_common(struct thread *sprt_thread, kuint32_t state)
 {
     if (!mrt_thread_is_flags(state, sprt_thread))
         return;
     
-    real_thread_state_signal(sprt_thread, NR_THREAD_SIG_WAKEUP, true);
+    thread_state_signal(sprt_thread, NR_THREAD_SIG_WAKEUP, true);
 }
 
 /*!

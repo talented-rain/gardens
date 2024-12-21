@@ -178,5 +178,4 @@ TARGET_EXT void abstract_driver_exitcall(void);
 TARGET_EXT kint32_t run_machine_initcall(void);
 TARGET_EXT kint32_t run_platform_initcall(void);
 
-
 #endif /* __IMPLICIT_CALL_H */

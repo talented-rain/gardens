@@ -497,7 +497,7 @@ static kint32_t imx_gpiochip_driver_probe(struct fwk_platdev *sprt_pdev)
 
 	/*!< get gpio register base address */
 	sprt_port->base = fwk_of_iomap(sprt_node, 0);
-	sprt_port->base = fwk_io_remap(sprt_port->base);
+	sprt_port->base = fwk_io_remap(sprt_port->base, ARCH_PER_SIZE);
 	if (!isValid(sprt_port->base))
 		goto fail1;
 

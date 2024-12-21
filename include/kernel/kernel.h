@@ -18,7 +18,7 @@
 #include <configs/configs.h>
 
 /*!< The defines */
-#define REAL_THREAD_USER									(0x1)	/*!< user thread */
+#define THREAD_USER										(0x1)	/*!< user thread */
 
 /*!<
  * status move:
@@ -27,7 +27,7 @@
  *	suspend ---> ready
  *	sleep ---> ready/suspend (need to be awaked by another thread)
  */
-enum __ERT_KEL_BASIC_STATUS
+enum __ERT_THREAD_BASIC_STATUS
 {
     NR_THREAD_NONE = 0,
     
@@ -52,7 +52,7 @@ enum __ERT_KEL_BASIC_STATUS
 	NR_THREAD_STATUS_MAX
 };
 
-enum __ERT_REAL_THREAD_SIGNALS
+enum __ERT_THREAD_SIGNALS
 {
 	NR_THREAD_SIG_NORMAL = NR_THREAD_STATUS_MAX,
 	NR_THREAD_SIG_WAKEUP,

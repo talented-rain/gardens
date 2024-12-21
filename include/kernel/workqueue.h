@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef __KEL_WORKQUEUE_H_
-#define __KEL_WORKQUEUE_H_
+#ifndef __KERNEL_WORKQUEUE_H_
+#define __KERNEL_WORKQUEUE_H_
 
 /*!< The includes */
 #include <kernel/kernel.h>
@@ -124,4 +124,4 @@ static inline kbool_t is_workqueue_empty(struct workqueue_head *sprt_wqh)
     return mrt_list_head_empty(&sprt_wqh->sgrt_work);
 }
 
-#endif /* __KEL_WORKQUEUE_H_ */
+#endif /* __KERNEL_WORKQUEUE_H_ */

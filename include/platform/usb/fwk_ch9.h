@@ -23,19 +23,19 @@
 /*!< Desciptor types */
 enum __ERT_USB_DESC_TYPE
 {
-	/*!< standard */
-	NR_USB_DescTypeDevice = 0x01,
-	NR_USB_DescTypeConfig = 0x02,
-	NR_USB_DescTypeString = 0x03,
-	NR_USB_DescTypeInterface = 0x04,
-	NR_USB_DescTypeEndpoint = 0x05,
-	NR_USB_DescTypeDevQualiffier = 0x06,
-	NR_USB_DescTypeOtherSpeedConfig = 0x07,
-	NR_USB_DescTypeInterfacePower = 0x08,
-	NR_USB_DescTypeHID = 0x21,
-	NR_USB_DescTypeHIDReport = 0x22,
-	NR_USB_DescTypePhysical = 0x23,
-	NR_USB_DescTypeHub = 0x29,
+    /*!< standard */
+    NR_USB_DescTypeDevice = 0x01,
+    NR_USB_DescTypeConfig = 0x02,
+    NR_USB_DescTypeString = 0x03,
+    NR_USB_DescTypeInterface = 0x04,
+    NR_USB_DescTypeEndpoint = 0x05,
+    NR_USB_DescTypeDevQualiffier = 0x06,
+    NR_USB_DescTypeOtherSpeedConfig = 0x07,
+    NR_USB_DescTypeInterfacePower = 0x08,
+    NR_USB_DescTypeHID = 0x21,
+    NR_USB_DescTypeHIDReport = 0x22,
+    NR_USB_DescTypePhysical = 0x23,
+    NR_USB_DescTypeHub = 0x29,
 
 #define FWK_USB_DT_DEVICE			                		NR_USB_DescTypeDevice
 #define FWK_USB_DT_CONFIG			                		NR_USB_DescTypeConfig
@@ -45,106 +45,106 @@ enum __ERT_USB_DESC_TYPE
 };
 
 /*!<
- * USBå…±æœ‰4æ ¹çº¿, ä»å·¦åˆ°å³ä¾æ¬¡ä¸ºVbus(+5V, Red Line), D-(White Line), D+(Green Line), GND(Black Line)
- * for LS USB, è®¾å¤‡D-ç«¯ä¸Šæ‹‰1.5K, ä¸»æœºD+, D-å‡ä¸‹æ‹‰æ¥åœ°, LSè®¾å¤‡æ¥å…¥æ—¶, ä¸»æœºD-è¢«è®¾å¤‡D-å¼ºåˆ¶æ‹‰é«˜;
- * for HS/FS USB, è®¾å¤‡D+ç«¯ä¸Šæ‹‰1.5K, ä¸»æœºD+, D-ä¸‹æ‹‰æ¥åœ°, HS/FSè®¾å¤‡æ¥å…¥æ—¶, ä¸»æœºD+è¢«è®¾å¤‡D+å¼ºåˆ¶æ‹‰é«˜;
- * æ£€æµ‹D+æˆ–D-æ˜¯å¦è¢«æ‹‰é«˜, å³å¯åˆ†è¾¨USBè®¾å¤‡ç±»å‹(LS or FS)
- * (D+è‹¥è¢«æ‹‰é«˜, ä¸»æœºä¼šå…ˆå°†å…¶è¯†åˆ«ä¸ºFSè®¾å¤‡, ä¹‹åé€šè¿‡"Chirpåºåˆ—"çš„æ€»çº¿æ¡æ‰‹æœºåˆ¶æ¥è¯†åˆ«FSå’ŒHSè®¾å¤‡)
- * å½“ä¸»æœºæ£€æµ‹åˆ°D+æˆ–D-ç”µå¹³æ‹‰é«˜[ä¿æŒäº†ä¸€æ®µæ—¶é—´], å°±è®¤ä¸ºå­˜åœ¨è®¾å¤‡è¿æ¥, ä¸»æœºå¿…é¡»åœ¨åˆé€‚çš„æ—¶é—´å¯¹æ€»çº¿çŠ¶æ€è¿›è¡Œé‡‡æ ·åˆ¤æ–­è®¾å¤‡çš„é€Ÿåº¦(LS or FS)
+ * USB¹²ÓĞ4¸ùÏß, ´Ó×óµ½ÓÒÒÀ´ÎÎªVbus(+5V, Red Line), D-(White Line), D+(Green Line), GND(Black Line)
+ * for LS USB, Éè±¸D-¶ËÉÏÀ­1.5K, Ö÷»úD+, D-¾ùÏÂÀ­½ÓµØ, LSÉè±¸½ÓÈëÊ±, Ö÷»úD-±»Éè±¸D-Ç¿ÖÆÀ­¸ß;
+ * for HS/FS USB, Éè±¸D+¶ËÉÏÀ­1.5K, Ö÷»úD+, D-ÏÂÀ­½ÓµØ, HS/FSÉè±¸½ÓÈëÊ±, Ö÷»úD+±»Éè±¸D+Ç¿ÖÆÀ­¸ß;
+ * ¼ì²âD+»òD-ÊÇ·ñ±»À­¸ß, ¼´¿É·Ö±æUSBÉè±¸ÀàĞÍ(LS or FS)
+ * (D+Èô±»À­¸ß, Ö÷»ú»áÏÈ½«ÆäÊ¶±ğÎªFSÉè±¸, Ö®ºóÍ¨¹ı"ChirpĞòÁĞ"µÄ×ÜÏßÎÕÊÖ»úÖÆÀ´Ê¶±ğFSºÍHSÉè±¸)
+ * µ±Ö÷»ú¼ì²âµ½D+»òD-µçÆ½À­¸ß[±£³ÖÁËÒ»¶ÎÊ±¼ä], ¾ÍÈÏÎª´æÔÚÉè±¸Á¬½Ó, Ö÷»ú±ØĞëÔÚºÏÊÊµÄÊ±¼ä¶Ô×ÜÏß×´Ì¬½øĞĞ²ÉÑùÅĞ¶ÏÉè±¸µÄËÙ¶È(LS or FS)
  * 
  * for LS USB:
- * 		å·®åˆ†ä¿¡å·0: D+ == 0 && D- == 1, that is, D+ < 0.3V && D- > 2.8V
- * 		å·®åˆ†ä¿¡å·1: D+ == 1 && D- == 0, that is, D+ > 2.8V && D- < 0.3V
+ * 		²î·ÖĞÅºÅ0: D+ == 0 && D- == 1, that is, D+ < 0.3V && D- > 2.8V
+ * 		²î·ÖĞÅºÅ1: D+ == 1 && D- == 0, that is, D+ > 2.8V && D- < 0.3V
  * 		SE0: D+ == 0 && D- == 0, that is, D+ < 0.3V && D- < 0.3V
- * 		Jæ€: å·®åˆ†ä¿¡å·0
- * 		Kæ€: å·®åˆ†ä¿¡å·1
- * 		ç©ºé—²çŠ¶æ€: Jæ€
+ * 		JÌ¬: ²î·ÖĞÅºÅ0
+ * 		KÌ¬: ²î·ÖĞÅºÅ1
+ * 		¿ÕÏĞ×´Ì¬: JÌ¬
  * for FS USB:
- * 		å·®åˆ†ä¿¡å·0: D+ == 0 && D- == 1, that is, D+ < 0.3V && D- > 2.8V
- * 		å·®åˆ†ä¿¡å·1: D+ == 1 && D- == 0, that is, D+ > 2.8V && D- < 0.3V
+ * 		²î·ÖĞÅºÅ0: D+ == 0 && D- == 1, that is, D+ < 0.3V && D- > 2.8V
+ * 		²î·ÖĞÅºÅ1: D+ == 1 && D- == 0, that is, D+ > 2.8V && D- < 0.3V
  *		SE0: D+ == 0 && D- == 0, that is, D+ < 0.3V && D- < 0.3V
- * 		Jæ€: å·®åˆ†ä¿¡å·1
- * 		Kæ€: å·®åˆ†ä¿¡å·0
- * 		ç©ºé—²çŠ¶æ€: Jæ€
- * 		å³FSè®¾å¤‡çš„å·®åˆ†ä¿¡å·0/1ä¸LSè®¾å¤‡ç›¸åŒ, ä½†J-KçŠ¶æ€ç›¸å. å®é™…ä¸Šæ˜¯ç”±ç”µå¹³ä¸Šæ‹‰å†³å®šçš„, è°ä¸Šæ‹‰, è°å°±æ˜¯Jæ€, ä¸å…¶ç›¸åçš„å³ä¸ºKæ€
+ * 		JÌ¬: ²î·ÖĞÅºÅ1
+ * 		KÌ¬: ²î·ÖĞÅºÅ0
+ * 		¿ÕÏĞ×´Ì¬: JÌ¬
+ * 		¼´FSÉè±¸µÄ²î·ÖĞÅºÅ0/1ÓëLSÉè±¸ÏàÍ¬, µ«J-K×´Ì¬Ïà·´. Êµ¼ÊÉÏÊÇÓÉµçÆ½ÉÏÀ­¾ö¶¨µÄ, Ë­ÉÏÀ­, Ë­¾ÍÊÇJÌ¬, ÓëÆäÏà·´µÄ¼´ÎªKÌ¬
  * for HS USB:
- * 		å·®åˆ†ä¿¡å·0: D+ == 0 && D- == 1, that is, (-0.01V < D+ < 0.01V) && ( 0.36V < D- > 0.44V)
- * 		å·®åˆ†ä¿¡å·1: D+ == 1 && D- == 0, that is, ( 0.36V < D+ < 0.44V) && (-0.01V < D- > 0.01V)
- * 		Jæ€: å·®åˆ†ä¿¡å·1
- * 		Kæ€: å·®åˆ†ä¿¡å·0
- * 		Chirp Jæ€: ( 0.7V < D+ <  1.1V) && ( 0.7V < D- <  1.1V)
- * 		Chirp Kæ€: (-0.9V < D+ < -0.5V) && (-0.9V < D+ < -0.5V)
- * 		ç©ºé—²çŠ¶æ€: SE0 (D+ == 0 && D- == 0) (å®é™…æ˜¯å› ä¸ºHSæ¨¡å¼ä¸‹, D+ä¼šæ–­å¼€ä¸Šæ‹‰, æ”¹ä¸º45æ¬§å§†ç”µé˜»æ¥åœ°)
+ * 		²î·ÖĞÅºÅ0: D+ == 0 && D- == 1, that is, (-0.01V < D+ < 0.01V) && ( 0.36V < D- > 0.44V)
+ * 		²î·ÖĞÅºÅ1: D+ == 1 && D- == 0, that is, ( 0.36V < D+ < 0.44V) && (-0.01V < D- > 0.01V)
+ * 		JÌ¬: ²î·ÖĞÅºÅ1
+ * 		KÌ¬: ²î·ÖĞÅºÅ0
+ * 		Chirp JÌ¬: ( 0.7V < D+ <  1.1V) && ( 0.7V < D- <  1.1V)
+ * 		Chirp KÌ¬: (-0.9V < D+ < -0.5V) && (-0.9V < D+ < -0.5V)
+ * 		¿ÕÏĞ×´Ì¬: SE0 (D+ == 0 && D- == 0) (Êµ¼ÊÊÇÒòÎªHSÄ£Ê½ÏÂ, D+»á¶Ï¿ªÉÏÀ­, ¸ÄÎª45Å·Ä·µç×è½ÓµØ)
  */
 /*!< Device Status */
 enum __ERT_USB_DEVICE_STATUS
 {
-    /*!< è¿æ¥çŠ¶æ€, å³USBè®¾å¤‡æ˜¯å¦ä¸ä¸»æœºè¿æ¥æˆ–æ–­å¼€ */
+    /*!< Á¬½Ó×´Ì¬, ¼´USBÉè±¸ÊÇ·ñÓëÖ÷»úÁ¬½Ó»ò¶Ï¿ª */
     NR_USB_DevStatusAttached = mrt_bit(0),
 
     /*!< 
-     * ä¸Šç”µçŠ¶æ€
-     * USBè®¾å¤‡ç”µæºè‹¥æ¥è‡ªå¤–éƒ¨, åˆ™ç§°ä¹‹ä¸ºè‡ªä¾›ç”µè®¾å¤‡(self-powerd);
-     * USBè®¾å¤‡ç”µæºè‹¥æ¥è‡ªè‡ªèº«é›†çº¿å™¨, åˆ™ç§°ä¹‹ä¸ºæ€»çº¿ä¾›ç”µè®¾å¤‡(é…ç½®æè¿°ç¬¦çš„bmAttributesè¡¨ç¤ºäº†ä¾›ç”µæ–¹å¼)
-     * åªæœ‰å½“è®¾å¤‡è¿æ¥åˆ°USBæ€»çº¿ä¸Š, ä¸”Vbusç”µæºç»™è®¾å¤‡ä¸Šç”µæ—¶è®¾å¤‡æ‰è¿›å…¥ä¸Šç”µçŠ¶æ€
+     * ÉÏµç×´Ì¬
+     * USBÉè±¸µçÔ´ÈôÀ´×ÔÍâ²¿, Ôò³ÆÖ®Îª×Ô¹©µçÉè±¸(self-powerd);
+     * USBÉè±¸µçÔ´ÈôÀ´×Ô×ÔÉí¼¯ÏßÆ÷, Ôò³ÆÖ®Îª×ÜÏß¹©µçÉè±¸(ÅäÖÃÃèÊö·ûµÄbmAttributes±íÊ¾ÁË¹©µç·½Ê½)
+     * Ö»ÓĞµ±Éè±¸Á¬½Óµ½USB×ÜÏßÉÏ, ÇÒVbusµçÔ´¸øÉè±¸ÉÏµçÊ±Éè±¸²Å½øÈëÉÏµç×´Ì¬
      */
     NR_USB_DevStatusPowered = mrt_bit(1),
 
-	/*!<
-	 * é»˜è®¤çŠ¶æ€
-	 * 1) è®¾å¤‡ä¾›ç”µå, åœ¨æ”¶åˆ°æ¥è‡ªæ€»çº¿çš„å¤ä½ä¿¡å·ä¹‹å‰, ä¸å“åº”ä»»ä½•æ€»çº¿äº‹åŠ¡;
-	 * 2) è®¾å¤‡å¤ä½å®Œæˆå, è®¾å¤‡è¿›å…¥é»˜è®¤çŠ¶æ€;
-	 * 3) HS å’Œ FSè®¾å¤‡çš„ç”µæ°”ç¯å¢ƒä¸€æ ·, åªæ˜¯è®¾å¤‡å¤ä½æˆåŠŸå, HSè®¾å¤‡è¿˜å¿…é¡»è¦æˆåŠŸåœ°å“åº”ç‰¹å®šæè¿°ç¬¦å¹¶è¿”å›æ­£ç¡®ä¿¡æ¯
-	 */
+    /*!<
+     * Ä¬ÈÏ×´Ì¬
+     * 1) Éè±¸¹©µçºó, ÔÚÊÕµ½À´×Ô×ÜÏßµÄ¸´Î»ĞÅºÅÖ®Ç°, ²»ÏìÓ¦ÈÎºÎ×ÜÏßÊÂÎñ;
+     * 2) Éè±¸¸´Î»Íê³Éºó, Éè±¸½øÈëÄ¬ÈÏ×´Ì¬;
+     * 3) HS ºÍ FSÉè±¸µÄµçÆø»·¾³Ò»Ñù, Ö»ÊÇÉè±¸¸´Î»³É¹¦ºó, HSÉè±¸»¹±ØĞëÒª³É¹¦µØÏìÓ¦ÌØ¶¨ÃèÊö·û²¢·µ»ØÕıÈ·ĞÅÏ¢
+     */
     NR_USB_DevStatusDefault = mrt_bit(2),
 
-	/*!<
-	 * åœ°å€çŠ¶æ€
-	 * æ‰€æœ‰USBè®¾å¤‡åœ¨æœ€åˆä¾›ç”µæˆ–è®¾å¤‡è¢«é‡ç½®åä½¿ç”¨é»˜è®¤åœ°å€;
-	 * æ¯ä¸€ä¸ªè®¾å¤‡åœ¨æ­£å¸¸å¤ä½åç”±ä¸»æœºåˆ†é…ä¸€ä¸ªå”¯ä¸€çš„åœ°å€, åˆ†é…å®Œæ¯•å, è®¾å¤‡è¿›å…¥åœ°å€çŠ¶æ€;
-	 * å½“USBè®¾å¤‡è¢«æŒ‚èµ·æ—¶, è®¾å¤‡çš„åœ°å€ä¿æŒä¸å˜;
-	 * æ— è®ºè®¾å¤‡å½“å‰æ˜¯å¦åˆ†é…äº†å”¯ä¸€åœ°å€æˆ–æ­£åœ¨ä½¿ç”¨é»˜è®¤åœ°å€, åœ¨åœ°å€çŠ¶æ€ä¸‹, USBè®¾å¤‡åªå“åº”å…¶é»˜è®¤ç®¡é“ä¸Šçš„è¯·æ±‚
-	 */
+    /*!<
+     * µØÖ·×´Ì¬
+     * ËùÓĞUSBÉè±¸ÔÚ×î³õ¹©µç»òÉè±¸±»ÖØÖÃºóÊ¹ÓÃÄ¬ÈÏµØÖ·;
+     * Ã¿Ò»¸öÉè±¸ÔÚÕı³£¸´Î»ºóÓÉÖ÷»ú·ÖÅäÒ»¸öÎ¨Ò»µÄµØÖ·, ·ÖÅäÍê±Ïºó, Éè±¸½øÈëµØÖ·×´Ì¬;
+     * µ±USBÉè±¸±»¹ÒÆğÊ±, Éè±¸µÄµØÖ·±£³Ö²»±ä;
+     * ÎŞÂÛÉè±¸µ±Ç°ÊÇ·ñ·ÖÅäÁËÎ¨Ò»µØÖ·»òÕıÔÚÊ¹ÓÃÄ¬ÈÏµØÖ·, ÔÚµØÖ·×´Ì¬ÏÂ, USBÉè±¸Ö»ÏìÓ¦ÆäÄ¬ÈÏ¹ÜµÀÉÏµÄÇëÇó
+     */
     NR_USB_DevStatusAddress = mrt_bit(3),
 
-	/*!<
-	 * é…ç½®çŠ¶æ€
-	 * åœ¨ä½¿ç”¨USBè®¾å¤‡çš„åŠŸèƒ½ä¹‹å‰, å¿…é¡»é…ç½®è¯¥è®¾å¤‡; é…ç½®å®Œæˆå, è®¾å¤‡è¿›å…¥é…ç½®çŠ¶æ€
-	 */
+    /*!<
+     * ÅäÖÃ×´Ì¬
+     * ÔÚÊ¹ÓÃUSBÉè±¸µÄ¹¦ÄÜÖ®Ç°, ±ØĞëÅäÖÃ¸ÃÉè±¸; ÅäÖÃÍê³Éºó, Éè±¸½øÈëÅäÖÃ×´Ì¬
+     */
     NR_USB_DevStatusConfigured = mrt_bit(4),
 
-	/*!<
-	 * æŒ‚èµ·çŠ¶æ€
-	 * è®¾å¤‡åœ¨æŒ‡å®šæ—¶é—´å†…æ²¡æœ‰è§‚å¯Ÿåˆ°æ€»çº¿æœ‰æ•°æ®ä¼ è¾“æ—¶, è‡ªåŠ¨è¿›å…¥æŒ‚èµ·çŠ¶æ€;
-	 * æŒ‚èµ·æ—¶, USBè®¾å¤‡ä¼šä¿å­˜ä»»ä½•ä¹‹å‰çš„çŠ¶æ€, åŒ…æ‹¬ä¸Šç”µçŠ¶æ€, é»˜è®¤çŠ¶æ€, åœ°å€çŠ¶æ€, é…ç½®çŠ¶æ€;
-	 * åœ¨æ‰€è¿æ¥çš„é›†çº¿å™¨ç«¯å£æŒ‚èµ·æ—¶, USBè®¾å¤‡è‡ªèº«ä¹Ÿå°†è¿›å…¥æŒ‚èµ·çŠ¶æ€;
-	 * USBè®¾å¤‡å¯é€šè¿‡è¿œç¨‹å”¤é†’ç”µä¿¡å·è¯·æ±‚ä¸»æœº, è®©è‡ªå·±é€€å‡ºæŒ‚èµ·çŠ¶æ€. åœ¨é…ç½®æè¿°ç¬¦ä¸­, USBè®¾å¤‡ä¼šå°†æ˜¯å¦æ”¯æŒè¿œç¨‹å”¤é†’çš„èƒ½åŠ›æŠ¥å‘Šç»™ä¸»æœº
-	 */
+    /*!<
+     * ¹ÒÆğ×´Ì¬
+     * Éè±¸ÔÚÖ¸¶¨Ê±¼äÄÚÃ»ÓĞ¹Û²ìµ½×ÜÏßÓĞÊı¾İ´«ÊäÊ±, ×Ô¶¯½øÈë¹ÒÆğ×´Ì¬;
+     * ¹ÒÆğÊ±, USBÉè±¸»á±£´æÈÎºÎÖ®Ç°µÄ×´Ì¬, °üÀ¨ÉÏµç×´Ì¬, Ä¬ÈÏ×´Ì¬, µØÖ·×´Ì¬, ÅäÖÃ×´Ì¬;
+     * ÔÚËùÁ¬½ÓµÄ¼¯ÏßÆ÷¶Ë¿Ú¹ÒÆğÊ±, USBÉè±¸×ÔÉíÒ²½«½øÈë¹ÒÆğ×´Ì¬;
+     * USBÉè±¸¿ÉÍ¨¹ıÔ¶³Ì»½ĞÑµçĞÅºÅÇëÇóÖ÷»ú, ÈÃ×Ô¼ºÍË³ö¹ÒÆğ×´Ì¬. ÔÚÅäÖÃÃèÊö·ûÖĞ, USBÉè±¸»á½«ÊÇ·ñÖ§³ÖÔ¶³Ì»½ĞÑµÄÄÜÁ¦±¨¸æ¸øÖ÷»ú
+     */
     NR_USB_DevStatusSuspended = mrt_bit(5),
 
-	/*!< æ­£å¸¸è¿è¡Œ, æ­¤æ—¶ä¸»æœºå’Œè®¾å¤‡å¯ä»¥æ­£å¸¸æ”¶å‘æ•°æ® */
-	NR_USB_DevStatusNormal = (NR_USB_DevStatusAttached | NR_USB_DevStatusPowered |
-								NR_USB_DevStatusDefault | NR_USB_DevStatusAddress | NR_USB_DevStatusConfigured),
+    /*!< Õı³£ÔËĞĞ, ´ËÊ±Ö÷»úºÍÉè±¸¿ÉÒÔÕı³£ÊÕ·¢Êı¾İ */
+    NR_USB_DevStatusNormal = (NR_USB_DevStatusAttached | NR_USB_DevStatusPowered |
+                                NR_USB_DevStatusDefault | NR_USB_DevStatusAddress | NR_USB_DevStatusConfigured),
 };
 
 /*!< 1. Device descriptor */
 typedef struct fwk_usb_device_desc
 {
-	kuint8_t  bLength;                                      /*!< æœ¬ç»“æ„ä½“å¤§å° */
-	kuint8_t  bDescriptorType;                              /*!< æè¿°ç¬¦ç±»å‹: FWK_USB_DT_DEVICE */
+    kuint8_t  bLength;                                      /*!< ±¾½á¹¹Ìå´óĞ¡ */
+    kuint8_t  bDescriptorType;                              /*!< ÃèÊö·ûÀàĞÍ: FWK_USB_DT_DEVICE */
 
-	kuint16_t bcdUSB;                                       /*!< usbç‰ˆæœ¬å·, æ ¼å¼ä¸º0xJJMN(JJ-ä¸»è¦ç‰ˆæœ¬å·; M: æ¬¡è¦ç‰ˆæœ¬å·; N: æ¬¡è¦ç‰ˆæœ¬å·). å¦‚USB3.11: ç‰ˆæœ¬å· = 0x0311 */
-	kuint8_t  bDeviceClass;                                 /*!< è®¾å¤‡ç±» */
-	kuint8_t  bDeviceSubClass;                              /*!< è®¾å¤‡ç±»å­ç±» */
-	kuint8_t  bDeviceProtocol;                              /*!< è®¾å¤‡åè®® */
-	kuint8_t  bMaxPacketSize0;                              /*!< ç«¯ç‚¹0æœ€å¤§åŒ…å¤§å°(ä»…å¯ä¸º8/16/32/64å…¶ä¸­ä¹‹ä¸€) */
-	kuint16_t idVendor;                                     /*!< å‚å®¶id, ç”±USBåè®®åˆ†é…; å‚å®¶éœ€è¦å‘USBç”³è¯· */
-	kuint16_t idProduct;                                    /*!< äº§å“id, å‚å®¶è‡ªå®šä¹‰ */
-	kuint16_t bcdDevice;                                    /*!< è®¾å¤‡å‡ºå‚ç¼–å·(ç‰ˆæœ¬å·), å‚å®¶è‡ªå®šä¹‰ */
-	kuint8_t  iManufacturer;                                /*!< è®¾å¤‡å‚å•†å­—ç¬¦ä¸²ç´¢å¼•. ä¸º0è¡¨ç¤ºæ—  */
-	kuint8_t  iProduct;                                     /*!< äº§å“æè¿°. ä¸º0è¡¨ç¤ºæ—  */
-	kuint8_t  iSerialNumber;                                /*!< è®¾å¤‡åºåˆ—å·å­—ç¬¦ä¸²ç´¢å¼•. ä¸º0è¡¨ç¤ºæ—  */
-	kuint8_t  bNumConfigurations;                           /*!< é…ç½®çš„ä¸ªæ•°. ä¸€èˆ¬ä¸º1 */
+    kuint16_t bcdUSB;                                       /*!< usb°æ±¾ºÅ, ¸ñÊ½Îª0xJJMN(JJ-Ö÷Òª°æ±¾ºÅ; M: ´ÎÒª°æ±¾ºÅ; N: ´ÎÒª°æ±¾ºÅ). ÈçUSB3.11: °æ±¾ºÅ = 0x0311 */
+    kuint8_t  bDeviceClass;                                 /*!< Éè±¸Àà */
+    kuint8_t  bDeviceSubClass;                              /*!< Éè±¸Àà×ÓÀà */
+    kuint8_t  bDeviceProtocol;                              /*!< Éè±¸Ğ­Òé */
+    kuint8_t  bMaxPacketSize0;                              /*!< ¶Ëµã0×î´ó°ü´óĞ¡(½ö¿ÉÎª8/16/32/64ÆäÖĞÖ®Ò») */
+    kuint16_t idVendor;                                     /*!< ³§¼Òid, ÓÉUSBĞ­Òé·ÖÅä; ³§¼ÒĞèÒªÏòUSBÉêÇë */
+    kuint16_t idProduct;                                    /*!< ²úÆ·id, ³§¼Ò×Ô¶¨Òå */
+    kuint16_t bcdDevice;                                    /*!< Éè±¸³ö³§±àºÅ(°æ±¾ºÅ), ³§¼Ò×Ô¶¨Òå */
+    kuint8_t  iManufacturer;                                /*!< Éè±¸³§ÉÌ×Ö·û´®Ë÷Òı. Îª0±íÊ¾ÎŞ */
+    kuint8_t  iProduct;                                     /*!< ²úÆ·ÃèÊö. Îª0±íÊ¾ÎŞ */
+    kuint8_t  iSerialNumber;                                /*!< Éè±¸ĞòÁĞºÅ×Ö·û´®Ë÷Òı. Îª0±íÊ¾ÎŞ */
+    kuint8_t  bNumConfigurations;                           /*!< ÅäÖÃµÄ¸öÊı. Ò»°ãÎª1 */
 
 } __packed srt_fwk_usb_device_desc_t;
 
@@ -175,8 +175,8 @@ enum __ERT_USB_DEVICE_DESC_CLASS
 
 /*!<
  * for bMaxPacketSize0
- * ç«¯ç‚¹0å•æ¬¡æœ€å¤§å¯ä¼ çš„å­—èŠ‚æ•°, å³å•åŒ…çš„å¤§å°. USBåè®®è§„å®š, ç«¯ç‚¹0æœ€ä½8å­—èŠ‚, ç«¯ç‚¹çš„æœ€å¤§ä¼ è¾“å¤§å°å’ŒUSBé€Ÿåº¦ç­‰çº§åŠä¼ è¾“ç±»å‹æœ‰å…³.
- * æ§åˆ¶ä¼ è¾“ä¸€èˆ¬ä½¿ç”¨ç«¯ç‚¹0, ä½é€Ÿæœ€å¤§8å­—èŠ‚, å…¨é€Ÿå’Œé«˜é€Ÿæœ€å¤§ä¼ è¾“64å­—èŠ‚
+ * ¶Ëµã0µ¥´Î×î´ó¿É´«µÄ×Ö½ÚÊı, ¼´µ¥°üµÄ´óĞ¡. USBĞ­Òé¹æ¶¨, ¶Ëµã0×îµÍ8×Ö½Ú, ¶ËµãµÄ×î´ó´«Êä´óĞ¡ºÍUSBËÙ¶ÈµÈ¼¶¼°´«ÊäÀàĞÍÓĞ¹Ø.
+ * ¿ØÖÆ´«ÊäÒ»°ãÊ¹ÓÃ¶Ëµã0, µÍËÙ×î´ó8×Ö½Ú, È«ËÙºÍ¸ßËÙ×î´ó´«Êä64×Ö½Ú
  * 
  * HS: High Speed
  * FS: Full Speed
@@ -196,15 +196,15 @@ enum __ERT_USB_DEVICE_DESC_CLASS
 /*!< 2. Configure  descriptor */
 typedef struct fwk_usb_config_desc
 {
-	kuint8_t  bLength;                                      /*!< æœ¬ç»“æ„ä½“å¤§å° */
-	kuint8_t  bDescriptorType;                              /*!< æè¿°ç¬¦ç±»å‹: FWK_USB_DT_CONFIG */
+    kuint8_t  bLength;                                      /*!< ±¾½á¹¹Ìå´óĞ¡ */
+    kuint8_t  bDescriptorType;                              /*!< ÃèÊö·ûÀàĞÍ: FWK_USB_DT_CONFIG */
 
-	kuint16_t wTotalLength;                                 /*!< è¯¥é…ç½®ä¸‹, ä¿¡æ¯çš„æ€»é•¿åº¦ (é…ç½®æè¿°ç¬¦é›†åˆæ€»é•¿åº¦) */
-	kuint8_t  bNumInterfaces;                               /*!< æ¥å£çš„ä¸ªæ•° */
-	kuint8_t  bConfigurationValue;                          /*!< Set_Configurationå‘½ä»¤æ‰€éœ€çš„å‚æ•°å€¼, ç”¨äºè¡¨ç¤ºå½“å‰æ˜¯å‡ ä¸ªé…ç½® */
-	kuint8_t  iConfiguration;                               /*!< æè¿°è¯¥é…ç½®çš„å­—ç¬¦ä¸²çš„ç´¢å¼•å€¼. 0è¡¨ç¤ºæ— å­—ç¬¦ä¸² */
-	kuint8_t  bmAttributes;                                 /*!< ä¾›ç”µæ¨¡å¼çš„é€‰æ‹© */
-	kuint8_t  bMaxPower;                                    /*!< è®¾å¤‡ä»æ€»çº¿æå–çš„æœ€å¤§ç”µæµ */
+    kuint16_t wTotalLength;                                 /*!< ¸ÃÅäÖÃÏÂ, ĞÅÏ¢µÄ×Ü³¤¶È (ÅäÖÃÃèÊö·û¼¯ºÏ×Ü³¤¶È) */
+    kuint8_t  bNumInterfaces;                               /*!< ½Ó¿ÚµÄ¸öÊı */
+    kuint8_t  bConfigurationValue;                          /*!< Set_ConfigurationÃüÁîËùĞèµÄ²ÎÊıÖµ, ÓÃÓÚ±íÊ¾µ±Ç°ÊÇ¼¸¸öÅäÖÃ */
+    kuint8_t  iConfiguration;                               /*!< ÃèÊö¸ÃÅäÖÃµÄ×Ö·û´®µÄË÷ÒıÖµ. 0±íÊ¾ÎŞ×Ö·û´® */
+    kuint8_t  bmAttributes;                                 /*!< ¹©µçÄ£Ê½µÄÑ¡Ôñ */
+    kuint8_t  bMaxPower;                                    /*!< Éè±¸´Ó×ÜÏßÌáÈ¡µÄ×î´óµçÁ÷ */
 
 } __packed srt_fwk_usb_config_desc_t;
 
@@ -216,33 +216,33 @@ enum __ERT_USB_CONFIG_DESC_ATTR
 {
     NR_USB_ConfigDescAttrBattery = mrt_bit(4),
 
-	/*!< 1: è®¾å¤‡æ”¯æŒè¿œç¨‹å”¤é†’ */
+    /*!< 1: Éè±¸Ö§³ÖÔ¶³Ì»½ĞÑ */
     NR_USB_ConfigDescAttrWakeUp = mrt_bit(5),
 
-	/*!< 0: è‡ªä¾›ç”µ; 1: æ€»çº¿ä¾›ç”µ */
+    /*!< 0: ×Ô¹©µç; 1: ×ÜÏß¹©µç */
     NR_USB_ConfigDescAttrSelfPower = mrt_bit(6),
 
-	/*!< ä¿ç•™ä½, é»˜è®¤ä¸º1 */
+    /*!< ±£ÁôÎ», Ä¬ÈÏÎª1 */
     NR_USB_ConfigDescAttrDefault = mrt_bit(7),
 };
 
 /*!< for bMaxPower */
-/*!< å•ä½: 2mA, æ•…bMaxPower = x / 2mA */
+/*!< µ¥Î»: 2mA, ¹ÊbMaxPower = x / 2mA */
 #define FWK_USB_DT_CONFIG_MAX_CURRENT(x)					((x) >> 1)
 
 /*!< 3. Interface descriptor */
 typedef struct fwk_usb_interface_desc
 {
-	kuint8_t  bLength;                                      /*!< æœ¬ç»“æ„ä½“å¤§å° */
-	kuint8_t  bDescriptorType;                              /*!< æè¿°ç¬¦ç±»å‹: FWK_USB_DT_INTERFACE */
+    kuint8_t  bLength;                                      /*!< ±¾½á¹¹Ìå´óĞ¡ */
+    kuint8_t  bDescriptorType;                              /*!< ÃèÊö·ûÀàĞÍ: FWK_USB_DT_INTERFACE */
 
-	kuint8_t  bInterfaceNumber;                             /*!< è¯¥æ¥å£çš„ç¼–å·(ä»0å¼€å§‹) */
-	kuint8_t  bAlternateSetting;                            /*!< å¤‡ç”¨çš„æ¥å£æè¿°ç¬¦ç¼–å·. ä¸€èˆ¬ä¸ç”¨, ä¸º0å³å¯ */
-	kuint8_t  bNumEndpoints;                                /*!< è¯¥æ¥å£ä½¿ç”¨çš„ç«¯ç‚¹æ•°ï¼Œä¸åŒ…æ‹¬ç«¯ç‚¹0 */
-	kuint8_t  bInterfaceClass;                              /*!< è¯¥æ¥å£ä½¿ç”¨çš„ç±» */
-	kuint8_t  bInterfaceSubClass;                           /*!< è¯¥æ¥å£ä½¿ç”¨çš„å­ç±» */
-	kuint8_t  bInterfaceProtocol;                           /*!< è¯¥æ¥å£ä½¿ç”¨çš„åè®® */
-	kuint8_t  iInterface;                                   /*!< æè¿°è¯¥æ¥å£çš„å­—ç¬¦ä¸²ç´¢å¼•å€¼. 0è¡¨ç¤ºæ—  */
+    kuint8_t  bInterfaceNumber;                             /*!< ¸Ã½Ó¿ÚµÄ±àºÅ(´Ó0¿ªÊ¼) */
+    kuint8_t  bAlternateSetting;                            /*!< ±¸ÓÃµÄ½Ó¿ÚÃèÊö·û±àºÅ. Ò»°ã²»ÓÃ, Îª0¼´¿É */
+    kuint8_t  bNumEndpoints;                                /*!< ¸Ã½Ó¿ÚÊ¹ÓÃµÄ¶ËµãÊı£¬²»°üÀ¨¶Ëµã0 */
+    kuint8_t  bInterfaceClass;                              /*!< ¸Ã½Ó¿ÚÊ¹ÓÃµÄÀà */
+    kuint8_t  bInterfaceSubClass;                           /*!< ¸Ã½Ó¿ÚÊ¹ÓÃµÄ×ÓÀà */
+    kuint8_t  bInterfaceProtocol;                           /*!< ¸Ã½Ó¿ÚÊ¹ÓÃµÄĞ­Òé */
+    kuint8_t  iInterface;                                   /*!< ÃèÊö¸Ã½Ó¿ÚµÄ×Ö·û´®Ë÷ÒıÖµ. 0±íÊ¾ÎŞ */
 
 } __packed srt_fwk_usb_interface_desc_t;
 
@@ -252,20 +252,20 @@ typedef struct fwk_usb_interface_desc
 /*!< 4. Endpoint descriptor */
 typedef struct fwk_usb_endpoint_desc
 {
-	kuint8_t  bLength;                                      /*!< ç«¯ç‚¹æè¿°ç¬¦å­—èŠ‚å¤§å°(FWK_USB_DT_ENDPOINT_SIZE) */
-	kuint8_t  bDescriptorType;                              /*!< æè¿°ç¬¦ç±»å‹ç¼–å·: FWK_USB_DT_ENDPOINT */
+    kuint8_t  bLength;                                      /*!< ¶ËµãÃèÊö·û×Ö½Ú´óĞ¡(FWK_USB_DT_ENDPOINT_SIZE) */
+    kuint8_t  bDescriptorType;                              /*!< ÃèÊö·ûÀàĞÍ±àºÅ: FWK_USB_DT_ENDPOINT */
 
-	kuint8_t  bEndpointAddress;                             /*!< ç«¯ç‚¹åœ°å€åŠè¾“å…¥è¾“å‡ºå±æ€§ */
-	kuint8_t  bmAttributes;                                 /*!< å±æ€§, åŒ…å«ç«¯ç‚¹çš„ä¼ è¾“ç±»å‹: æ§åˆ¶, ä¸­æ–­, æ‰¹é‡, åŒæ­¥ */
-	kuint16_t wMaxPacketSize;                               /*!< ç«¯ç‚¹æ”¶/å‘çš„æœ€å¤§åŒ…å¤§å° */
-	kuint8_t  bInterval;                                    /*!< ä¸»æœºæŸ¥è¯¢ç«¯ç‚¹çš„æ—¶é—´é—´éš” */
+    kuint8_t  bEndpointAddress;                             /*!< ¶ËµãµØÖ·¼°ÊäÈëÊä³öÊôĞÔ */
+    kuint8_t  bmAttributes;                                 /*!< ÊôĞÔ, °üº¬¶ËµãµÄ´«ÊäÀàĞÍ: ¿ØÖÆ, ÖĞ¶Ï, ÅúÁ¿, Í¬²½ */
+    kuint16_t wMaxPacketSize;                               /*!< ¶ËµãÊÕ/·¢µÄ×î´ó°ü´óĞ¡ */
+    kuint8_t  bInterval;                                    /*!< Ö÷»ú²éÑ¯¶ËµãµÄÊ±¼ä¼ä¸ô */
 
     /*!<
      * These two are only in audio endpoints,
      * use FWK_USB_DT_ENDPOINT_SIZE * _SIZE in bLength, not sizeof
      */
-	kuint8_t  bRefresh;
-	kuint8_t  bSynchAddress;
+    kuint8_t  bRefresh;
+    kuint8_t  bSynchAddress;
 
 } __packed srt_fwk_usb_endpoint_desc_t;
 
@@ -275,9 +275,9 @@ typedef struct fwk_usb_endpoint_desc
 
 /*!< 
  * for bEndpointAddress
- * bit[3:0]: ç«¯ç‚¹ç¼–å·
- * bit[6:4]: ä¿ç•™, é»˜è®¤ä¸º0
- * bit7: æ•°æ®ä¼ è¾“æ–¹å¼(æ§åˆ¶ç«¯ç‚¹ä¸è€ƒè™‘åœ¨å†…), 0: output; 1: input
+ * bit[3:0]: ¶Ëµã±àºÅ
+ * bit[6:4]: ±£Áô, Ä¬ÈÏÎª0
+ * bit7: Êı¾İ´«Êä·½Ê½(¿ØÖÆ¶Ëµã²»¿¼ÂÇÔÚÄÚ), 0: output; 1: input
  */
 /*!< endpoint number: 0 ~ 15 */
 #define FWK_USB_ENDPOINT_NUMBER_MASK                		(0x0f)  
@@ -286,8 +286,8 @@ typedef struct fwk_usb_endpoint_desc
 /*!< direction; 1: input; 0: output */
 enum __ERT_USB_ENDPOINT_DIRECTION
 {
-	NR_USB_EndpointAddrDirOut = 0,
-	NR_USB_EndpointAddrDirIn,
+    NR_USB_EndpointAddrDirOut = 0,
+    NR_USB_EndpointAddrDirIn,
 
 #define FWK_USB_ENDPOINT_DIR_MASK                   		(0x80)  
 #define FWK_USB_ENDPOINT_DIR(x)                   			(((x) << 7) & FWK_USB_ENDPOINT_DIR_MASK)
@@ -299,21 +299,21 @@ enum __ERT_USB_ENDPOINT_DIRECTION
 
 /*!< 
  * for bmAttributes
- * bit[1:0]: ä¼ è¾“ç±»å‹
+ * bit[1:0]: ´«ÊäÀàĞÍ
  * bit[7:2]: ...
  */
 enum __ERT_USB_ENDPOINT_DESC_ATTR
 {
-	/*!< Control: æ§åˆ¶ä¼ è¾“ */
+    /*!< Control: ¿ØÖÆ´«Êä */
     NR_USB_EndPointDescXferCtrl = mrt_bit(0),
 
-	/*!< Isochronous: åŒæ­¥ä¼ è¾“ */
+    /*!< Isochronous: Í¬²½´«Êä */
     NR_USB_EndPointDescXferIsoc = mrt_bit(1),
 
-	/*!< Bulk: æ‰¹é‡ä¼ è¾“ */
+    /*!< Bulk: ÅúÁ¿´«Êä */
     NR_USB_EndPointDescXferBulk = mrt_bit(2),
 
-	/*!< Interrupt: ä¸­æ–­ä¼ è¾“ */
+    /*!< Interrupt: ÖĞ¶Ï´«Êä */
     NR_USB_EndPointDescXferInterrupt = mrt_bit(0) | mrt_bit(1),
 
 #define FWK_USB_ENDPOINT_XFERTYPE_MASK	            		(0x03)

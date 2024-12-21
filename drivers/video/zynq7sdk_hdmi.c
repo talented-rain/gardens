@@ -1,7 +1,7 @@
 /*
  * Video Driver : LCD with framebuffer (AXIVDMA + VTC)
  *
- * File Name:   zynq7sdk_hdmi.c
+ * File Name:   xsdk_hdmi.c
  * Author:      Yang Yujun
  * E-mail:      <yujiantianhu@163.com>
  * Created on:  2024.11.01
@@ -26,14 +26,14 @@
 #include <zynq7/zynq7_periph.h>
 
 /*!< The defines */
-#define ZYNQ7_SDK_HDMI_XPRES_MAX                (1920)
-#define ZYNQ7_SDK_HDMI_YPRES_MAX                (1080)
-#define ZYNQ7_SDK_HDMI_BPP_MAX                  (4)
+#define XSDK_HDMI_XPRES_MAX                 (1920)
+#define XSDK_HDMI_YPRES_MAX                 (1080)
+#define XSDK_HDMI_BPP_MAX                   (4)
 
-#define ZYNQ7_SDK_HDMI_DRAM_SIZE    \
-                    (ZYNQ7_SDK_HDMI_XPRES_MAX * ZYNQ7_SDK_HDMI_YPRES_MAX * ZYNQ7_SDK_HDMI_BPP_MAX)
+#define XSDK_HDMI_DRAM_SIZE    \
+                    (XSDK_HDMI_XPRES_MAX * XSDK_HDMI_YPRES_MAX * XSDK_HDMI_BPP_MAX)
 
-struct zynq7sdk_hdmi_trigger
+struct xsdk_hdmi_trigger
 {
 	kuint32_t hsync_active;
 	kuint32_t vsync_active;
@@ -41,14 +41,14 @@ struct zynq7sdk_hdmi_trigger
 	kuint32_t pixelclk_active;
 };
 
-struct zynq7sdk_hdmi_drv
+struct xsdk_hdmi_drv
 {
     kuint32_t minor;
 
     void *base;
     struct fwk_fb_info *sprt_fb;
     struct fwk_device *sprt_dev;
-    struct zynq7sdk_hdmi_trigger sgrt_trig;
+    struct xsdk_hdmi_trigger sgrt_trig;
 
     DisplayCtrl sgrt_dctrl;
     XAxiVdma sgrt_axivdma;
@@ -56,18 +56,18 @@ struct zynq7sdk_hdmi_drv
     XVtc_Config sgrt_vcfg;
 };
 
-#define ZYNQ7_SDK_HDMI_DRIVER_MINOR				0
+#define XSDK_HDMI_DRIVER_MINOR				0
 
 /* The globals */
 
 /*!< API function */
 /*!
- * @brief   zynq7sdk_hdmi_init
+ * @brief   xsdk_hdmi_init
  * @param   base
  * @retval  errno
  * @note    none
  */
-static kint32_t zynq7sdk_hdmi_init(void *base, struct zynq7sdk_hdmi_drv *sprt_drv)
+static kint32_t xsdk_hdmi_init(void *base, struct xsdk_hdmi_drv *sprt_drv)
 {
     struct fwk_fb_info *sprt_fb;
     struct fwk_fb_var_screen_info *sprt_var;
@@ -133,9 +133,9 @@ static kint32_t zynq7sdk_hdmi_init(void *base, struct zynq7sdk_hdmi_drv *sprt_dr
  * @retval  errno
  * @note    none
  */
-static kint32_t zynq7sdk_hdmi_open(struct fwk_fb_info *sprt_info, kint32_t user)
+static kint32_t xsdk_hdmi_open(struct fwk_fb_info *sprt_info, kint32_t user)
 {
-    struct zynq7sdk_hdmi_drv *sprt_drv;
+    struct xsdk_hdmi_drv *sprt_drv;
     kint32_t retval;
 
     sprt_drv = fwk_fb_get_drvdata(sprt_info);
@@ -157,9 +157,9 @@ static kint32_t zynq7sdk_hdmi_open(struct fwk_fb_info *sprt_info, kint32_t user)
  * @retval  errno
  * @note    none
  */
-static kint32_t zynq7sdk_hdmi_close(struct fwk_fb_info *sprt_info, kint32_t user)
+static kint32_t xsdk_hdmi_close(struct fwk_fb_info *sprt_info, kint32_t user)
 {
-    struct zynq7sdk_hdmi_drv *sprt_drv;
+    struct xsdk_hdmi_drv *sprt_drv;
     kint32_t retval;
 
     sprt_drv = fwk_fb_get_drvdata(sprt_info);
@@ -178,9 +178,9 @@ static kint32_t zynq7sdk_hdmi_close(struct fwk_fb_info *sprt_info, kint32_t user
  * @retval  errno
  * @note    none
  */
-kint32_t zynq7sdk_hdmi_ioctl(struct fwk_fb_info *sprt_info, kuint32_t cmd, kuaddr_t arg)
+kint32_t xsdk_hdmi_ioctl(struct fwk_fb_info *sprt_info, kuint32_t cmd, kuaddr_t arg)
 {
-    struct zynq7sdk_hdmi_drv *sprt_drv;
+    struct xsdk_hdmi_drv *sprt_drv;
     struct fwk_fb_var_screen_info *sprt_var;
     kuaddr_t new_smem;
 
@@ -217,9 +217,9 @@ kint32_t zynq7sdk_hdmi_ioctl(struct fwk_fb_info *sprt_info, kuint32_t cmd, kuadd
 
 static const struct fwk_fb_oprts sgrt_fwk_fb_ops =
 {
-    .fb_open = zynq7sdk_hdmi_open,
-    .fb_release = zynq7sdk_hdmi_close,
-    .fb_ioctl = zynq7sdk_hdmi_ioctl,
+    .fb_open = xsdk_hdmi_open,
+    .fb_release = xsdk_hdmi_close,
+    .fb_ioctl = xsdk_hdmi_ioctl,
 };
 
 /*!< --------------------------------------------------------------------- */
@@ -229,9 +229,9 @@ static const struct fwk_fb_oprts sgrt_fwk_fb_ops =
  * @retval  errno
  * @note    none
  */
-static kint32_t zynq7sdk_hdmi_driver_probe_axivdma(struct fwk_platdev *sprt_pdev)
+static kint32_t xsdk_hdmi_driver_probe_axivdma(struct fwk_platdev *sprt_pdev)
 {
-    struct zynq7sdk_hdmi_drv *sprt_drv;
+    struct xsdk_hdmi_drv *sprt_drv;
     struct fwk_device_node *sprt_node, *sprt_axivdma = mrt_nullptr;
     XAxiVdma_Config *sprt_axicfg;
     void *reg;
@@ -245,7 +245,7 @@ static kint32_t zynq7sdk_hdmi_driver_probe_axivdma(struct fwk_platdev *sprt_pdev
     };
 
     sprt_node = sprt_pdev->sgrt_dev.sprt_node;
-    sprt_drv = (struct zynq7sdk_hdmi_drv *)fwk_platform_get_drvdata(sprt_pdev);
+    sprt_drv = (struct xsdk_hdmi_drv *)fwk_platform_get_drvdata(sprt_pdev);
     if (!isValid(sprt_node) || !isValid(sprt_drv))
         return -ER_NODEV;
 
@@ -300,7 +300,7 @@ static kint32_t zynq7sdk_hdmi_driver_probe_axivdma(struct fwk_platdev *sprt_pdev
     if (!isValid(reg))
         return PTR_ERR(reg);
     
-    sprt_axicfg->BaseAddress = (kuint32_t)fwk_io_remap(reg);
+    sprt_axicfg->BaseAddress = (kuint32_t)fwk_io_remap(reg, ARCH_PER_SIZE);
     if (!sprt_axicfg->BaseAddress)
         return -ER_FAILD;
 
@@ -314,12 +314,12 @@ static kint32_t zynq7sdk_hdmi_driver_probe_axivdma(struct fwk_platdev *sprt_pdev
  * @retval  errno
  * @note    none
  */
-static void zynq7sdk_hdmi_driver_remove_axivdma(struct fwk_platdev *sprt_pdev)
+static void xsdk_hdmi_driver_remove_axivdma(struct fwk_platdev *sprt_pdev)
 {
-    struct zynq7sdk_hdmi_drv *sprt_drv;
+    struct xsdk_hdmi_drv *sprt_drv;
     XAxiVdma_Config *sprt_axicfg;
 
-    sprt_drv = (struct zynq7sdk_hdmi_drv *)fwk_platform_get_drvdata(sprt_pdev);
+    sprt_drv = (struct xsdk_hdmi_drv *)fwk_platform_get_drvdata(sprt_pdev);
     if (!isValid(sprt_drv))
         return;
 
@@ -333,9 +333,9 @@ static void zynq7sdk_hdmi_driver_remove_axivdma(struct fwk_platdev *sprt_pdev)
  * @retval  errno
  * @note    none
  */
-static kint32_t zynq7sdk_hdmi_driver_probe_timings(struct fwk_platdev *sprt_pdev)
+static kint32_t xsdk_hdmi_driver_probe_timings(struct fwk_platdev *sprt_pdev)
 {
-    struct zynq7sdk_hdmi_drv *sprt_drv;
+    struct xsdk_hdmi_drv *sprt_drv;
     struct fwk_device_node *sprt_node, *sprt_tim;
     struct fwk_fb_info *sprt_fb;
     struct fwk_fb_var_screen_info *sprt_var;
@@ -344,7 +344,7 @@ static kint32_t zynq7sdk_hdmi_driver_probe_timings(struct fwk_platdev *sprt_pdev
     kint32_t retval = 0;
 
     sprt_node = sprt_pdev->sgrt_dev.sprt_node;
-    sprt_drv = (struct zynq7sdk_hdmi_drv *)fwk_platform_get_drvdata(sprt_pdev);
+    sprt_drv = (struct xsdk_hdmi_drv *)fwk_platform_get_drvdata(sprt_pdev);
     if (!isValid(sprt_node) || !isValid(sprt_drv))
         return -ER_NODEV;
 
@@ -399,14 +399,14 @@ static kint32_t zynq7sdk_hdmi_driver_probe_timings(struct fwk_platdev *sprt_pdev
 }
 
 /*!
- * @brief   zynq7sdk_hdmi_driver_probe
+ * @brief   xsdk_hdmi_driver_probe
  * @param   sprt_pdev
  * @retval  errno
  * @note    none
  */
-static kint32_t zynq7sdk_hdmi_driver_probe(struct fwk_platdev *sprt_pdev)
+static kint32_t xsdk_hdmi_driver_probe(struct fwk_platdev *sprt_pdev)
 {
-    struct zynq7sdk_hdmi_drv *sprt_drv;
+    struct xsdk_hdmi_drv *sprt_drv;
     struct fwk_device_node *sprt_node;
     struct fwk_fb_info *sprt_fb;
     void *base, *buffer;
@@ -433,23 +433,23 @@ static kint32_t zynq7sdk_hdmi_driver_probe(struct fwk_platdev *sprt_pdev)
         return -ER_NOMEM;
 
     base = (void *)fwk_platform_get_address(sprt_pdev, 0);
-    base = fwk_io_remap(base);
+    base = fwk_io_remap(base, ARCH_PER_SIZE);
     if (!isValid(base))
         goto fail1;
 
-    sprt_drv = (struct zynq7sdk_hdmi_drv *)fwk_fb_get_drvdata(sprt_fb);
-    sprt_drv->minor = ZYNQ7_SDK_HDMI_DRIVER_MINOR;
+    sprt_drv = (struct xsdk_hdmi_drv *)fwk_fb_get_drvdata(sprt_fb);
+    sprt_drv->minor = XSDK_HDMI_DRIVER_MINOR;
     sprt_drv->sgrt_vcfg.BaseAddress = (kuint32_t)base;
     sprt_drv->sgrt_vcfg.DeviceId = XPAR_V_TC_0_DEVICE_ID;
     sprt_drv->sprt_fb = sprt_fb;
     sprt_drv->sprt_dev = &sprt_pdev->sgrt_dev;
 
     fwk_platform_set_drvdata(sprt_pdev, sprt_drv);
-    retval = zynq7sdk_hdmi_driver_probe_axivdma(sprt_pdev);
+    retval = xsdk_hdmi_driver_probe_axivdma(sprt_pdev);
     if (retval)
         goto fail2;
     
-    retval = zynq7sdk_hdmi_driver_probe_timings(sprt_pdev);
+    retval = xsdk_hdmi_driver_probe_timings(sprt_pdev);
     if (retval)
         goto fail3;
 
@@ -492,7 +492,7 @@ static kint32_t zynq7sdk_hdmi_driver_probe(struct fwk_platdev *sprt_pdev)
 
     print_info("register a new framebuffer (hdmi)\n");
 
-    retval = zynq7sdk_hdmi_init(base, sprt_drv);
+    retval = xsdk_hdmi_init(base, sprt_drv);
     if (retval)
         goto fail4;
 
@@ -501,7 +501,7 @@ static kint32_t zynq7sdk_hdmi_driver_probe(struct fwk_platdev *sprt_pdev)
 fail4:
     fwk_unregister_framebuffer(sprt_fb);
 fail3:
-    zynq7sdk_hdmi_driver_remove_axivdma(sprt_pdev);
+    xsdk_hdmi_driver_remove_axivdma(sprt_pdev);
 fail2:
     fwk_platform_set_drvdata(sprt_pdev, mrt_nullptr);
     fwk_io_unmap(base);
@@ -511,21 +511,21 @@ fail1:
 }
 
 /*!
- * @brief   zynq7sdk_hdmi_driver_remove
+ * @brief   xsdk_hdmi_driver_remove
  * @param   sprt_dev
  * @retval  errno
  * @note    none
  */
-static kint32_t zynq7sdk_hdmi_driver_remove(struct fwk_platdev *sprt_pdev)
+static kint32_t xsdk_hdmi_driver_remove(struct fwk_platdev *sprt_pdev)
 {
-    struct zynq7sdk_hdmi_drv *sprt_drv;
+    struct xsdk_hdmi_drv *sprt_drv;
     struct fwk_fb_info *sprt_fb;
 
-    sprt_drv = (struct zynq7sdk_hdmi_drv *)fwk_platform_get_drvdata(sprt_pdev);
+    sprt_drv = (struct xsdk_hdmi_drv *)fwk_platform_get_drvdata(sprt_pdev);
     sprt_fb = sprt_drv->sprt_fb;
 
     fwk_unregister_framebuffer(sprt_fb);
-    zynq7sdk_hdmi_driver_remove_axivdma(sprt_pdev);
+    xsdk_hdmi_driver_remove_axivdma(sprt_pdev);
     fwk_platform_set_drvdata(sprt_pdev, mrt_nullptr);
 
     fwk_io_unmap(sprt_drv->base);
@@ -536,50 +536,50 @@ static kint32_t zynq7sdk_hdmi_driver_remove(struct fwk_platdev *sprt_pdev)
 }
 
 /*!< device id for device-tree */
-static const struct fwk_of_device_id sgrt_zynq7sdk_hdmi_driver_ids[] =
+static const struct fwk_of_device_id sgrt_xsdk_hdmi_driver_ids[] =
 {
     { .compatible = "xlnx, vdma, hdmi", },
     {},
 };
 
 /*!< platform instance */
-static struct fwk_platdrv sgrt_zynq7sdk_hdmi_platdriver =
+static struct fwk_platdrv sgrt_xsdk_hdmi_platdriver =
 {
-    .probe	= zynq7sdk_hdmi_driver_probe,
-    .remove	= zynq7sdk_hdmi_driver_remove,
+    .probe	= xsdk_hdmi_driver_probe,
+    .remove	= xsdk_hdmi_driver_remove,
     
     .sgrt_driver =
     {
         .name 	= "xlnx, zynq7sdk, axivtc",
         .id 	= -1,
-        .sprt_of_match_table = sgrt_zynq7sdk_hdmi_driver_ids,
+        .sprt_of_match_table = sgrt_xsdk_hdmi_driver_ids,
     },
 };
 
 /*!< --------------------------------------------------------------------- */
 /*!
- * @brief   zynq7sdk_hdmi_driver_init
+ * @brief   xsdk_hdmi_driver_init
  * @param   none
  * @retval  errno
  * @note    none
  */
-kint32_t __fwk_init zynq7sdk_hdmi_driver_init(void)
+kint32_t __fwk_init xsdk_hdmi_driver_init(void)
 {
-    return fwk_register_platdriver(&sgrt_zynq7sdk_hdmi_platdriver);
+    return fwk_register_platdriver(&sgrt_xsdk_hdmi_platdriver);
 }
 
 /*!
- * @brief   zynq7sdk_hdmi_driver_exit
+ * @brief   xsdk_hdmi_driver_exit
  * @param   none
  * @retval  none
  * @note    none
  */
-void __fwk_exit zynq7sdk_hdmi_driver_exit(void)
+void __fwk_exit xsdk_hdmi_driver_exit(void)
 {
-    fwk_unregister_platdriver(&sgrt_zynq7sdk_hdmi_platdriver);
+    fwk_unregister_platdriver(&sgrt_xsdk_hdmi_platdriver);
 }
 
-IMPORT_DRIVER_INIT(zynq7sdk_hdmi_driver_init);
-IMPORT_DRIVER_EXIT(zynq7sdk_hdmi_driver_exit);
+IMPORT_DRIVER_INIT(xsdk_hdmi_driver_init);
+IMPORT_DRIVER_EXIT(xsdk_hdmi_driver_exit);
 
 /*!< end of file */

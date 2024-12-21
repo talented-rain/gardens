@@ -84,6 +84,13 @@ TARGET_EXT kint32_t fwk_bitmap_get_and_check(struct fwk_bmp_ctrl *sprt_bctl, con
 TARGET_EXT kint32_t fwk_display_bitmap(struct fwk_bmp_ctrl *sprt_bctl, const kuint8_t *image, kusize_t size);
 TARGET_EXT void fwk_display_whole_bitmap(struct fwk_bmp_ctrl *sprt_bctl, const kuint8_t *image);
 
+/*!< API functions */
+/*!
+ * @brief   initialize fwk_bmp_ctrl
+ * @param   sprt_bctl, ...
+ * @retval  none
+ * @note    none
+ */
 static inline void fwk_bitmap_ctrl_init(struct fwk_bmp_ctrl *sprt_bctl, 
                             struct fwk_disp_info *sprt_disp, kuint32_t x_start, kuint32_t y_start)
 {

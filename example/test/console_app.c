@@ -26,11 +26,11 @@
 #include "test_app.h"
 
 /*!< The defines */
-#define CONSOLE_APP_THREAD_STACK_SIZE                       REAL_THREAD_STACK_HALF(1)    /*!< 1/2 page (1kbytes) */
+#define CONSOLE_APP_THREAD_STACK_SIZE                       THREAD_STACK_HALF(1)    /*!< 1/2 page (1kbytes) */
 
 /*!< The globals */
 static tid_t g_console_app_tid;
-static struct real_thread_attr sgrt_console_app_attr;
+static struct thread_attr sgrt_console_app_attr;
 static kuint32_t g_console_app_stack[CONSOLE_APP_THREAD_STACK_SIZE];
 static struct mailbox sgrt_console_app_mailbox;
 static kuint8_t g_console_recv_buf[1024];
@@ -141,24 +141,24 @@ static void *console_app_entry(void *args)
  */
 kint32_t console_app_init(void)
 {
-    struct real_thread_attr *sprt_attr = &sgrt_console_app_attr;
+    struct thread_attr *sprt_attr = &sgrt_console_app_attr;
     kint32_t retval;
 
-	sprt_attr->detachstate = REAL_THREAD_CREATE_JOINABLE;
-	sprt_attr->inheritsched	= REAL_THREAD_INHERIT_SCHED;
-	sprt_attr->schedpolicy = REAL_THREAD_SCHED_FIFO;
+	sprt_attr->detachstate = THREAD_CREATE_JOINABLE;
+	sprt_attr->inheritsched	= THREAD_INHERIT_SCHED;
+	sprt_attr->schedpolicy = THREAD_SCHED_FIFO;
 
     /*!< thread stack */
-	real_thread_set_stack(sprt_attr, mrt_nullptr, g_console_app_stack, sizeof(g_console_app_stack));
+	thread_set_stack(sprt_attr, mrt_nullptr, g_console_app_stack, sizeof(g_console_app_stack));
     /*!< lowest priority */
-	real_thread_set_priority(sprt_attr, REAL_THREAD_PROTY_DEFAULT);
+	thread_set_priority(sprt_attr, THREAD_PROTY_DEFAULT);
     /*!< default time slice */
-    real_thread_set_time_slice(sprt_attr, REAL_THREAD_TIME_DEFUALT);
+    thread_set_time_slice(sprt_attr, THREAD_TIME_DEFUALT);
 
     /*!< register thread */
-    retval = real_thread_create(&g_console_app_tid, sprt_attr, console_app_entry, mrt_nullptr);
+    retval = thread_create(&g_console_app_tid, sprt_attr, console_app_entry, mrt_nullptr);
     if (!retval)
-        real_thread_set_name(g_console_app_tid, "console_app_entry");
+        thread_set_name(g_console_app_tid, "console_app_entry");
 
     return retval;
 }

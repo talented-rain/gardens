@@ -27,11 +27,11 @@
 #include "test_app.h"
 
 /*!< The defines */
-#define ENVAPP_THREAD_STACK_SIZE                          REAL_THREAD_STACK_HALF(1)    /*!< 1/2 page (2kbytes) */
+#define ENVAPP_THREAD_STACK_SIZE                          THREAD_STACK_HALF(1)    /*!< 1/2 page (2kbytes) */
 
 /*!< The globals */
 static tid_t g_env_monitor_tid;
-static struct real_thread_attr sgrt_env_monitor_attr;
+static struct thread_attr sgrt_env_monitor_attr;
 static kuint32_t g_env_monitor_stack[ENVAPP_THREAD_STACK_SIZE];
 
 /*!< API functions */
@@ -105,24 +105,24 @@ END:
  */
 kint32_t env_monitor_init(void)
 {
-    struct real_thread_attr *sprt_attr = &sgrt_env_monitor_attr;
+    struct thread_attr *sprt_attr = &sgrt_env_monitor_attr;
     kint32_t retval;
 
-	sprt_attr->detachstate = REAL_THREAD_CREATE_JOINABLE;
-	sprt_attr->inheritsched	= REAL_THREAD_INHERIT_SCHED;
-	sprt_attr->schedpolicy = REAL_THREAD_SCHED_FIFO;
+	sprt_attr->detachstate = THREAD_CREATE_JOINABLE;
+	sprt_attr->inheritsched	= THREAD_INHERIT_SCHED;
+	sprt_attr->schedpolicy = THREAD_SCHED_FIFO;
 
     /*!< thread stack */
-	real_thread_set_stack(sprt_attr, mrt_nullptr, g_env_monitor_stack, sizeof(g_env_monitor_stack));
+	thread_set_stack(sprt_attr, mrt_nullptr, g_env_monitor_stack, sizeof(g_env_monitor_stack));
     /*!< lowest priority */
-	real_thread_set_priority(sprt_attr, REAL_THREAD_PROTY_DEFAULT);
+	thread_set_priority(sprt_attr, THREAD_PROTY_DEFAULT);
     /*!< default time slice */
-    real_thread_set_time_slice(sprt_attr, REAL_THREAD_TIME_DEFUALT);
+    thread_set_time_slice(sprt_attr, THREAD_TIME_DEFUALT);
 
     /*!< register thread */
-    retval = real_thread_create(&g_env_monitor_tid, sprt_attr, env_monitor_entry, mrt_nullptr);
+    retval = thread_create(&g_env_monitor_tid, sprt_attr, env_monitor_entry, mrt_nullptr);
     if (!retval)
-        real_thread_set_name(g_env_monitor_tid, "env_monitor_entry");
+        thread_set_name(g_env_monitor_tid, "env_monitor_entry");
 
     return retval;
 }

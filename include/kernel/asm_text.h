@@ -14,6 +14,7 @@
 #define __ASM_CONTEXT_H_
 
 /*!< The defines */
+/*!< refer to "struct scheduler_context" */
 #define CONTEXT_ENTRY_OFFSET                0
 #define CONTEXT_ARGS_OFFSET                 4
 #define CONTEXT_FIRST_OFFSET                8

@@ -235,6 +235,12 @@ fail:
     return 0;
 }
 
+/*!
+ * @brief   build random value
+ * @param   none
+ * @retval  value
+ * @note    none
+ */
 kutype_t random_val(void)
 {
     struct common_random_state *sprt_rand;
@@ -249,6 +255,5 @@ kutype_t random_val(void)
 
     return value;
 }
-
 
 /* end of file */

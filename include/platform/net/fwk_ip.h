@@ -21,6 +21,7 @@
 #define NET_IPV4_FLAG										(0x04)
 
 #define NET_IP_HDR_LEN                                      (20)
+#define NET_IP_FAKE_HDR_LEN                                 (12)
 
 /*!< Trasport Protocol */
 #define NET_IP_PROTO_ICMP                                   (0x01)
@@ -28,6 +29,16 @@
 #define NET_IP_PROTO_UDP                                    (0x11)
 #define NET_IP_PROTO_UDPLITE                                (0x88)
 #define NET_IP_PROTO_TCP                                    (0x06)
+
+struct fwk_ip_fakehdr
+{
+    kuint32_t saddr;                                        /*!< source ip address */
+    kuint32_t daddr;                                        /*!< destination IP address */
+    kuint8_t zero;                                          /*!< 0 */
+    kuint8_t proto;                                         /*!< NET_IP_PROTO_UDP/NET_IP_PROTO_TCP */
+    kuint16_t len;                                          /*!< NET_UDP_HDR_LEN/NET_TCP_HDR_LEN + data_len */
+    
+} __packed;
 
 /*!< IP information Header */
 struct fwk_ip_hdr {
