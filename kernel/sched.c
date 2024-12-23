@@ -28,7 +28,7 @@ struct scheduler_table sgrt_thread_Tabs =
 
     .sgrt_ready		= LIST_HEAD_INIT(&sgrt_thread_Tabs.sgrt_ready),
     .sgrt_suspend	= LIST_HEAD_INIT(&sgrt_thread_Tabs.sgrt_suspend),
-    .sgrt_sleep		= LIST_HEAD_INIT(&sgrt_thread_Tabs.sgrt_ready),
+    .sgrt_sleep		= LIST_HEAD_INIT(&sgrt_thread_Tabs.sgrt_sleep),
 
     .sprt_work		= mrt_nullptr,
     .sprt_tids		= mrt_nullptr,
@@ -120,6 +120,9 @@ struct list_head *get_ready_thread_table(void)
  */
 struct thread *get_thread_handle(tid_t tid)
 {
+    if (tid >= THREAD_MAX_NUM)
+        return mrt_nullptr;
+    
     return SCHED_THREAD_HANDLER(tid);
 }
 
@@ -262,6 +265,21 @@ void schedule_self_suspend(void)
 }
 
 /*!
+ * @brief	kill current thread
+ * @param  	none
+ * @retval 	0: fail; 1: succuess
+ * @note   	kill current thread, and switch to next
+ */
+void schedule_self_sleep(void)
+{
+    spin_lock_irqsave(&__SCHED_LOCK);
+    __SET_THREAD_STATUS(SCHED_RUNNING_THREAD->tid, NR_THREAD_SLEEP);
+    spin_unlock_irqrestore(&__SCHED_LOCK);
+
+    schedule_thread();
+}
+
+/*!
  * @brief	suspend another thread
  * @param  	tid: target thread
  * @retval 	err code
@@ -287,6 +305,31 @@ kint32_t schedule_thread_suspend(tid_t tid)
 }
 
 /*!
+ * @brief	kill another thread
+ * @param  	tid: target thread
+ * @retval 	err code
+ * @note   	none
+ */
+kint32_t schedule_thread_sleep(tid_t tid)
+{
+    kint32_t retval;
+
+    if (tid == SCHED_RUNNING_THREAD->tid)
+    {
+        schedule_self_sleep();
+        return ER_NORMAL;
+    }
+
+    spin_lock_irqsave(&__SCHED_LOCK);
+    __SET_THREAD_STATUS(tid, NR_THREAD_SLEEP);
+
+    retval = schedule_thread_switch(tid);
+    spin_unlock_irqrestore(&__SCHED_LOCK);
+    
+    return retval;
+}
+
+/*!
  * @brief	wake up another thread
  * @param  	tid: target thread
  * @retval 	err code
@@ -294,11 +337,14 @@ kint32_t schedule_thread_suspend(tid_t tid)
  */
 kint32_t schedule_thread_wakeup(tid_t tid)
 {
+    kuint32_t status;
     kint32_t retval;
 
 //	spin_lock(&__SCHED_LOCK);
 
-    if (NR_THREAD_SUSPEND != __GET_THREAD_STATUS(tid))
+    status = __GET_THREAD_STATUS(tid);
+    if ((status != NR_THREAD_SUSPEND) &&
+        (status != NR_THREAD_SLEEP))
     {
         retval = -ER_UNVALID;
         goto END;
@@ -379,6 +425,18 @@ struct thread *get_first_sleep_thread(void)
 {
     kbool_t existed = mrt_list_head_empty(SCHED_SLEEP_LIST);
     return existed ? mrt_nullptr : mrt_list_first_entry(SCHED_SLEEP_LIST, struct thread, sgrt_link);
+}
+
+/*!
+ * @brief	check if thread is valid
+ * @param  	none
+ * @retval 	1: valid; 0: unvalid
+ * @note   	none
+ */
+kbool_t is_thread_valid(tid_t tid)
+{
+    struct thread *sprt_thread = get_thread_handle(tid);
+    return ((sprt_thread->status != NR_THREAD_SLEEP) && (sprt_thread->to_status != NR_THREAD_SLEEP));
 }
 
 /*!
@@ -720,6 +778,9 @@ static kint32_t __find_thread_from_scheduler(tid_t tid, struct list_head *sprt_h
     struct thread *sprt_anyTask;
     struct thread *sprt_thread = SCHED_THREAD_HANDLER(tid); 
 
+    if (mrt_list_head_empty(sprt_head))
+        return -ER_NOTFOUND;
+
     foreach_list_next_entry(sprt_anyTask, sprt_head, sgrt_link)
     {
         if (sprt_anyTask == sprt_thread)
@@ -752,7 +813,7 @@ static kint32_t __schedule_add_status_list(struct thread *sprt_thread, struct li
         goto END;
 
     /*!< fault tolerance mechanism: check if this thread has been added to the list, and exit directly if it has been added */
-    if (0 <= __find_thread_from_scheduler(sprt_thread->tid, sprt_head))
+    if (__find_thread_from_scheduler(sprt_thread->tid, sprt_head) >= 0)
         return ER_NORMAL;
 
 #if CONFIG_ROLL_POLL

@@ -63,7 +63,7 @@ kuint32_t fwk_inet_addr(const kchar_t *addr)
             str = p + 1;
             temp[len] = '\0';
 
-            byte = ascii_to_dec(temp);
+            byte = (kuint32_t)ascii_to_dec(temp);
             /*!< 0 ~ 255 */
             if (byte > 255)
                 goto fail;

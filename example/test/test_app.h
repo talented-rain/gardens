@@ -62,7 +62,7 @@ static inline kint32_t test_app_init(void) { return 0; }
 
 /*!< The defines */
 #define mrt_test_app_list   \
-            console_app_init,   \
+            /* console_app_init, */   \
             light_app_init, \
             button_app_init,    \
             /* display_app_init, */  \

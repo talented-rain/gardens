@@ -124,7 +124,8 @@ BUILD_CFLAGS   	:=  -g3 -O0 -Wall -nostdlib	\
                     -fno-strict-aliasing	\
 					-fno-common \
                     -Werror-implicit-function-declaration \
-                    -fno-tree-scev-cprop
+                    -fno-tree-scev-cprop	\
+					-fno-exceptions
 #					-munaligned-access
 
 MACROS			:=	-DCONFIG_DEBUG_JTAG
@@ -171,11 +172,12 @@ PLATFORM_DIRS   :=  platform/
 KERNEL_DIRS     :=  kernel/
 ROOTFS_DIRS     :=  fs/
 DRIVER_DIRS     :=  drivers/
+TERMINAL_DIRS	:=	term/
 INIT_DIRS       :=  example/ init/
 
 OBJECT_EXEC		:=	$(OBJECT_PATH)/built-in.o
 SOURCE_DIRS		:=	$(ARCH_DIRS) $(COMMON_DIRS) $(BOOT_DIRS) $(BOARD_DIRS) $(PLATFORM_DIRS)	\
-					$(KERNEL_DIRS) $(ROOTFS_DIRS) $(DRIVER_DIRS) $(INIT_DIRS)
+					$(KERNEL_DIRS) $(ROOTFS_DIRS) $(DRIVER_DIRS) $(TERMINAL_DIRS) $(INIT_DIRS)
 INCLUDE_DIRS	:= 	$(patsubst %, -I%, $(INCLUDE_DIRS))
 
 export ARCH TYPE CLASS CPU VENDOR CC CXX LD AR OBJDUMP OBJCOPY READELF

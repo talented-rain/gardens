@@ -169,10 +169,10 @@ END:
  * @retval  number
  * @note    such as: "160"/"0xA0"/"0xa0"/"0b10100000" ===> 160
  */
-kutype_t ascii_to_dec(const kchar_t *str)
+kint32_t ascii_to_dec(const kchar_t *str)
 {
     kchar_t *p;
-    kutype_t val = 0;
+    kint32_t val = 0;
     kchar_t type = -1;
 
     p = (kchar_t *)str;
@@ -232,7 +232,7 @@ kutype_t ascii_to_dec(const kchar_t *str)
 
 fail:
     print_err("%s: input argument error!\n", __FUNCTION__);
-    return 0;
+    return -1;
 }
 
 /*!

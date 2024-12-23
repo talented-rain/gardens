@@ -113,6 +113,6 @@ _distclean: _clean
 _debug:
 	$(call build_recusion, _debug);
 	@echo '==========>' $(output-obj)
-	@echo '++++++++++>' $(obj-y)
+	@echo '++++++++++>' $(build-obj)
 
 # end of file

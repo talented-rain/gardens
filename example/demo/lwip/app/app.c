@@ -112,7 +112,7 @@ void lwip_task(void *args)
     }
 
     sprt_data->rx_buffer[len] = '\0';
-    print_info("recv data is: %s\n", sprt_data->rx_buffer);
+//  print_info("recv data is: %s\n", sprt_data->rx_buffer);
 }
 
 /*!< end of file */

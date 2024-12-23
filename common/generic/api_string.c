@@ -113,8 +113,28 @@ kchar_t *do_string_n_copy(void *ptr_dst, const void *ptr_src, kuint32_t size)
     ptr_ch  = (kuint8_t *)ptr_src;
     ptr_buf	= (kuint8_t *)ptr_dst;
 
-    while ('\0' != *ptr_ch && (size--))
+    while (('\0' != *ptr_ch) && (size--))
         *(ptr_buf++) = *(ptr_ch++);
+
+    return (kchar_t *)ptr_dst;
+}
+
+/*!
+ * @brief   do_string_n_copy_rev
+ * @param   ptr_dst, offset, ptr_src
+ * @retval  none
+ * @note    reverse copy
+ */
+kchar_t *do_string_n_copy_rev(void *ptr_dst, const void *ptr_src, kuint32_t size)
+{
+    kuint8_t *ptr_ch;
+    kuint8_t *ptr_buf;
+
+    ptr_ch  = (kuint8_t *)ptr_src + size - 1;
+    ptr_buf	= (kuint8_t *)ptr_dst + size - 1;
+
+    while (size--)
+        *(ptr_buf--) = *(ptr_ch--);
 
     return (kchar_t *)ptr_dst;
 }
@@ -692,6 +712,17 @@ __weak kchar_t *kstrncpy(kchar_t *__dest, const kchar_t *__src, kusize_t __n)
 __weak kusize_t kstrlcpy(kchar_t *__dest, const kchar_t *__src, kusize_t __n)
 {
     return do_string_n_copy_safe(__dest, __src, __n);
+}
+
+/*!
+ * @brief   kstrncpyr
+ * @param   none
+ * @retval  none
+ * @note    copy src to dest (reverse)
+ */
+__weak kchar_t *kstrncpyr(kchar_t *__dest, const kchar_t *__src, kusize_t __n)
+{
+    return do_string_n_copy_rev(__dest, __src, __n);
 }
 
 /*!

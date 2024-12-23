@@ -61,7 +61,7 @@ $(TARGET_BINY) : $(TARGET_EXEC) force
 	$(OBJDUMP) -D -m $(ARCH) -S -l $(TARGET_EXEC) > $(TARGET_LASM)
 
 $(TARGET_EXEC) : $(head-objs) force
-	$(CC) -T$(LINK_SCRIPT) $(BUILD_CFLAGS) $(EXTRA_FLAGS) -Wl,-Map=$(TARGET_MMAP) -o $@ $(head-objs) $(OBJECT_EXEC) $(LIBS_PATH) $(LIBS)
+	$(CXX) -T$(LINK_SCRIPT) $(BUILD_CFLAGS) $(EXTRA_FLAGS) -Wl,-Map=$(TARGET_MMAP) -o $@ $(head-objs) $(OBJECT_EXEC) $(LIBS_PATH) $(LIBS)
 
 $(arch_output)/%.o : %.S force
 	$(call arch_build, $(CC), $@, $<)

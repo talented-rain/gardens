@@ -89,7 +89,6 @@ TARGET_EXT struct fwk_device_node *sprt_fwk_of_allNodes;
 /*!< The functions */
 TARGET_EXT void setup_machine_fdt(void *ptr);
 TARGET_EXT void destroy_machine_fdt(void);
-TARGET_EXT kint32_t of_platform_default_populate_init(void);
 
 /*!< Device tree operation API */
 TARGET_EXT struct fwk_device_node *fwk_of_find_node_by_path(const kchar_t *ptr_path);

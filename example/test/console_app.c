@@ -144,14 +144,14 @@ kint32_t console_app_init(void)
     struct thread_attr *sprt_attr = &sgrt_console_app_attr;
     kint32_t retval;
 
-	sprt_attr->detachstate = THREAD_CREATE_JOINABLE;
-	sprt_attr->inheritsched	= THREAD_INHERIT_SCHED;
-	sprt_attr->schedpolicy = THREAD_SCHED_FIFO;
+    sprt_attr->detachstate = THREAD_CREATE_JOINABLE;
+    sprt_attr->inheritsched	= THREAD_INHERIT_SCHED;
+    sprt_attr->schedpolicy = THREAD_SCHED_FIFO;
 
     /*!< thread stack */
-	thread_set_stack(sprt_attr, mrt_nullptr, g_console_app_stack, sizeof(g_console_app_stack));
+    thread_set_stack(sprt_attr, mrt_nullptr, g_console_app_stack, sizeof(g_console_app_stack));
     /*!< lowest priority */
-	thread_set_priority(sprt_attr, THREAD_PROTY_DEFAULT);
+    thread_set_priority(sprt_attr, THREAD_PROTY_DEFAULT);
     /*!< default time slice */
     thread_set_time_slice(sprt_attr, THREAD_TIME_DEFUALT);
 

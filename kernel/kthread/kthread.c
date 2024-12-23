@@ -79,6 +79,8 @@ static void *kthread_entry(void *args)
 {
     struct timer_list *sprt_tim = &sgrt_kthread_timer;
     tid_t tid = mrt_current->tid;
+
+    mrt_preempt_disable();
     
     thread_set_self_name(__FUNCTION__);
     spin_lock_init(&sgrt_kthread_spinlock);
@@ -87,17 +89,15 @@ static void *kthread_entry(void *args)
     setup_timer(sprt_tim, kthread_schedule_timeout, (kuint32_t)sprt_tim);
 #endif
 
-    /*!< fixed tid */
-    /*!< --------------------------------------------------------- */
-    /*!< 1. create init task */
-    init_proc_init();
+    /*!< 1. fixed tid thread */
+    init_proc_init();                       /*!< create init task */
 
-    /*!< random tid */
-    /*!< --------------------------------------------------------- */
-    /*!< 1. create kworker task */
-    kworker_init();
+    /*!< 2. random tid thread */
+    term_init();                            /*!< create term task */
+    kworker_init();                         /*!< create kworker task */
 
     print_info("%s is enter, which tid is: %d\n", __FUNCTION__, tid);
+    mrt_preempt_enable();
 
     for (;;)
     {        

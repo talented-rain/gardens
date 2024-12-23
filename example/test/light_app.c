@@ -49,11 +49,10 @@ static void *light_app_entry(void *args)
     struct mail *sprt_mail;
 
     mailbox_init(&sgrt_light_app_mailbox, mrt_current->tid, "light-app-mailbox");
+    print_info("%s is running, which tid is: %d\n", __FUNCTION__, mrt_current->tid);
 
     for (;;)
-    {       
-//      print_info("%s is running, which tid is: %d\n", __FUNCTION__, mrt_current->tid);
-        
+    {        
         fd = virt_open("/dev/ledgpio", O_RDWR);
         if (fd < 0)
             goto END1;
@@ -62,9 +61,17 @@ static void *light_app_entry(void *args)
         if (!isValid(sprt_mail))
             goto END2;
 
-        status = *sprt_mail->sprt_msg->buffer;
-        virt_write(fd, &status, 1);
+        if (sprt_mail->sprt_msg->type == NR_MAIL_TYPE_SERIAL)
+        {
+            kchar_t *buffer = (kchar_t *)sprt_mail->sprt_msg->buffer;
 
+            if (!kstrncmp(buffer, "on", 2))
+                status = 1;
+            else if (!kstrncmp(buffer, "off", 3))
+                status = 0;
+        }
+
+        virt_write(fd, &status, 1);
         mail_recv_finish(sprt_mail);
 
 END2:

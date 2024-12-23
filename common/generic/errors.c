@@ -34,7 +34,6 @@ void deal_assert_fail(const kchar_t *__assertion, const kchar_t *__file,
     print_err("---> file     : %s\n", __file);
     print_err("---> line     : %d\n", __line);
     print_err("---> function : %s\n", __function);
-    print_err("\n");
 
     if (mrt_current)
     {

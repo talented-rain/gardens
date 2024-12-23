@@ -21,6 +21,7 @@
 
 /*!< The defines */
 struct spin_lock;
+struct mailbox;
 
 #define THREAD_NAME_SIZE                        (32)
 
@@ -51,6 +52,7 @@ struct thread
     kuint32_t flags;
 
     struct spin_lock sgrt_lock;
+    struct mailbox *sprt_mb;
 };
 
 #define mrt_thread_set_flags(signal, sprt_tsk)	\
@@ -110,7 +112,9 @@ TARGET_EXT struct spin_lock *scheduler_lock(void);
 TARGET_EXT tid_t get_unused_tid_from_scheduler(kuint32_t i_start, kuint32_t count);
 TARGET_EXT kuint64_t scheduler_stats_get(void);
 TARGET_EXT void schedule_self_suspend(void);
+TARGET_EXT void schedule_self_sleep(void);
 TARGET_EXT kint32_t schedule_thread_suspend(tid_t tid);
+TARGET_EXT kint32_t schedule_thread_sleep(tid_t tid);
 TARGET_EXT kint32_t schedule_thread_wakeup(tid_t tid);
 
 TARGET_EXT kbool_t is_ready_thread_empty(void);
@@ -119,6 +123,7 @@ TARGET_EXT kbool_t is_sleep_thread_empty(void);
 TARGET_EXT struct thread *get_first_ready_thread(void);
 TARGET_EXT struct thread *get_first_suspend_thread(void);
 TARGET_EXT struct thread *get_first_sleep_thread(void);
+TARGET_EXT kbool_t is_thread_valid(tid_t tid);
 
 TARGET_EXT kint32_t schedule_thread_switch(tid_t tid);
 TARGET_EXT kint32_t register_new_thread(struct thread *sprt_thread, tid_t tid);

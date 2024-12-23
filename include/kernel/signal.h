@@ -53,8 +53,10 @@
 #define SIGSYS		                        31
 #define	SIGUNUSED	                        31
 
+#define SIGWAKE		                        32
+
 /* These should not be considered constants from userland.  */
-#define SIGRTMIN	                        32
+#define SIGRTMIN	                        33
 #define SIGRTMAX	                        64
 
 #endif /* __KERNEL_SIGNAL_H_ */

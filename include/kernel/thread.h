@@ -73,6 +73,8 @@ typedef kint32_t tid_t;
 #define THREAD_PROTY_INIT					(THREAD_PROTY_KERNEL + 1)
 #define THREAD_PROTY_KWORKER				(THREAD_PROTY_KERNEL + 1)
 
+#define THREAD_PROTY_TERM                   (THREAD_PROTY_DEFAULT)
+
 #define THREAD_PROTY_SOCKRX                 (19)
 #define THREAD_PROTY_SOCKTX                 (20)
 

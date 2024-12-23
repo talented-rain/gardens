@@ -91,8 +91,13 @@ END:
  */
 kint32_t mailbox_init(struct mailbox *sprt_mb, tid_t tid, const kchar_t *name)
 {
+    struct thread *sprt_thread;
     struct mailbox *sprt_box;
     kchar_t label[MAILBOX_NAME_LEN] = {};
+
+    sprt_thread = get_thread_handle(tid);
+    if (sprt_thread->sprt_mb)
+        return -ER_FORBID;
 
     if (name && (*name != '\0'))
         kstrlcpy(label, name, MAILBOX_NAME_LEN);
@@ -111,6 +116,7 @@ kint32_t mailbox_init(struct mailbox *sprt_mb, tid_t tid, const kchar_t *name)
     mutex_init(&sprt_mb->sgrt_lock);
     
     mailbox_insert(sprt_mb);
+    sprt_thread->sprt_mb = sprt_mb;
 
     return ER_NORMAL;
 }
@@ -123,6 +129,11 @@ kint32_t mailbox_init(struct mailbox *sprt_mb, tid_t tid, const kchar_t *name)
  */
 void mailbox_deinit(struct mailbox *sprt_mb)
 {
+    struct thread *sprt_thread;
+
+    sprt_thread = get_thread_handle(sprt_mb->tid);
+    sprt_thread->sprt_mb = mrt_nullptr;
+
     list_head_del(&sprt_mb->sgrt_link);
     mutex_init(&sprt_mb->sgrt_lock);
 }
@@ -262,7 +273,7 @@ kint32_t mail_send(const kchar_t *mb_name, struct mail *sprt_mail)
 
     sprt_to->num_msgs = sprt_mail->num_msgs;
     sprt_to->sprt_msg = sprt_msg;
-    sprt_to->src_name = sprt_mb->name;
+    sprt_to->src_name = sprt_mail->src_name;
     sprt_to->status = NR_MAIL_NONE;
 
     mutex_init(&sprt_to->sgrt_lock);

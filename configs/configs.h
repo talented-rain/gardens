@@ -34,6 +34,9 @@
 #define CONFIG_ROLL_POLL                        (0)
 #endif
 
+#define CONFIG_DEFAULT_LOGIN                    "root"
+#define CONFIG_DEFAULT_HOST                     "heavenfox"
+
 /*!< armv7 */
 #if defined(CONFIG_ARCH_ARMV7)
     #include <asm/armv7/arch_common.h>

@@ -27,6 +27,7 @@ TARGET_EXT thread_init_t g_thread_init_tables[];
 TARGET_EXT kint32_t rest_init(void);
 TARGET_EXT kint32_t kthread_init(void);
 TARGET_EXT kint32_t kworker_init(void);
+TARGET_EXT kint32_t term_init(void);
 
 TARGET_EXT kint32_t init_proc_init(void);
 

@@ -29,6 +29,7 @@ kint32_t board_init_console(void)
     print_info("\n");
     print_info("Console Initial Finished ...\n");
     print_info("Welcome to Use HeavenFox OS!\n");
+    print_info("\n");
 
     return RET_BOOT_PASS;
 }
