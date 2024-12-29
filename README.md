@@ -46,7 +46,8 @@
     19) support cpu zynq7 (boot and running);
     20) support configure resources freely by "configs/mach/xxxx_defconfig', and generate auto.conf and autoconf.h;
     21) support lvgl;
-    22) suuport lwip (code packaging: network drivers and application layer commuicate with sk_buff and net_device)
+    22) suuport lwip (code packaging: network drivers and application layer commuicate with sk_buff and net_device);
+    23) support terminal, provide system command "help", "ts", "ttc" and so on
     
 ## Methods
     make:           build the whole project;
