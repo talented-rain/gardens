@@ -124,6 +124,9 @@ TARGET_EXT struct thread *get_first_ready_thread(void);
 TARGET_EXT struct thread *get_first_suspend_thread(void);
 TARGET_EXT struct thread *get_first_sleep_thread(void);
 TARGET_EXT kbool_t is_thread_valid(tid_t tid);
+TARGET_EXT struct thread *next_ready_thread(struct thread *sprt_prev);
+TARGET_EXT struct thread *next_suspend_thread(struct thread *sprt_prev);
+TARGET_EXT struct thread *next_sleep_thread(struct thread *sprt_prev);
 
 TARGET_EXT kint32_t schedule_thread_switch(tid_t tid);
 TARGET_EXT kint32_t register_new_thread(struct thread *sprt_thread, tid_t tid);

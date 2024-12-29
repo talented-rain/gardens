@@ -20,8 +20,9 @@
 #define DELAY_SIMPLE_COUNTER_PER_US								(DELAY_SIMPLE_COUNTER_PER_MS / 1000)
 
 /*!< The globals */
-kutime_t jiffies = JIFFIES_INITVAL;
-kutime_t jiffies_out = 0;
+volatile kutime_t jiffies = JIFFIES_INITVAL;
+volatile kutime_t jiffies_out = 0;
+
 kutime_t *ptr_systick_counter = mrt_nullptr;
 kutime_t g_delay_timer_counter = 0;
 

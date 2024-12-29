@@ -55,6 +55,7 @@ TARGET_EXT void term_cmd_set_host(const kchar_t *host);
 /*!< commands */
 TARGET_EXT void term_cmd_add_help(void);
 TARGET_EXT void term_cmd_add_info(void);
+TARGET_EXT void term_cmd_add_ts(void);
 TARGET_EXT void term_cmd_add_ttc(void);
 TARGET_EXT void term_cmd_add_user(void);
 TARGET_EXT void term_cmd_add_kill(void);

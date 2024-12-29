@@ -175,6 +175,28 @@ static kint32_t fatfs_disk_mkdir(struct fwk_gendisk *sprt_gdisk, const kchar_t *
 }
 
 /*!
+ * @brief   delete directory
+ * @param   sprt_gdisk, dir_name (directory name)
+ * @retval  errno
+ * @note    rmdir
+ */
+static kint32_t fatfs_disk_rmdir(struct fwk_gendisk *sprt_gdisk, const kchar_t *dir_name)
+{
+    struct fatfs_disk *sprt_fdisk;
+    FRESULT retval;
+
+    sprt_fdisk = mrt_fatfs_disk_get(sprt_gdisk);
+    if (!sprt_fdisk->is_mounted)
+        return -ER_NREADY;
+    
+    retval = f_unlink(dir_name);
+    if (retval != FR_OK)
+        return -ER_FAILD;
+
+    return ER_NORMAL;
+}
+
+/*!
  * @brief   open file in disk
  * @param   sprt_blkdev, sprt_file
  * @retval  errno
@@ -276,7 +298,7 @@ static kint32_t fatfs_file_lssek(struct fs_stream *sprt_file, kuint32_t offset)
  * @retval  errno
  * @note    write file
  */
-static kssize_t fatfs_disk_write(struct fs_stream *sprt_file, const void *buffer, kuint32_t size, kuint32_t offset)
+static kssize_t fatfs_file_write(struct fs_stream *sprt_file, const void *buffer, kuint32_t size, kuint32_t offset)
 {
     FIL *sprt_fp;
     kusize_t bytes = 0;
@@ -306,7 +328,7 @@ static kssize_t fatfs_disk_write(struct fs_stream *sprt_file, const void *buffer
  * @retval  errno
  * @note    read file
  */
-static kssize_t fatfs_disk_read(struct fs_stream *sprt_file, void *buffer, kuint32_t size, kuint32_t offset)
+static kssize_t fatfs_file_read(struct fs_stream *sprt_file, void *buffer, kuint32_t size, kuint32_t offset)
 {
     FIL *sprt_fp;
     kusize_t bytes = 0;
@@ -345,15 +367,33 @@ static kssize_t fatfs_file_get_size(struct fs_stream *sprt_file)
     return f_size(sprt_fp);
 }
 
+/*!
+ * @brief   get file read/write pointer
+ * @param   sprt_file
+ * @retval  size
+ * @note    none
+ */
+static kssize_t fatfs_file_tell(struct fs_stream *sprt_file)
+{
+    FIL *sprt_fp;
+
+    sprt_fp = (FIL *)sprt_file->private_data;
+    if (!sprt_fp)
+        return -ER_NODEV;
+
+    return f_tell(sprt_fp);
+}
+
 /*!< fatfs operations */
 static const struct fwk_block_device_oprts sgrt_fatfs_bops =
 {  
     .open   = fatfs_file_open,
     .close  = fatfs_file_close,
-    .write  = fatfs_disk_write,
-    .read   = fatfs_disk_read,
+    .write  = fatfs_file_write,
+    .read   = fatfs_file_read,
     .lseek  = fatfs_file_lssek,
     .fsize  = fatfs_file_get_size,
+    .fpos   = fatfs_file_tell,
 };
 
 /*!
@@ -381,6 +421,7 @@ struct fatfs_disk *fs_alloc_fatfs(kuint16_t number)
     sprt_gdisk->unmount = fatfs_disk_unmount;
     sprt_gdisk->mkfs = fatfs_disk_format;
     sprt_gdisk->mkdir = fatfs_disk_mkdir;
+    sprt_gdisk->rmdir = fatfs_disk_rmdir;
 
     return sprt_fdisk;
 }

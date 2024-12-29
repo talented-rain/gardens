@@ -85,8 +85,9 @@ void zynq7_hdmi_init(void)
     if (retval)
         goto kill;
 
-    fwk_display_ctrl_init(&sgrt_xil_hdmi_disp[0], &VMODE_BUFFER[0], 1920 * 1080 * 4, 1920, 1080, FWK_RGB_PIXEL32);
-    sgrt_xil_hdmi_disp[0].sprt_ops->clear(&sgrt_xil_hdmi_disp[0], RGB_WHITE);
+    fwk_display_ctrl_init(&sgrt_xil_hdmi_disp[0], &VMODE_BUFFER[0], &VMODE_BUFFER[0], 
+                    1920 * 1080 * 4, 1920, 1080, FWK_RGB_PIXEL32);
+    fwk_display_clear(&sgrt_xil_hdmi_disp[0], RGB_WHITE);
 
 kill:
     return;

@@ -61,10 +61,19 @@ void io_putc(const kubyte_t ch)
 void io_putstr(const kubyte_t *msgs, kusize_t size)
 {
     XUartPs *sprt_uart;
+    kusize_t len, offset = 0;
 
     sprt_uart = &sgrt_ps7_xuart_ps_data;
-    XUartPs_Send(sprt_uart, (kuint8_t *)msgs, size);
-    mrt_delay_nop();
+
+    while (size)
+    {
+        len = CMP_MIN2(size, 64);
+        XUartPs_Send(sprt_uart, (kuint8_t *)msgs + offset, len);
+        mrt_delay_nop();
+
+        size -= len;
+        offset += len;
+    };
 }
 
 /*!

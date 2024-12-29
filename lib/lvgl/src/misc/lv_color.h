@@ -63,7 +63,7 @@ enum {
 #define LV_COLOR_SIZE 8
 #elif LV_COLOR_DEPTH == 16
 #define LV_COLOR_SIZE 16
-#elif LV_COLOR_DEPTH == 32
+#elif (LV_COLOR_DEPTH == 32 || LV_COLOR_DEPTH == 24)
 #define LV_COLOR_SIZE 32
 #else
 #error "Invalid LV_COLOR_DEPTH in lv_conf.h! Set it to 1, 8, 16 or 32!"

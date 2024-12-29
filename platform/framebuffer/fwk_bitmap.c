@@ -28,39 +28,37 @@
 kuint32_t fwk_pixel_rgbform_convert(kint8_t srctype, kuint32_t data)
 {
     /*!< R, G, B, diaphaneity */
-    kuint8_t  r_data, g_data, b_data, d_data;
-    kuint32_t result = data;
+//  kuint8_t  r_data, g_data, b_data, d_data;
+    volatile kuint32_t result = data;
 
     switch (srctype)
     {
         case FWK_RGB_PIXEL16:
-//          b_data = (uint8_t)data  << 3;
-//          g_data = (uint8_t)(data >> 5)  << 2;
-//          r_data = (uint8_t)(data >> 11) << 3;
-//          result = ((uint16_t)b_data << 8) | ((uint16_t)g_data << 3) | ((uint16_t)r_data >> 3);
-
             /*!< 
              * The so-called BGR and RGB are actually caused by the influence of the little-end mode, 
              * not that R and B change positions! It's just that for RGB888, that's what it seems 
              */
-            b_data = (kuint8_t)data;
-            r_data = (kuint8_t)(data >> 8);
-            result = ((kuint16_t)b_data << 8) | ((kuint16_t)r_data);
+//          b_data = (kuint8_t)data;
+//          r_data = (kuint8_t)(data >> 8);
+//          result = ((kuint16_t)b_data << 8) | ((kuint16_t)r_data);
+            result = be16_to_cpu(data);
             break;
 
         case FWK_RGB_PIXEL24:
-            b_data = (kuint8_t)data;
-            g_data = (kuint8_t)(data >> 8);
-            r_data = (kuint8_t)(data >> 16);
-            result = ((kuint32_t)b_data << 16) | ((kuint32_t)g_data << 8) | ((kuint32_t)r_data);
+//          b_data = (kuint8_t)data;
+//          g_data = (kuint8_t)(data >> 8);
+//          r_data = (kuint8_t)(data >> 16);
+//          result = ((kuint32_t)b_data << 16) | ((kuint32_t)g_data << 8) | ((kuint32_t)r_data);
+            result = be32_to_cpu(data) >> 8;
             break;
 
         case FWK_RGB_PIXEL32:
-            d_data = (kuint8_t)data;
-            b_data = (kuint8_t)(data >> 8);
-            g_data = (kuint8_t)(data >> 16);
-            r_data = (kuint8_t)(data >> 24);
-            result = (((kuint32_t)d_data << 24) | (kuint32_t)b_data << 16) | ((kuint32_t)g_data << 8) | ((kuint32_t)r_data);
+//          d_data = (kuint8_t)data;
+//          b_data = (kuint8_t)(data >> 8);
+//          g_data = (kuint8_t)(data >> 16);
+//          r_data = (kuint8_t)(data >> 24);
+//          result = (((kuint32_t)d_data << 24) | (kuint32_t)b_data << 16) | ((kuint32_t)g_data << 8) | ((kuint32_t)r_data);
+            result = be32_to_cpu(data);
             break;
 
         default:
@@ -87,7 +85,7 @@ void fwk_display_dot_matrix_image(struct fwk_disp_info *sprt_disp, kuint32_t x_s
     kuint32_t rgb_data, rgb_inc = 0;
     kuint32_t width, height, px_cnt, py_cnt;
 
-    if ((!image) || (!sprt_disp) || (!sprt_disp->sprt_ops))
+    if ((!image) || (!sprt_disp))
         return;
 
     sprt_dmatx = (struct fwk_dotmat_header *)image;
@@ -105,7 +103,7 @@ void fwk_display_dot_matrix_image(struct fwk_disp_info *sprt_disp, kuint32_t x_s
     /*!< horizontal scanning is default used for image dot matrix modeling, without considering vertical scanning */
     for (py_cnt = 0; py_cnt < height; py_cnt++)
     {
-        offset = sprt_disp->sprt_ops->get_offset(x_start, y_start + py_cnt, sprt_disp->width);
+        offset = fwk_display_advance_position(x_start, y_start + py_cnt, sprt_disp->width);
 
         for (px_cnt = 0; px_cnt < width; px_cnt++)
         {
@@ -119,13 +117,9 @@ void fwk_display_dot_matrix_image(struct fwk_disp_info *sprt_disp, kuint32_t x_s
             rgb_inc += image_bpp;
 
             /*!< reverse littile endian, for RGB24, such as: BGR <===> RGB */
-            rgb_data = fwk_pixel_rgbform_convert(image_bpp, rgb_data);
-
-            if (sprt_disp->sprt_ops->convert_rgbbit)
-                rgb_data = sprt_disp->sprt_ops->convert_rgbbit(image_bpp, sprt_disp->bpp, rgb_data);
-
-            if (sprt_disp->sprt_ops->write_pixel)
-                sprt_disp->sprt_ops->write_pixel(sprt_disp->buffer, offset + px_cnt, sprt_disp->bpp, rgb_data);
+            rgb_data = fwk_pixel_rgbform_convert(sprt_dmatx->pixelbit, rgb_data);
+            rgb_data = fwk_display_convert_rgbbit(sprt_dmatx->pixelbit, sprt_disp->bpp, rgb_data);
+            fwk_display_write_pixel(sprt_disp->buffer, offset + px_cnt, sprt_disp->bpp, rgb_data);
         }
     }
 }
@@ -156,10 +150,10 @@ kint32_t fwk_bitmap_get_and_check(struct fwk_bmp_ctrl *sprt_bctl, const kuint8_t
     sprt_bi = &sprt_bctl->sgrt_bi;
     ptr_bitmap = (kuint8_t *)image;
 
-    memcpy(&sgrt_file, ptr_bitmap, sizeof(sgrt_file));
-    ptr_bitmap += sizeof(sgrt_file);
-    memcpy(sprt_bi, ptr_bitmap, sizeof(*sprt_bi));
-    ptr_bitmap += sizeof(*sprt_bi);
+    kmemcpy(&sgrt_file, ptr_bitmap, FWK_BMP_FILE_HDR_LEN);
+    ptr_bitmap += FWK_BMP_FILE_HDR_LEN;
+    kmemcpy(sprt_bi, ptr_bitmap, FWK_BMP_INFO_HDR_LEN);
+    ptr_bitmap += FWK_BMP_INFO_HDR_LEN;
 
     if (sgrt_file.picType != ugrt_type.pic_type)
         return -ER_FAULT;
@@ -179,7 +173,7 @@ kint32_t fwk_display_bitmap(struct fwk_bmp_ctrl *sprt_bctl, const kuint8_t *imag
 {
     struct fwk_bmp_info_header *sprt_bi;
     struct fwk_disp_info *sprt_disp;
-    kuint32_t offset, p_cnt = 0;
+    kuint32_t offset;
     kuint32_t rgb_data, rgb_inc = 0;
     kuint8_t image_bpp;
     kuint32_t width, height, x_pos, y_pos, y_offset;
@@ -188,7 +182,6 @@ kint32_t fwk_display_bitmap(struct fwk_bmp_ctrl *sprt_bctl, const kuint8_t *imag
     if ((!image) || 
         (!sprt_bctl) || 
         (!sprt_bctl->sprt_disp) ||
-        (!sprt_bctl->sprt_disp->sprt_ops) ||
         (!size))
         return -ER_NOMEM;
 
@@ -240,23 +233,23 @@ kint32_t fwk_display_bitmap(struct fwk_bmp_ctrl *sprt_bctl, const kuint8_t *imag
         y_offset = (sprt_bi->height < 0) ? y_pos : ((sprt_bctl->y_start >> 1) + height - y_pos - 1);
 
         /*!< offset = x + y * width */
-        offset = sprt_disp->sprt_ops->get_offset(x_pos, y_offset, sprt_disp->width);
+        offset = mrt_fwk_disp_advance_pos(x_pos, y_offset, sprt_disp->width);
 
         rgb_data = 0;
-        for (p_cnt = 0; p_cnt < image_bpp; p_cnt++)
+#if 0
+        for (kuint32_t p_cnt = 0; p_cnt < image_bpp; p_cnt++)
         {
             rgb_data <<= 8;
             rgb_data  |= *(ptr_bitmap + rgb_inc + p_cnt);
         }
 
         /*!< reverse littile endian, for RGB24, such as: BGR <===> RGB */
-        rgb_data = fwk_pixel_rgbform_convert(image_bpp, rgb_data);
-
-        if (sprt_disp->sprt_ops->convert_rgbbit)
-            rgb_data = sprt_disp->sprt_ops->convert_rgbbit(image_bpp, sprt_disp->bpp, rgb_data);
-
-        if (sprt_disp->sprt_ops->write_pixel)
-            sprt_disp->sprt_ops->write_pixel(sprt_disp->buffer, offset, sprt_disp->bpp, rgb_data);   
+        rgb_data = fwk_pixel_rgbform_convert(sprt_bi->pixelbit, rgb_data);
+#else
+        kmemcpy(&rgb_data, ptr_bitmap + rgb_inc, image_bpp);
+#endif
+        rgb_data = mrt_fwk_disp_convert_rgb(sprt_bi->pixelbit, sprt_disp->bpp, rgb_data);
+        mrt_fwk_disp_write_pixel(sprt_disp->buffer, offset, sprt_disp->bpp, rgb_data); 
     }
 
     sprt_bctl->x_next = x_pos;
@@ -281,15 +274,14 @@ void fwk_display_whole_bitmap(struct fwk_bmp_ctrl *sprt_bctl, const kuint8_t *im
     kint32_t image_offset;
     kuint8_t *ptr_bitmap;
 
-    kuint32_t offset, p_cnt = 0;
+    kuint32_t offset;
     kuint32_t rgb_data, rgb_inc = 0;
     kuint8_t image_bpp;
     kuint32_t width, height, px_cnt, py_cnt, y_offset;
 
     if ((!image) || 
         (!sprt_bctl) || 
-        (!sprt_bctl->sprt_disp) ||
-        (!sprt_bctl->sprt_disp->sprt_ops))
+        (!sprt_bctl->sprt_disp))
         return;
 
     image_offset = fwk_bitmap_get_and_check(sprt_bctl, image);
@@ -321,28 +313,28 @@ void fwk_display_whole_bitmap(struct fwk_bmp_ctrl *sprt_bctl, const kuint8_t *im
          * if height > 0: the image scanning method is from left to right and from bottom to top; 
          * Otherwise, it will be from left to right, from top to bottom 
          */
-        y_offset = (0 > sprt_bi->height) ? py_cnt : ((height - 1) - py_cnt);
-        offset = sprt_disp->sprt_ops->get_offset(x_start, y_start + y_offset, sprt_disp->width);
+        y_offset = (sprt_bi->height < 0) ? py_cnt : ((height - 1) - py_cnt);
+        offset = mrt_fwk_disp_advance_pos(x_start, y_start + y_offset, sprt_disp->width);
 
         for (px_cnt = 0; px_cnt < width; px_cnt++)
         {
             rgb_data = 0;
-            for (p_cnt = 0; p_cnt < image_bpp; p_cnt++)
+#if 0
+            for (kuint32_t p_cnt = 0; p_cnt < image_bpp; p_cnt++)
             {
                 rgb_data <<= 8;
                 rgb_data  |= *(ptr_bitmap + rgb_inc + p_cnt);
             }
 
-            rgb_inc += image_bpp;
-
             /*!< reverse littile endian, for RGB24, such as: BGR <===> RGB */
-            rgb_data = fwk_pixel_rgbform_convert(image_bpp, rgb_data);
+            rgb_data = fwk_pixel_rgbform_convert(sprt_bi->pixelbit, rgb_data);
+#else
+            kmemcpy(&rgb_data, ptr_bitmap + rgb_inc, image_bpp);
+#endif
+            rgb_data = mrt_fwk_disp_convert_rgb(sprt_bi->pixelbit, sprt_disp->bpp, rgb_data);
+            mrt_fwk_disp_write_pixel(sprt_disp->buffer, offset + px_cnt, sprt_disp->bpp, rgb_data);
 
-            if (sprt_disp->sprt_ops->convert_rgbbit)
-                rgb_data = sprt_disp->sprt_ops->convert_rgbbit(image_bpp, sprt_disp->bpp, rgb_data);
-
-            if (sprt_disp->sprt_ops->write_pixel)
-                sprt_disp->sprt_ops->write_pixel(sprt_disp->buffer, offset + px_cnt, sprt_disp->bpp, rgb_data);
+            rgb_inc += image_bpp;
         }
     }
 }

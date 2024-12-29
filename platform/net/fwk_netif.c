@@ -340,7 +340,7 @@ kint32_t fwk_netif_ioctl(kuint32_t request, kuaddr_t args)
     switch (request)
     {
         case NETWORK_IFR_GET_HWADDR:
-            memcpy(sprt_ifr->mrt_ifr_hwaddr.sa_data, sprt_ndev->dev_addr, NET_MAC_ETH_ALEN);
+            kmemcpy(sprt_ifr->mrt_ifr_hwaddr.sa_data, sprt_ndev->dev_addr, NET_MAC_ETH_ALEN);
             break;
 
         case NETWORK_IFR_GET_MTU:

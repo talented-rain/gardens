@@ -53,22 +53,22 @@
 /*!< correct usage for comparing both variable */
 #define mrt_cmp_gt(a, b, c, d)	\
 ({	\
-	const typeof(a) _a = (a);	\
-	const typeof(b) _b = (b);	\
-	const typeof(c) _c = (c);	\
-	const typeof(d) _d = (d);	\
-	(void)(&_a == &_b);	\
-	CMP_GT2(_a, _b, _c, _d);	\
+    const typeof(a) _a = (a);	\
+    const typeof(b) _b = (b);	\
+    const typeof(c) _c = (c);	\
+    const typeof(d) _d = (d);	\
+    (void)(&_a == &_b);	\
+    CMP_GT2(_a, _b, _c, _d);	\
 })
 
 #define mrt_cmp_lt(a, b, c, d)	\
 ({	\
-	const typeof(a) _a = (a);	\
-	const typeof(b) _b = (b);	\
-	const typeof(c) _c = (c);	\
-	const typeof(d) _d = (d);	\
-	(void)(&_a == &_b);	\
-	CMP_LT2(_a, _b, _c, _d);	\
+    const typeof(a) _a = (a);	\
+    const typeof(b) _b = (b);	\
+    const typeof(c) _c = (c);	\
+    const typeof(d) _d = (d);	\
+    (void)(&_a == &_b);	\
+    CMP_LT2(_a, _b, _c, _d);	\
 })
 
 #define mrt_ret_max_super(a, b, d)						mrt_cmp_gt(a, b, a, d)
@@ -79,10 +79,10 @@
 #define mrt_abs(a)										((typeof(a))(((a) < 0) ? -(a) : (a)))
 #define mrt_usub(a, b)	\
 ({	\
-	const typeof(a) _a = (a);	\
-	const typeof(b) _b = (b);	\
-	(void)(&_a == &_b);	\
-	((_a) > (_b)) ? ((_a) - (_b)) : ((_b) - (_a));	\
+    const typeof(a) _a = (a);	\
+    const typeof(b) _b = (b);	\
+    (void)(&_a == &_b);	\
+    ((_a) > (_b)) ? ((_a) - (_b)) : ((_b) - (_a));	\
 })
 
 #define ERT_NUM(x)                              		NR_##x
@@ -118,46 +118,46 @@
 #define mrt_member_offset(type, member)					((kusize_t)(&((type *)0)->member))
 
 #ifdef __compiler_offsetof
-	#define mrt_offsetof(type, member)					__compiler_offsetof(type, member)
+    #define mrt_offsetof(type, member)					__compiler_offsetof(type, member)
 #else
-	#define mrt_offsetof(type, member)					mrt_member_offset(type, member)
+    #define mrt_offsetof(type, member)					mrt_member_offset(type, member)
 #endif
 
 /*!< Return the handler of parent struct */
 #define mrt_to_parent_handler(ptr, type, member)	\
 ({	\
-	const typeof(((type *)0)->member) *ptr_member = (ptr);	\
-	(type *)((char *)ptr_member - mrt_offsetof(type, member));	\
+    const typeof(((type *)0)->member) *ptr_member = (ptr);	\
+    (type *)((char *)ptr_member - mrt_offsetof(type, member));	\
 })
 #define mrt_container_of(ptr, type, member)				mrt_to_parent_handler(ptr, type, member)
 
 /*!< swap high byte and low byte for 2 bytes val */
 #define TO_CONVERT_BYTE16(x)	\
 (	\
-	(((kuint16_t)(x) & (kuint16_t)0x00ff) << 8)	|	\
-	(((kuint16_t)(x) & (kuint16_t)0xff00) >> 8)		\
+    (((kuint16_t)(x) & (kuint16_t)0x00ff) << 8)	|	\
+    (((kuint16_t)(x) & (kuint16_t)0xff00) >> 8)		\
 )
 
 /*!< swap high byte and low byte for 4 bytes val */
 #define TO_CONVERT_BYTE32(x)	\
 (	\
-	(((kuint32_t)(x) & (kuint32_t)0x000000ff) << 24)	|	\
-	(((kuint32_t)(x) & (kuint32_t)0x0000ff00) << 8)		|	\
-	(((kuint32_t)(x) & (kuint32_t)0x00ff0000) >> 8)		|	\
-	(((kuint32_t)(x) & (kuint32_t)0xff000000) >> 24)		\
+    (((kuint32_t)(x) & (kuint32_t)0x000000ff) << 24)	|	\
+    (((kuint32_t)(x) & (kuint32_t)0x0000ff00) << 8)		|	\
+    (((kuint32_t)(x) & (kuint32_t)0x00ff0000) >> 8)		|	\
+    (((kuint32_t)(x) & (kuint32_t)0xff000000) >> 24)		\
 )
 
 /*!< swap high bit and low bit for a byte */
 #define TO_CONVERT_BIT8(x)	\
 (	\
-	(((kuint8_t)(x) & (kuint8_t)0b00000001) << 7)	|	\
-	(((kuint8_t)(x) & (kuint8_t)0b00000010) << 5)	|	\
-	(((kuint8_t)(x) & (kuint8_t)0b00000100) << 3)	|	\
-	(((kuint8_t)(x) & (kuint8_t)0b00001000) << 1)	|	\
-	(((kuint8_t)(x) & (kuint8_t)0b00010000) >> 1)	|	\
-	(((kuint8_t)(x) & (kuint8_t)0b00100000) >> 3)	|	\
-	(((kuint8_t)(x) & (kuint8_t)0b01000000) >> 5)	|	\
-	(((kuint8_t)(x) & (kuint8_t)0b10000000) >> 7)		\
+    (((kuint8_t)(x) & (kuint8_t)0b00000001) << 7)	|	\
+    (((kuint8_t)(x) & (kuint8_t)0b00000010) << 5)	|	\
+    (((kuint8_t)(x) & (kuint8_t)0b00000100) << 3)	|	\
+    (((kuint8_t)(x) & (kuint8_t)0b00001000) << 1)	|	\
+    (((kuint8_t)(x) & (kuint8_t)0b00010000) >> 1)	|	\
+    (((kuint8_t)(x) & (kuint8_t)0b00100000) >> 3)	|	\
+    (((kuint8_t)(x) & (kuint8_t)0b01000000) >> 5)	|	\
+    (((kuint8_t)(x) & (kuint8_t)0b10000000) >> 7)		\
 )
 
 /*!< bits of per byte */
@@ -199,26 +199,26 @@ TARGET_EXT kutype_t random_val(void);
 
 #define mrt_udiv(divied, div)	\
 ({	\
-	typeof(divied) _divied = (divied);	\
-	typeof(div) _div = (div);	\
-	(void)(&_divied == &_div);	\
-	(typeof(divied))udiv_integer(_divied, _div);	\
+    typeof(divied) _divied = (divied);	\
+    typeof(div) _div = (div);	\
+    (void)(&_divied == &_div);	\
+    (typeof(divied))udiv_integer(_divied, _div);	\
 })
 
 #define mrt_sdiv(divied, div)	\
 ({	\
-	typeof(divied) _divied = (divied);	\
-	typeof(div) _div = (div);	\
-	(void)(&_divied == &_div);	\
-	(typeof(divied))sdiv_integer(_divied, _div);	\
+    typeof(divied) _divied = (divied);	\
+    typeof(div) _div = (div);	\
+    (void)(&_divied == &_div);	\
+    (typeof(divied))sdiv_integer(_divied, _div);	\
 })
 
 #define mrt_urem(divied, div)	\
 ({	\
-	typeof(divied) _divied = (divied);	\
-	typeof(div) _div = (div);	\
-	(void)(&_divied == &_div);	\
-	(typeof(divied))udiv_remainder(_divied, _div);	\
+    typeof(divied) _divied = (divied);	\
+    typeof(div) _div = (div);	\
+    (void)(&_divied == &_div);	\
+    (typeof(divied))udiv_remainder(_divied, _div);	\
 })
 
 /*!< API function */
@@ -230,7 +230,7 @@ TARGET_EXT kutype_t random_val(void);
  */
 __force_inline static inline kbool_t isValid(const void *ptr)
 {
-	return ((!!((kuaddr_t)ptr)) && !IS_ERR(ptr));
+    return ((!!((kuaddr_t)ptr)) && !IS_ERR(ptr));
 }
 
 /*!
@@ -241,19 +241,19 @@ __force_inline static inline kbool_t isValid(const void *ptr)
  */
 __force_inline static inline kbool_t isPower2(kutype_t number)
 {
-	/*!<
-	 * for example:
-	 *	0:	return false
-	 *	1:	= pow(2, 0), return true
-	 *	2:	= pow(2, 1), 0b10 & 0b01 = 0 == 0, return true
-	 *	3:	= ???, 0b11 & 0b10 = 0b10 != 0, return false
-	 *	4:	= pow(2, 2), 0b100 & 0b011 = 0 == 0, return true
-	 *	...
-	 *
-	 * all in all, it is equivalent to mrt_is_aligned(number, number)
-	 * (when only one bit is 1, it is an n-pwoer of 2; that is, it is aligned with itself)
-	 */
-	return (number && (0 == (number & (number - 1))));
+    /*!<
+     * for example:
+     *	0:	return false
+     *	1:	= pow(2, 0), return true
+     *	2:	= pow(2, 1), 0b10 & 0b01 = 0 == 0, return true
+     *	3:	= ???, 0b11 & 0b10 = 0b10 != 0, return false
+     *	4:	= pow(2, 2), 0b100 & 0b011 = 0 == 0, return true
+     *	...
+     *
+     * all in all, it is equivalent to mrt_is_aligned(number, number)
+     * (when only one bit is 1, it is an n-pwoer of 2; that is, it is aligned with itself)
+     */
+    return (number && (0 == (number & (number - 1))));
 }
 
 /*!
@@ -262,17 +262,21 @@ __force_inline static inline kbool_t isPower2(kutype_t number)
  * @retval  result
  * @note    swap high byte and low byte for 4 bytes val
  */
+#define mrt_reverse_byte32(ptr, val)	\
+    do {    \
+        __asm__ __volatile__ (  \
+            " rev %0, %1	"   \
+            : "=&r"(*(ptr)) \
+            : "r"(val)  \
+            : "cc"  \
+        );  \
+    } while (0)
+
 static inline kuint32_t reverse_byte32(kuint32_t val)
 {
     kuint32_t result;
 
-    __asm__ __volatile__ (
-		" rev %0, %1	"
-		: "=&r"(result)
-		: "r"(val)
-		: "cc"
-	);
-
+    mrt_reverse_byte32(&result, val);
     return result;
 }
 
@@ -282,17 +286,21 @@ static inline kuint32_t reverse_byte32(kuint32_t val)
  * @retval  result
  * @note    swap high byte and low byte for 2 bytes val
  */
+#define mrt_reverse_byte16(ptr, val)	\
+    do {    \
+        __asm__ __volatile__ (  \
+            " rev16 %0, %1	"   \
+            : "=&r"(*(ptr)) \
+            : "r"(val)  \
+            : "cc"  \
+        );  \
+    } while (0)
+
 static inline kuint16_t reverse_byte16(kuint16_t val)
 {
     kuint16_t result;
 
-    __asm__ __volatile__ (
-		" rev16 %0, %1	"
-		: "=&r"(result)
-		: "r"(val)
-		: "cc"
-	);
-
+    mrt_reverse_byte16(&result, val);
     return result;
 }
 
@@ -306,12 +314,12 @@ static inline kuint8_t reverse_bit(kuint8_t val)
 {
     kuint8_t result, i;
 
-	for (i = 8, result = 0; i > 0; i--)
-	{
-		result <<= 1;
-		result |= (val & 0x01);
-		val >>= 1;
-	}
+    for (i = 8, result = 0; i > 0; i--)
+    {
+        result <<= 1;
+        result |= (val & 0x01);
+        val >>= 1;
+    }
 
     return result;
 }

@@ -222,6 +222,7 @@ static const term_cmd_fn_t g_term_cmd_fn[] =
     term_cmd_add_help,
 
     term_cmd_add_info,
+    term_cmd_add_ts,
     term_cmd_add_ttc,
     term_cmd_add_user,
     term_cmd_add_kill,

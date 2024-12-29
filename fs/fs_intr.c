@@ -164,4 +164,18 @@ kint32_t file_lseek(struct fs_stream *sprt_fs, kuint32_t offset)
     return sprt_fs->sprt_bops->lseek(sprt_fs, offset);
 }
 
+/*!
+ * @brief   get offset
+ * @param   sprt_fs
+ * @retval  errno
+ * @note    get offset
+ */
+kssize_t file_tell(struct fs_stream *sprt_fs)
+{
+    if (!sprt_fs->sprt_bops->fpos)
+        return -ER_ERROR;
+
+    return sprt_fs->sprt_bops->fpos(sprt_fs);
+}
+
 /* end of file */

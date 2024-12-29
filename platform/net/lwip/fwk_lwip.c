@@ -191,7 +191,7 @@ static err_t lwip_enet_init(struct netif *sprt_netif)
         return ERR_IF;
 
     sprt_netif->hwaddr_len = sizeof(sprt_netif->hwaddr);
-    memcpy(&sprt_netif->hwaddr[0], sgrt_ifr.mrt_ifr_hwaddr.sa_data, sprt_netif->hwaddr_len);
+    kmemcpy(&sprt_netif->hwaddr[0], sgrt_ifr.mrt_ifr_hwaddr.sa_data, sprt_netif->hwaddr_len);
 
     retval = virt_ioctl(sockfd, NETWORK_IFR_GET_MTU, &sgrt_ifr);
     if (retval)

@@ -63,7 +63,7 @@ static void *light_app_entry(void *args)
 
         if (sprt_mail->sprt_msg->type == NR_MAIL_TYPE_SERIAL)
         {
-            kchar_t *buffer = (kchar_t *)sprt_mail->sprt_msg->buffer;
+            kchar_t *buffer = (kchar_t *)sprt_mail->sprt_msg[0].buffer;
 
             if (!kstrncmp(buffer, "on", 2))
                 status = 1;

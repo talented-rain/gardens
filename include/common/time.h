@@ -24,8 +24,8 @@
 typedef kutype_t 	kutime_t;
 typedef kstype_t 	kstime_t;
 
-TARGET_EXT kutime_t jiffies;
-TARGET_EXT kutime_t jiffies_out;
+TARGET_EXT volatile kutime_t jiffies;
+TARGET_EXT volatile kutime_t jiffies_out;
 
 TARGET_EXT kutime_t *ptr_systick_counter;
 TARGET_EXT kutime_t g_delay_timer_counter;

@@ -34,7 +34,7 @@
 /**********************
  *  STATIC PROTOTYPES
  **********************/
-static void disp_init(void);
+static kint32_t disp_init(struct fwk_disp_ctrl *sprt_dctrl);
 
 static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p);
 //static void gpu_fill(lv_disp_drv_t * disp_drv, lv_color_t * dest_buf, lv_coord_t dest_width,
@@ -44,6 +44,7 @@ static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
  *  STATIC VARIABLES
  **********************/
 static struct timer_list sgrt_lvgl_tick_timer;
+static kint32_t g_lvgl_fbdev_fd = -1;
 
 /**********************
  *      MACROS
@@ -64,7 +65,8 @@ void lv_port_disp_init(struct fwk_disp_ctrl *sprt_dctrl)
     /*-------------------------
      * Initialize your display
      * -----------------------*/
-    disp_init();
+    if (disp_init(sprt_dctrl))
+        return;
 
     /*-----------------------------
      * Create a buffer for drawing
@@ -113,7 +115,7 @@ void lv_port_disp_init(struct fwk_disp_ctrl *sprt_dctrl)
 #else
 
     static lv_disp_draw_buf_t draw_buf_dsc_4;
-    lv_disp_draw_buf_init(&draw_buf_dsc_4, sprt_disp->buffer, sprt_disp->buffer_bak,
+    lv_disp_draw_buf_init(&draw_buf_dsc_4, sprt_disp->buffer_bak, sprt_disp->buffer,
                           sprt_disp->height * sprt_disp->width);   /*Initialize the display buffer*/
 
 #endif
@@ -163,14 +165,52 @@ static void lvgl_disp_tick_inc(kuint32_t args)
 }
 
 /*Initialize your display and the required peripherals.*/
-static void disp_init(void)
+static kint32_t disp_init(struct fwk_disp_ctrl *sprt_dctrl)
 {
     /*You code here*/
     struct timer_list *sprt_tim = &sgrt_lvgl_tick_timer;
+    kint32_t fd;
+    struct fwk_fb_fix_screen_info sgrt_fix;
+	struct fwk_fb_var_screen_info sgrt_var;
+    kuint32_t *fb_buffer1, *fb_buffer2;
+    struct fwk_disp_info *sprt_disp;
 
+    sprt_disp = sprt_dctrl->sprt_di;
+    kmemzero(&sprt_dctrl->sgrt_set, sizeof(struct fwk_font_setting));
+
+    fd = virt_open("/dev/fb0", O_RDWR);
+    if (fd < 0)
+        goto fail1;
+
+    virt_ioctl(fd, NR_FB_IOGET_VARINFO, &sgrt_var);
+    virt_ioctl(fd, NR_FB_IOGET_FIXINFO, &sgrt_fix);
+
+    fb_buffer1 = (kuint32_t *)virt_mmap(mrt_nullptr, sgrt_fix.smem_len, 0, 0, fd, 0);
+    if (!isValid(fb_buffer1))
+        goto fail2;
+
+    fb_buffer2 = (kuint32_t *)virt_mmap(mrt_nullptr, sgrt_fix.smem_len, 0, 0, fd, sgrt_fix.smem_len);
+    if (!isValid(fb_buffer2))
+        goto fail3;
+
+    g_lvgl_fbdev_fd = fd;
+    fwk_display_ctrl_init(sprt_disp, fb_buffer1, fb_buffer2, sgrt_fix.smem_len, 
+                        sgrt_var.xres, sgrt_var.yres, sgrt_var.bits_per_pixel);
+
+    /*!< add timer tick */
     setup_timer(sprt_tim, lvgl_disp_tick_inc, (kuint32_t)sprt_tim);
     sprt_tim->expires = jiffies + msecs_to_jiffies(10);
     add_timer(sprt_tim);
+
+    return ER_NORMAL;
+
+    virt_munmap(fb_buffer2, sgrt_fix.smem_len);
+fail3:
+    virt_munmap(fb_buffer1, sgrt_fix.smem_len);
+fail2:
+    virt_close(fd);
+fail1:
+    return -ER_FAILD;
 }
 
 volatile bool disp_flush_enabled = true;
@@ -194,28 +234,55 @@ void disp_disable_update(void)
  *'lv_disp_flush_ready()' has to be called when finished.*/
 static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
 {
-    if(disp_flush_enabled) {
+    if (disp_flush_enabled) {
         /*The most simple case (but also the slowest) to put all pixels to the screen one-by-one*/
-
-        int32_t x;
-        int32_t y;
 
         struct fwk_disp_ctrl *sprt_dctrl;
         struct fwk_disp_info *sprt_disp;
-
+        kuint8_t  pixelbits;
+        lv_disp_t * sprt_refr;
+        lv_disp_draw_buf_t *sprt_draw;
+        
         sprt_dctrl = (struct fwk_disp_ctrl *)disp_drv->user_data;
         sprt_disp  = sprt_dctrl->sprt_di;
+        pixelbits  = mrt_fwk_disp_bpp_get(sprt_disp->bpp);
 
-        for(y = area->y1; y <= area->y2; y++) {
-            for(x = area->x1; x <= area->x2; x++) {
-                /*Put a pixel to the display. For example:*/
-                /*put_px(x, y, *color_p)*/
-                sprt_disp->sprt_ops->write_point(sprt_disp, x, y, color_p->full);
-                color_p++;
+        sprt_refr = _lv_refr_get_disp_refreshing();
+        sprt_draw = lv_disp_get_draw_buf(sprt_refr);
+
+        if ((pixelbits == 32) &&
+            (!disp_drv->direct_mode) &&
+            (sprt_draw->flushing_last)) {
+            kint32_t fd = g_lvgl_fbdev_fd;
+            struct fwk_fb_var_screen_info sgrt_var;
+
+            if (fd < 0)
+                goto END;
+
+            fwk_display_frame_exchange(sprt_disp);
+            virt_ioctl(fd, NR_FB_IOGET_VARINFO, &sgrt_var);
+            if (!sgrt_var.yoffset)
+                sgrt_var.yoffset += sgrt_var.yres;
+            else
+                sgrt_var.yoffset = 0;
+            
+            virt_ioctl(fd, NR_FB_IOSET_VARINFO, &sgrt_var);
+        }
+        else {
+            kuint32_t offset, length;
+
+            pixelbits >>= 3;
+            for (int32_t y = area->y1; y <= area->y2; y++) {
+                offset = mrt_fwk_disp_advance_pos(area->x1, y, sprt_disp->width);
+                length = area->x2 - area->x1 + 1;
+
+                memcpy(sprt_disp->buffer + offset * pixelbits, color_p, length * pixelbits);
+                color_p += length;
             }
         }
     }
 
+END:
     /*IMPORTANT!!!
      *Inform the graphics library that you are ready with the flushing*/
     lv_disp_flush_ready(disp_drv);

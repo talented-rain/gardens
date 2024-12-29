@@ -36,8 +36,13 @@
 #ifndef __LWIPOPTS_H__
 #define __LWIPOPTS_H__
 
+//#include <common/mem_manage.h>
+
 #define LWIP_IGMP                0
 #define LWIP_IPV6                0
+
+//#define MEMCPY(dst,src,len)      kmemcpy(dst,src,len)
+//#define SMEMCPY(dst,src,len)     kmemcpy(dst,src,len)
 
 #define LWIP_HAVE_SLIPIF         1
 

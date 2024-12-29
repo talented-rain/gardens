@@ -20,6 +20,12 @@ CONFIG_ARCH_ARMV7 = y
 CONFIG_LITTILE_ENDIAN = y
 
 CONFIG_VFP = y
+
+# debug or release
+CONFIG_BUILD_TYPE = debug
+
+# -O0, -O1, -O2
+CONFIG_OPTIMIZE_CLASS = 2
 # ---------------------------------------------------------------
 
 # Clock */
@@ -96,7 +102,7 @@ CONFIG_SYS_STACK_BASE = (CONFIG_SVC_STACK_BASE  + CONFIG_SYS_STACK_SIZE)
 
 # Board
 # ---------------------------------------------------------------
-CONFIG_LCD_PIXELBIT = (24)
+CONFIG_LCD_PIXELBIT = (32)
 # ---------------------------------------------------------------
 
 # platform

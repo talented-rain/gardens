@@ -139,7 +139,7 @@ __weak void free(void *__ptr)
  * @retval  none
  * @note    for "memset"
  */
-__weak void *memset(void *__s, int __c, size_t __n)
+void *memset(void *__s, int __c, size_t __n)
 {
     kmemset(__s, (kuint8_t)__c, __n);
 
@@ -152,7 +152,7 @@ __weak void *memset(void *__s, int __c, size_t __n)
  * @retval  none
  * @note    for "memset"
  */
-__weak void *memset_ex(void *__s, unsigned int __c, size_t __n)
+void *memset_ex(void *__s, unsigned int __c, size_t __n)
 {
     kmemset_ex(__s, __c, __n);
 
@@ -165,7 +165,7 @@ __weak void *memset_ex(void *__s, unsigned int __c, size_t __n)
  * @retval  none
  * @note    for "memcmp"
  */
-__weak int memcmp(const void *__s1, const void *__s2, size_t __n)
+int memcmp(const void *__s1, const void *__s2, size_t __n)
 {
     return kmemcmp(__s1, __s2, __n);
 }
@@ -176,7 +176,7 @@ __weak int memcmp(const void *__s1, const void *__s2, size_t __n)
  * @retval  none
  * @note    for "memcpy"
  */
-__weak void *memcpy(void *__dest, const void *__src, size_t __n)
+void *memcpy(void *__dest, const void *__src, size_t __n)
 {
     return kmemcpy(__dest, __src, __n);
 }

@@ -1195,8 +1195,8 @@ XSdPs_Config *XSdPs_LookupConfig(kuint16_t DeviceId)
 kint32_t XSdPs_Change_ClkFreq(XSdPs *sprt_sd, kuint32_t SelFreq)
 {
     kuint32_t BaseAddress;
-    kuint16_t ClockReg;
     kuint16_t DivCnt;
+    kuint16_t ClockReg;
     kuint16_t Divisor = 0U;
     kuint16_t ExtDivisor;
 

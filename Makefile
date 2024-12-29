@@ -27,7 +27,7 @@ define create_header
 	@`sed -i -E 's/\s*=\s*y\s*$$/\ 1/g' $(1)`
 	@`sed -i -E 's/\s*=\s*m\s*$$/\ 1/g' $(1)`
 	@`sed -i -E '/\s*=\s*n\s*$$/d' $(1)`
-	@`sed -i -E 's/\\s*=\s*/\ /g' $(1)`
+	@`sed -i -E 's/\s*=\s*/\ /g' $(1)`
 	@`sed -i -E 's/^\s*/#define\ /g' $(1)`
 	@`sed -i -E 's/\s+$$//g' $(1)`
 	
@@ -117,18 +117,33 @@ EXTRA_FLAGS     +=	-mcpu=$(CLASS)	\
 					-mfloat-abi=hard
 endif
 
-BUILD_CFLAGS   	:=  -g3 -O0 -Wall -nostdlib	\
-					-Wundef	\
+MACROS			:=
+BUILD_TYPE		?=	$(CONFIG_BUILD_TYPE)
+OPTIMIZE_CLASS	?=	$(CONFIG_OPTIMIZE_CLASS)
+
+BUILD_CFLAGS   	:=  -O0 -Wall -nostdlib
+
+ifeq ($(BUILD_TYPE),debug)
+BUILD_CFLAGS	+=	-g3
+MACROS			+=	-DCONFIG_DEBUG_JTAG
+endif
+
+ifeq ($(OPTIMIZE_CLASS),1)
+BUILD_CFLAGS	+=	-O1
+else ifeq ($(OPTIMIZE_CLASS),2)
+BUILD_CFLAGS	+=	-O2
+endif
+
+BUILD_CFLAGS	+= 	-Wundef	\
 					-Wstrict-prototypes	\
 					-Wno-trigraphs \
                     -fno-strict-aliasing	\
 					-fno-common \
                     -Werror-implicit-function-declaration \
                     -fno-tree-scev-cprop	\
-					-fno-exceptions
-#					-munaligned-access
-
-MACROS			:=	-DCONFIG_DEBUG_JTAG
+					-fno-exceptions	\
+					-fno-builtin-memcpy	\
+					-munaligned-access
 
 # *********************************************************************
 

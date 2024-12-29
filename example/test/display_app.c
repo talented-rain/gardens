@@ -85,11 +85,7 @@ static void display_app_settings_init(struct fwk_font_setting *sprt_set)
  */
 static void display_app_clear(struct fwk_disp_ctrl *sprt_dctrl)
 {
-    struct fwk_disp_info *sprt_disp = sprt_dctrl->sprt_di;
-    struct fwk_font_setting *sprt_set = &sprt_dctrl->sgrt_set;
-
-    if (sprt_disp->sprt_ops->clear)
-        sprt_disp->sprt_ops->clear(sprt_disp, sprt_set->background);
+    fwk_display_clear(sprt_dctrl->sprt_di, sprt_dctrl->sgrt_set.background);
 }
 
 /*!
@@ -104,11 +100,8 @@ static void display_app_cursor(struct fwk_disp_ctrl *sprt_dctrl,
     struct fwk_disp_info *sprt_disp = sprt_dctrl->sprt_di;
     struct fwk_font_setting *sprt_set = &sprt_dctrl->sgrt_set;
 
-    if (sprt_disp->sprt_ops->set_cursor)
-        sprt_disp->sprt_ops->set_cursor(sprt_dctrl, x_start, y_start, x_end, y_end);
-
-    if (sprt_disp->sprt_ops->fill_rectangle)
-        sprt_disp->sprt_ops->fill_rectangle(sprt_disp, x_start, y_start, 
+    fwk_display_set_cursor(sprt_dctrl, x_start, y_start, x_end, y_end);
+    fwk_display_fill_rectangle(sprt_disp, x_start, y_start, 
                                         x_end, y_end, sprt_set->background);
 }
 
@@ -123,6 +116,7 @@ static void display_app_logo(struct fwk_disp_ctrl *sprt_dctrl)
     struct fwk_disp_info *sprt_disp = sprt_dctrl->sprt_di;
     struct fs_stream *sprt_file;
     struct fwk_bmp_ctrl sgrt_bctl;
+    kuint8_t bytes_per_pixel;
     kssize_t size;
 
     display_app_clear(sprt_dctrl);
@@ -132,7 +126,8 @@ static void display_app_logo(struct fwk_disp_ctrl *sprt_dctrl)
     if (!isValid(sprt_file))
         return;
 
-    size = file_read(sprt_file, sprt_disp->buffer_bak, sprt_disp->width * sprt_disp->height * sprt_disp->bpp);
+    bytes_per_pixel = sprt_disp->bpp >> 3;
+    size = file_read(sprt_file, sprt_disp->buffer_bak, sprt_disp->width * sprt_disp->height * bytes_per_pixel);
     if (size <= 0)
         goto END;
 
@@ -159,9 +154,6 @@ static kssize_t display_app_text(kint32_t fd, struct mailbox *sprt_mb,
     kssize_t size, offset = 0;
     kusize_t page_index = 0;
 
-    if (!sprt_disp->sprt_ops->write_word)
-        return -ER_UNVALID;
-
     fwk_display_frame_exchange(sprt_disp);
     display_app_clear(sprt_dctrl);
     display_app_cursor(sprt_dctrl, 0, 0, sprt_disp->width, sprt_disp->height);
@@ -176,7 +168,7 @@ static kssize_t display_app_text(kint32_t fd, struct mailbox *sprt_mb,
             return 0;
 
         g_display_buffer[size] = '\0';
-        offset += sprt_disp->sprt_ops->write_word(sprt_dctrl, g_display_buffer);
+        offset += fwk_display_word(sprt_dctrl, g_display_buffer);
     }
 
     virt_ioctl(fd, NR_FB_IOGET_VARINFO, &sgrt_var);
@@ -192,18 +184,24 @@ static kssize_t display_app_text(kint32_t fd, struct mailbox *sprt_mb,
         if (!isValid(sprt_mail))
         {
             schedule_delay_ms(200);
-            op = 0;
             continue;
         }
 
-        op = *sprt_mail->sprt_msg->buffer;
-        if (1 == op)
-            page_index = page_index ? (page_index - 1) : 0;
-        else if (2 == op)
+        op = 1;
+        if (sprt_mail->sprt_msg->type == NR_MAIL_TYPE_SERIAL)
         {
-            if (page_index < sizeof(g_display_text_pages))
-                page_index++;
-            g_display_text_pages[page_index] = offset;
+            kchar_t *buffer = (kchar_t *)sprt_mail->sprt_msg[0].buffer;
+
+            if (!kstrncmp(buffer, "up", 2))
+                page_index = page_index ? (page_index - 1) : 0;
+            else if (!kstrncmp(buffer, "down", 4)) 
+            {
+                if (page_index < sizeof(g_display_text_pages))
+                    page_index++;
+                g_display_text_pages[page_index] = offset;
+            }
+            else
+                op = 0;
         }
 
         mail_recv_finish(sprt_mail);
@@ -211,7 +209,6 @@ static kssize_t display_app_text(kint32_t fd, struct mailbox *sprt_mb,
     } while (!op);
 
     g_text_cur_page = page_index;
-
     return size;
 }
 
@@ -254,9 +251,11 @@ static void *display_app_entry(void *args)
         goto fail3;
 
     fwk_display_ctrl_init(&sgrt_disp, fb_buffer1, fb_buffer2, sgrt_fix.smem_len, 
-                        sgrt_var.xres, sgrt_var.yres, sgrt_var.bits_per_pixel >> 3);
+                        sgrt_var.xres, sgrt_var.yres, sgrt_var.bits_per_pixel);
 
+    mrt_preempt_disable();
     display_app_logo(&sgrt_dctrl);
+    mrt_preempt_enable();
     schedule_delay(5);
 
     for (;;)

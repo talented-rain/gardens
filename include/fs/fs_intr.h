@@ -42,6 +42,7 @@ TARGET_EXT kssize_t file_write(struct fs_stream *sprt_fs, const void *buf, kusiz
 TARGET_EXT kssize_t file_read(struct fs_stream *sprt_fs, void *buf, kusize_t size);
 TARGET_EXT kssize_t file_size(struct fs_stream *sprt_fs);
 TARGET_EXT kint32_t file_lseek(struct fs_stream *sprt_fs, kuint32_t offset);
+TARGET_EXT kssize_t file_tell(struct fs_stream *sprt_fs);
 
 #ifdef __cplusplus
     }

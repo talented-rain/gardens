@@ -95,7 +95,7 @@ static inline void fwk_eth_random_addr(kuint8_t *addr)
 
 static inline void fwk_eth_broadcast_addr(kuint8_t *addr)
 {
-    memset(addr, 0xff, NET_MAC_ETH_ALEN);
+    kmemset(addr, 0xff, NET_MAC_ETH_ALEN);
 }
 
 #endif /*!< __FWK_ETHER_H_ */

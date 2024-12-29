@@ -28,11 +28,10 @@ typedef struct fwk_dotmat_header
 } srt_fwk_dotmat_header_t;
 
 /*!< BitMap */
-#pragma pack(push)
-#pragma pack(1)
-
 /*!< The first 54 bytes of the BMP image are the file information headers, and the BmpFileHeader of the bitmap file is the first 14 bytes */
-typedef struct fwk_bmp_file_header
+#define FWK_BMP_FILE_HDR_LEN                (14)
+
+struct fwk_bmp_file_header
 {
     kuint16_t picType;               		/*!< the content is fixed to 0x42, 0x4D, i.e., ASCII character 'B', 'M', i.e., BMP format */
     kuint32_t bmpSize;               		/*!< BMP size (unit: byte) */
@@ -41,12 +40,12 @@ typedef struct fwk_bmp_file_header
     kuint16_t reserved2;             		/*!< reserved */
     kuint32_t offsetbit;             		/*!< BMP file header + BMP info header + color palette */
 
-} srt_fwk_bmp_file_header_t;
-
-#pragma pack(pop)
+} __packed;
 
 /*!< Bitmap information header (BmpInfoHeader) is the first 15~54 bytes */
-typedef struct fwk_bmp_info_header
+#define FWK_BMP_INFO_HDR_LEN                (40)
+
+struct fwk_bmp_info_header
 {
     kuint32_t infoSize;              		/*!< the size of the entire bitmap info header in bytes, i.e. the size of the BmpInfoHeader struct */
     kint32_t width;                 		/*!< image width (unit: pixel) */
@@ -65,7 +64,7 @@ typedef struct fwk_bmp_info_header
     kuint32_t colorIndex;            		/*!< the number of color indexes in the palette. 16-bit and 24-bit true color without color palette. This is 0 */
     kuint32_t importanIndex;         		/*!< the number of indexes that have an important impact on the image, 0 indicates that all are important */
 
-} srt_fwk_bmp_info_header_t;
+} __packed;
 
 typedef struct fwk_bmp_ctrl
 {

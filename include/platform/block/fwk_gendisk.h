@@ -32,6 +32,7 @@ typedef struct fwk_gendisk
     kint32_t (*unmount)(struct fwk_gendisk *sprt_disk);
     kint32_t (*mkfs)(struct fwk_gendisk *sprt_disk);
     kint32_t (*mkdir)(struct fwk_gendisk *sprt_disk, const kchar_t *dir_name);
+    kint32_t (*rmdir)(struct fwk_gendisk *sprt_disk, const kchar_t *dir_name);
 
     struct fwk_device *sprt_devfs;
     struct fwk_block_device_oprts *sprt_bops;
@@ -47,8 +48,9 @@ struct fwk_block_device_oprts
 
     kssize_t (*write) (struct fs_stream *sprt_file, const void *buffer, kuint32_t size, kuint32_t offset);
     kssize_t (*read) (struct fs_stream *sprt_file, void *buffer, kuint32_t size, kuint32_t offset);
-    kint32_t (*lseek)(struct fs_stream *sprt_file, kuint32_t offset);
-    kssize_t (*fsize)(struct fs_stream *sprt_file);
+    kint32_t (*lseek) (struct fs_stream *sprt_file, kuint32_t offset);
+    kssize_t (*fsize) (struct fs_stream *sprt_file);
+    kssize_t (*fpos) (struct fs_stream *sprt_file);
 };
 
 /*!< The globals */

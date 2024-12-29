@@ -10,6 +10,7 @@
 #
 
 obj-y	+= info.o
+obj-y	+= ts.o
 obj-y	+= ttc.o
 obj-y	+= user.o
 obj-y	+= kill.o

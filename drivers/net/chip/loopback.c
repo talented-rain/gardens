@@ -159,9 +159,9 @@ static kssize_t loopback_driver_recycle(struct fwk_net_device *sprt_ndev, void *
             kmemcpy(sprt_arphdr->mac_dst, mac_address, NET_MAC_ETH_ALEN);
 
             /*!< swap source and destination ip address */
-            u32_set(&ipaddr, &sprt_arphdr->ip_dst);
-            u32_set(&sprt_arphdr->ip_dst, &sprt_arphdr->ip_src);
-            u32_set(&sprt_arphdr->ip_src, &ipaddr);
+            u32_set2u8(&ipaddr, &sprt_arphdr->ip_dst);
+            u32_set2u8(&sprt_arphdr->ip_dst, &sprt_arphdr->ip_src);
+            u32_set2u8(&sprt_arphdr->ip_src, &ipaddr);
 
             sprt_arphdr->opcode = mrt_htons(NET_ARPOP_REPLY);
 
@@ -197,7 +197,7 @@ static kint32_t loopback_init(struct fwk_net_device *sprt_ndev)
 {
     kuint8_t mac_address[NET_MAC_ETH_ALEN] = LOOPBACK_MAC_ADDR;
 
-    memcpy(sprt_ndev->dev_addr, mac_address, NET_MAC_ETH_ALEN);
+    kmemcpy(sprt_ndev->dev_addr, mac_address, NET_MAC_ETH_ALEN);
     return ER_NORMAL;
 }
 

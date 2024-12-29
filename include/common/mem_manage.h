@@ -89,26 +89,6 @@ static inline void kmemset(void *dest, kuint8_t data, kusize_t size)
     start_addr = (kuaddr_t)dest;
     end_addr   = (kuaddr_t)(start_addr + size);
 
-#if 0
-    __asm__ __volatile__ (
-        "   push {r7 - r9}      \n\t"
-        "   ldr r7, [%0]        \n\t"
-        "   mov r8, %1          \n\t"
-        "   mov r9, %2          \n\t"
-        " 1:                    \n\t"
-        "   cmp r7, r8          \n\t"
-        "   bhs 2f              \n\t"
-        "   strb r9, [r7]       \n\t"
-        "   add r7, #1          \n\t"
-        "   b 1b                \n\t"
-        " 2:                    \n\t"
-        "   pop {r7 - r9}       \n\t"
-        : 
-        : "r"(&start_addr), "r"(end_addr), "r"(data)
-        : "cc", "memory"
-    );
-
-#else
     __asm__ __volatile__ (
         "   ldr %0, [%1]        \n\t"
         " 1:                    \n\t"
@@ -123,8 +103,6 @@ static inline void kmemset(void *dest, kuint8_t data, kusize_t size)
         : "r"(&start_addr), "r"(end_addr), "r"(data)
         : "cc", "memory"
     );
-
-#endif
 }
 
 /*!
@@ -200,32 +178,6 @@ static inline kuint8_t kmemcmp(const void *s1, const void *s2, kusize_t size)
     s2_addr = (kuaddr_t)s2;
     end_addr = (kuaddr_t)(s2_addr + size);
 
-#if 0
-    __asm__ __volatile__ (
-        "   push {r4 - r9}      \n\t"
-        "   mov r5, %3          \n\t"
-        "   mov r6, #0          \n\t"
-        "   ldr r7, [%4]        \n\t"
-        "   ldr r8, [%5]        \n\t"
-        " 1:                    \n\t"
-        "   cmp r6, r5          \n\t"
-        "   bhs 2f              \n\t"
-        "   ldrb r9, [r7]       \n\t"
-        "   ldrb r4, [r8]       \n\t"
-        "   add r6, #1          \n\t"
-        "   add r7, #1          \n\t"
-        "   add r8, #1          \n\t"
-        "   cmp r4, r9          \n\t"
-        "   beq 1b              \n\t"
-        "   mov %2, #1          \n\t"
-        " 2:                    \n\t"
-        "   pop {r4 - r9}       \n\t"
-        : "=r"(data1), "=r"(data2), "=r"(flag)
-        : "r"(size), "r"(&s1_addr), "r"(&s2_addr)
-        : "memory"
-    );
-
-#else
     __asm__ __volatile__ (
         "   ldr %0, [%4]        \n\t"
         "   ldr %1, [%5]        \n\t"
@@ -250,8 +202,6 @@ static inline kuint8_t kmemcmp(const void *s1, const void *s2, kusize_t size)
         : "cc", "memory"
     );
 
-#endif
-
     return flag;
 }
 
@@ -274,32 +224,6 @@ static inline void *kmemcpy(void *dest, const void *src, kusize_t size)
     s2_addr = (kuaddr_t)src;
     end_addr = (kuaddr_t)(s2_addr + size);
 
-#if 0
-    __asm__ __volatile__ (
-        "   push {r5 - r9}      \n\t"
-        "   ldr r5, [%1]        \n\t"
-        "   ldr r6, [%2]        \n\t"
-        "   mov r7, %0          \n\t"
-        "   mov r8, #0          \n\t"
-        " 1:                    \n\t"
-        "   cmp r8, r7          \n\t"
-        "   bhs 2f              \n\t"
-        "   ldrb r9, [r6]       \n\t"
-        "   strb r9, [r5]       \n\t"
-        "   add r6, #1          \n\t"
-        "   add r5, #1          \n\t"
-        "   add r8, #1          \n\t"
-        "   b 1b                \n\t"
-        " 2:                    \n\t"
-        "   str r5, [%1]        \n\t"
-        "   str r6, [%2]        \n\t"
-        "   pop {r5 - r9}       \n\t"
-        : 
-        : "r"(size), "r"(&s1_addr), "r"(&s2_addr)
-        : "cc", "memory"
-    );
-
-#else
     __asm__ __volatile__ (
         "   ldr %0, [%3]        \n\t"
         "   ldr %1, [%4]        \n\t"
@@ -319,8 +243,6 @@ static inline void *kmemcpy(void *dest, const void *src, kusize_t size)
         : "cc", "memory"
     );
 
-#endif
-
     return (void *)s1_addr;
 }
 
@@ -328,9 +250,9 @@ static inline void *kmemcpy(void *dest, const void *src, kusize_t size)
  * @brief   copy *val to *addr
  * @param   addr, val
  * @retval  none
- * @note    if addr or val is not in 4-bytes-alignment, using u32_set()
+ * @note    if addr or val is not in 4-bytes-alignment, using u32_set2u8()
  */
-static inline void u32_set(void *addr, void *val)
+static inline void u32_set2u8(void *addr, void *val)
 {
 #if 1
     kmemcpy(addr, val, sizeof(kuint32_t));
@@ -347,9 +269,9 @@ static inline void u32_set(void *addr, void *val)
  * @brief   copy *val to *addr
  * @param   addr, val
  * @retval  none
- * @note    if addr or val is not in 2-bytes-alignment, using u32_set()
+ * @note    if addr or val is not in 2-bytes-alignment, using u16_set2u8()
  */
-static inline void u16_set(void *addr, void *val)
+static inline void u16_set2u8(void *addr, void *val)
 {
 #if 0
     kmemcpy(addr, val, sizeof(kuint16_t));
@@ -361,19 +283,70 @@ static inline void u16_set(void *addr, void *val)
 }
 
 /*!
- * @brief   copy *val to *addr
+ * @brief   copy val to *addr
  * @param   addr, val
  * @retval  none
  * @note    none
  */
-static inline void u8_set(void *addr, void *val)
-{
-#if 0
-    kmemcpy(addr, val, sizeof(kuint8_t));
+#define mrt_u32_set(addr, val)   \
+    do {    \
+        __asm__ __volatile__ (  \
+            " mov %0, %1  "   \
+            : "=r"(*(addr)) \
+            : "r"(val)  \
+            : "cc", "memory"    \
+        );  \
+    } while (0);
 
-#else
-    *((kuint8_t *)addr++) = *((kuint8_t *)val++);
-#endif
+static inline __force_inline 
+void u32_set(kuint32_t *addr, kuint32_t offset, kuint32_t val)
+{
+    mrt_u32_set(addr + offset, val);
 }
+
+/*!
+ * @brief   copy val to *addr
+ * @param   addr, val
+ * @retval  none
+ * @note    none
+ */
+#define mrt_u16_set(addr, val)   \
+    do {    \
+        __asm__ __volatile__ (  \
+            " mov.w %0, %1  "   \
+            : "=r"(*(addr)) \
+            : "r"(val)  \
+            : "cc", "memory"    \
+        );  \
+    } while (0);
+
+static inline __force_inline 
+void u16_set(kuint16_t *addr, kuint32_t offset, kuint16_t val)
+{
+    mrt_u16_set(addr + offset, val);
+}
+
+/*!
+ * @brief   copy val to *addr
+ * @param   addr, val
+ * @retval  none
+ * @note    none
+ */
+#define mrt_u8_set(addr, val)   \
+    do {    \
+        __asm__ __volatile__ (  \
+            " mov.b %0, %1  "   \
+            : "=r"(*(addr)) \
+            : "r"(val)  \
+            : "cc", "memory"    \
+        );  \
+    } while (0);
+
+static inline __force_inline 
+void u8_set(kuint8_t *addr, kuint32_t offset, kuint8_t val)
+{
+    mrt_u8_set(addr + offset, val);
+}
+
 
 #endif  /* __MEM_MANAGE_H */

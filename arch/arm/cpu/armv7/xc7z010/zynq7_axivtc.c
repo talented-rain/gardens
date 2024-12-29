@@ -71,7 +71,7 @@ typedef struct
 
     kuint8_t Interlaced;		                            /**< Interlaced / Progressive video */
 
-} XVtc_Timing;
+} __align(4) XVtc_Timing;
 
 /**
  * This typedef contains Polarity configuration information for a VTC core.
@@ -86,7 +86,7 @@ typedef struct
     kuint8_t HBlankPol;		                                /**< Horizontal Blank Output Polarity */
     kuint8_t HSyncPol;		                                /**< Horizontal Sync Output Polarity */
 
-} XVtc_Polarity;
+} __align(4) XVtc_Polarity;
 
 /**
  * This typedef contains the VTC signal configuration used by the
@@ -116,7 +116,7 @@ typedef struct
     kuint16_t V1ChromaStart;	                            /**< Active Chroma Start Line Count (Field 1) */
     kuint8_t Interlaced;		                            /**< Interlaced / Progressive video */
 
-} XVtc_Signal;
+} __align(4) XVtc_Signal;
 
 /**
  * This typedef contains Detector/Generator VBlank/VSync Horizontal Offset
@@ -133,7 +133,7 @@ typedef struct
     kuint16_t V1SyncHoriStart;	                            /**< Vertical Sync  Hori Offset Start (field 1) */
     kuint16_t V1SyncHoriEnd;	                            /**< Vertical Sync  Hori Offset End (field 1) */
 
-} XVtc_HoriOffsets;
+} __align(4) XVtc_HoriOffsets;
 
 /**
  * This typedef contains Source Selection configuration information for a
@@ -162,7 +162,7 @@ typedef struct
     kuint8_t HTotalSrc;		                                /**< Horizontal Total Register Source Select */
     kuint8_t InterlacedMode;	                            /**< Interelaced mode */
 
-} XVtc_SourceSelect;
+} __align(4) XVtc_SourceSelect;
 
 /*!< The globals */
 static XAxiVdma_Config XAxiVdma_ConfigTable[XPAR_XAXIVDMA_NUM_INSTANCES] =
