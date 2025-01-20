@@ -13,6 +13,10 @@
 #ifndef __KEYBOARD_H
 #define __KEYBOARD_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <common/ascii.h>
 
@@ -523,5 +527,8 @@
 
 /*!< The functions */
 
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __KEYBOARD_H */

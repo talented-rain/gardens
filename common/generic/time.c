@@ -25,6 +25,7 @@ volatile kutime_t jiffies_out = 0;
 
 kutime_t *ptr_systick_counter = mrt_nullptr;
 kutime_t g_delay_timer_counter = 0;
+struct time_clock sgrt_systime_clock;
 
 static kuint32_t g_simple_delay_timer = 0;
 static kuint32_t g_simple_timeout_cnt = 0;
@@ -40,10 +41,10 @@ static DECLARE_LIST_HEAD(sgrt_global_timer_list);
  */
 void simple_delay_timer_initial(void)
 {
-	g_simple_delay_timer = TIMER_DELAY_COUNTER_INIT;
-	g_simple_timeout_cnt = TIMER_DELAY_COUNTER_INIT;
+    g_simple_delay_timer = TIMER_DELAY_COUNTER_INIT;
+    g_simple_timeout_cnt = TIMER_DELAY_COUNTER_INIT;
 
-	g_delay_timer_counter = TIMER_DELAY_COUNTER_INIT;
+    g_delay_timer_counter = TIMER_DELAY_COUNTER_INIT;
 }
 
 /*!
@@ -60,7 +61,7 @@ void simple_delay_timer_runs(void)
         g_simple_timeout_cnt = (g_simple_timeout_cnt >= 255) ? TIMER_DELAY_COUNTER_INIT : (g_simple_timeout_cnt + 1);
     }
 
-	g_delay_timer_counter = mrt_bit_mask(g_simple_timeout_cnt, ~TIMER_DELAY_COUNTER_MAX, 24U) + g_simple_delay_timer;
+    g_delay_timer_counter = mrt_bit_mask(g_simple_timeout_cnt, ~TIMER_DELAY_COUNTER_MAX, 24U) + g_simple_delay_timer;
 }
 
 /*!
@@ -71,8 +72,8 @@ void simple_delay_timer_runs(void)
  */
 void delay_cnt(kuint32_t n)
 {
-	while (n--)
-		mrt_delay_nop();
+    while (n--)
+        mrt_delay_nop();
 }
 
 /*!
@@ -83,8 +84,8 @@ void delay_cnt(kuint32_t n)
  */
 __weak void delay_s(kuint32_t n_s)
 {
-	while (n_s--)
-		delay_cnt(DELAY_SIMPLE_COUNTER_PER_S);
+    while (n_s--)
+        delay_cnt(DELAY_SIMPLE_COUNTER_PER_S);
 }
 
 /*!
@@ -95,8 +96,8 @@ __weak void delay_s(kuint32_t n_s)
  */
 __weak void delay_ms(kuint32_t n_ms)
 {
-	while (n_ms--)
-		delay_cnt(DELAY_SIMPLE_COUNTER_PER_MS);
+    while (n_ms--)
+        delay_cnt(DELAY_SIMPLE_COUNTER_PER_MS);
 }
 
 /*!
@@ -107,8 +108,8 @@ __weak void delay_ms(kuint32_t n_ms)
  */
 __weak void delay_us(kuint32_t n_us)
 {
-	while (n_us--)
-		delay_cnt(DELAY_SIMPLE_COUNTER_PER_US);
+    while (n_us--)
+        delay_cnt(DELAY_SIMPLE_COUNTER_PER_US);
 }
 
 /*!
@@ -151,6 +152,37 @@ void wait_usecs(kuint32_t useconds)
 }
 
 /*!
+ * @brief   total ms ===> y-m-d h:m:s
+ * @param   milseconds
+ * @retval  none
+ * @note    none
+ */
+void msecs_to_timeclock(struct time_clock *sprt_tclk, kutype_t milseconds)
+{
+    kuint32_t temp;
+
+    sprt_tclk->milsecond = udiv_remainder(milseconds, 1000);
+    temp = udiv_integer(milseconds, 1000);
+ 
+    sprt_tclk->second = udiv_remainder(temp, 60);
+    temp = udiv_integer(temp, 60);
+
+    sprt_tclk->minute = udiv_remainder(temp, 60);
+    temp = udiv_integer(temp, 60);
+
+    sprt_tclk->hour = udiv_remainder(temp, 60);
+    temp = udiv_integer(temp, 60);
+
+    sprt_tclk->day = udiv_remainder(temp, 24);
+    temp = udiv_integer(temp, 24);
+
+    sprt_tclk->month = udiv_remainder(temp, 30);
+    temp = udiv_integer(temp, 30);
+
+    sprt_tclk->year = udiv_remainder(temp, 12);
+}
+
+/*!
  * @brief   initial timer
  * @param   sprt_timer: timer
  * @param	entry: timeout function
@@ -160,10 +192,10 @@ void wait_usecs(kuint32_t useconds)
  */
 void setup_timer(struct timer_list *sprt_timer, void (*entry)(kuint32_t), kuint32_t data)
 {
-	if (!isValid(sprt_timer))
-		return;
+    if (!isValid(sprt_timer))
+        return;
 
-	mrt_setup_timer(sprt_timer, entry, data);
+    mrt_setup_timer(sprt_timer, entry, data);
 }
 
 /*!
@@ -174,11 +206,11 @@ void setup_timer(struct timer_list *sprt_timer, void (*entry)(kuint32_t), kuint3
  */
 void add_timer(struct timer_list *sprt_timer)
 {
-	if ((!isValid(sprt_timer)) || 
-		(!sprt_timer->expires))
-		return;
+    if ((!isValid(sprt_timer)) || 
+        (!sprt_timer->expires))
+        return;
 
-	list_head_add_tail(&sgrt_global_timer_list, &sprt_timer->sgrt_link);
+    list_head_add_tail(&sgrt_global_timer_list, &sprt_timer->sgrt_link);
 }
 
 /*!
@@ -189,10 +221,10 @@ void add_timer(struct timer_list *sprt_timer)
  */
 void del_timer(struct timer_list *sprt_timer)
 {
-	if (!isValid(sprt_timer))
-		return;
+    if (!isValid(sprt_timer))
+        return;
 
-	list_head_del_safe(&sgrt_global_timer_list, &sprt_timer->sgrt_link);
+    list_head_del_safe(&sgrt_global_timer_list, &sprt_timer->sgrt_link);
 }
 
 /*!
@@ -203,15 +235,15 @@ void del_timer(struct timer_list *sprt_timer)
  */
 kbool_t find_timer(struct timer_list *sprt_timer)
 {
-	struct timer_list *sprt_any;
+    struct timer_list *sprt_any;
 
-	foreach_list_next_entry(sprt_any, &sgrt_global_timer_list, sgrt_link)
-	{
-		if (sprt_timer == sprt_any)
-			return true;
-	}
+    foreach_list_next_entry(sprt_any, &sgrt_global_timer_list, sgrt_link)
+    {
+        if (sprt_timer == sprt_any)
+            return true;
+    }
 
-	return false;
+    return false;
 }
 
 /*!
@@ -223,18 +255,18 @@ kbool_t find_timer(struct timer_list *sprt_timer)
  */
 void mod_timer(struct timer_list *sprt_timer, kutime_t expires)
 {
-	if (!isValid(sprt_timer))
-		return;
+    if (!isValid(sprt_timer))
+        return;
 
-	sprt_timer->expires = expires;
-	
+    sprt_timer->expires = expires;
+    
 #if 0
-	if (!find_timer(sprt_timer)) {
+    if (!find_timer(sprt_timer)) {
 #else
-	if (mrt_list_head_empty(&sprt_timer->sgrt_link)) {
+    if (mrt_list_head_empty(&sprt_timer->sgrt_link)) {
 #endif
-		add_timer(sprt_timer);
-	}
+        add_timer(sprt_timer);
+    }
 }
 
 /*!
@@ -246,19 +278,19 @@ void mod_timer(struct timer_list *sprt_timer, kutime_t expires)
  */
 void do_timer_event(void)
 {
-	struct timer_list *sprt_timer;
+    struct timer_list *sprt_timer;
 
-	foreach_list_next_entry(sprt_timer, &sgrt_global_timer_list, sgrt_link)
-	{
-		if (!sprt_timer->expires)
-			continue;
+    foreach_list_next_entry(sprt_timer, &sgrt_global_timer_list, sgrt_link)
+    {
+        if (!sprt_timer->expires)
+            continue;
 
-		if (mrt_time_after(jiffies, sprt_timer->expires))
-		{
-			if (sprt_timer->entry)
-				sprt_timer->entry(sprt_timer->data);
-		}
-	}
+        if (mrt_time_after(jiffies, sprt_timer->expires))
+        {
+            if (sprt_timer->entry)
+                sprt_timer->entry(sprt_timer->data);
+        }
+    }
 }
 
 /* end of file */

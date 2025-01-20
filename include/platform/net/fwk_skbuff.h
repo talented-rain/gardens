@@ -13,6 +13,10 @@
 #ifndef __FWK_SKBUFF_H_
 #define __FWK_SKBUFF_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/net/fwk_if.h>
 #include <platform/net/fwk_netdev.h>
@@ -79,10 +83,10 @@ struct fwk_sk_buff_head
 #define mrt_skuff_next_entry(head)                  ((!(head) || mrt_skbuff_list_empty(head)) ? mrt_nullptr : (head)->sprt_next)
 
 /*!< The functions */
-TARGET_EXT struct fwk_sk_buff *fwk_alloc_skb(kuint32_t data_size, nrt_gfp_t flags);
-TARGET_EXT void kfree_skb(struct fwk_sk_buff *sprt_skb);
-TARGET_EXT kint32_t fwk_skb_enqueue(struct fwk_sk_buff_head *sprt_head, struct fwk_sk_buff *sprt_skb);
-TARGET_EXT struct fwk_sk_buff *fwk_skb_dequeue(struct fwk_sk_buff_head *sprt_head);
+extern struct fwk_sk_buff *fwk_alloc_skb(kuint32_t data_size, nrt_gfp_t flags);
+extern void kfree_skb(struct fwk_sk_buff *sprt_skb);
+extern kint32_t fwk_skb_enqueue(struct fwk_sk_buff_head *sprt_head, struct fwk_sk_buff *sprt_skb);
+extern struct fwk_sk_buff *fwk_skb_dequeue(struct fwk_sk_buff_head *sprt_head);
 
 /*!< API functions */
 /*!
@@ -358,5 +362,9 @@ static inline void fwk_skb_unlink(struct fwk_sk_buff_head *sprt_head, struct fwk
     sprt_skb->sprt_prev = sprt_skb->sprt_next = mrt_nullptr;
     sprt_head->qlen--;
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_SKBUFF_H_ */

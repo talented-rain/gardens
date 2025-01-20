@@ -13,15 +13,23 @@
 #ifndef __KERNEL_SLEEP_H_
 #define __KERNEL_SLEEP_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <kernel/kernel.h>
 
 /*!< The defines */
 
 /*!< The functions */
-TARGET_EXT void schedule_timeout(kutime_t count);
-TARGET_EXT void schedule_delay(kuint32_t seconds);
-TARGET_EXT void schedule_delay_ms(kuint32_t milseconds);
-TARGET_EXT void schedule_delay_us(kuint32_t useconds);
+extern void schedule_timeout(kutime_t count);
+extern void schedule_delay(kuint32_t seconds);
+extern void schedule_delay_ms(kuint32_t milseconds);
+extern void schedule_delay_us(kuint32_t useconds);
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __KERNEL_SLEEP_H_ */

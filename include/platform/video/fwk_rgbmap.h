@@ -13,6 +13,10 @@
 #ifndef __FWK_RGBMAP_H_
 #define __FWK_RGBMAP_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 
@@ -200,6 +204,10 @@
 #define RGB_LGRAY 			                        ( 0x0000C618 )      /*!< 浅灰色(PANNEL), 窗体背景色 */
 #define RGB_LGRAYBLUE                               ( 0x0000A651 )      /*!< 浅灰蓝色(中间层颜色) */
 #define	RGB_LBBLUE                                  ( 0x00002B12 )      /*!< 浅棕蓝色(选择条目的反色) */
+#endif
+
+#ifdef __cplusplus
+    }
 #endif
 
 #endif /*!< __FWK_RGBMAP_H_ */

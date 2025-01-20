@@ -29,18 +29,17 @@
 #include <kernel/mailbox.h>
 #include <fs/fs_intr.h>
 
-#include "../../thread_table.h"
+#include "../../task.h"
+#include "../demo_task.h"
 #include "app/app.h"
 
+using namespace tsk;
+
 /*!< The defines */
-#define LWIP_TASK_THREAD_STACK_SIZE                       THREAD_STACK_PAGE(1)    /*!< 1 page (4kbytes) */
+#define LWIP_TASK_STACK_SIZE                        THREAD_STACK_PAGE(1)    /*!< 1 page (4kbytes) */
 
 /*!< The globals */
-static tid_t g_lwip_task_tid;
-static struct thread_attr sgrt_lwip_task_attr;
-static kuint32_t g_lwip_task_stack[LWIP_TASK_THREAD_STACK_SIZE];
-
-static struct lwip_task_data sgrt_lwip_task_data;
+static crt_lwip_data_t sgrt_lwip_task_data;
 
 /*!< API functions */
 /*!
@@ -51,11 +50,12 @@ static struct lwip_task_data sgrt_lwip_task_data;
  */
 static void *lwip_task_entry(void *args)
 {
-    lwip_task_startup(&sgrt_lwip_task_data);
+    crt_lwip_data_t &sgrt_data = sgrt_lwip_task_data;
+    lwip_task_startup(sgrt_data);
 
     for (;;)
     {
-        lwip_task(&sgrt_lwip_task_data);
+        lwip_task(sgrt_data);
         schedule_delay_ms(200);
     }
 
@@ -70,26 +70,21 @@ static void *lwip_task_entry(void *args)
  */
 kint32_t lwip_task_init(void)
 {
-    struct thread_attr *sprt_attr = &sgrt_lwip_task_attr;
-    kint32_t retval;
+    static kuint8_t g_lwip_task_stack[LWIP_TASK_STACK_SIZE];
 
-	sprt_attr->detachstate = THREAD_CREATE_JOINABLE;
-	sprt_attr->inheritsched	= THREAD_INHERIT_SCHED;
-	sprt_attr->schedpolicy = THREAD_SCHED_FIFO;
+    crt_task_t *cprt_task = new crt_task_t("lwip task", 
+                                            lwip_task_entry, 
+                                            g_lwip_task_stack, 
+                                            sizeof(g_lwip_task_stack),
+                                            THREAD_PROTY_DEFAULT,
+                                            100);
+    if (!cprt_task)
+        return -ER_FAILD;
 
-    /*!< thread stack */
-	thread_set_stack(sprt_attr, mrt_nullptr, &g_lwip_task_stack[0], sizeof(g_lwip_task_stack));
-    /*!< lowest priority */
-	thread_set_priority(sprt_attr, THREAD_PROTY_DEFAULT);
-    /*!< default time slice */
-    thread_set_time_slice(sprt_attr, 100);
+    struct mailbox &sgrt_mb = cprt_task->get_mailbox();
+    mailbox_init(&sgrt_mb, cprt_task->get_self(), "lwip-task-mailbox");
 
-    /*!< register thread */
-    retval = thread_create(&g_lwip_task_tid, sprt_attr, lwip_task_entry, mrt_nullptr);
-    if (!retval)
-        thread_set_name(g_lwip_task_tid, "lwip_task_entry");
-
-    return retval;
+    return ER_NORMAL;
 }
 
 /*!< end of file */

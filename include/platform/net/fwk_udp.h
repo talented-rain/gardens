@@ -13,6 +13,10 @@
 #ifndef __FWK_UDP_H_
 #define __FWK_UDP_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/net/fwk_if.h>
 #include <platform/net/fwk_ip.h>
@@ -29,5 +33,9 @@ struct fwk_udp_hdr
     kuint16_t check_sum;
     
 } __packed;
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_UDP_H_ */

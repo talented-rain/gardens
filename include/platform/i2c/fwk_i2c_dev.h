@@ -13,6 +13,10 @@
 #ifndef __FWK_I2C_DEV_H_
 #define __FWK_I2C_DEV_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 #include <platform/fwk_platform.h>
@@ -158,5 +162,9 @@ static inline void *fwk_i2c_get_client_data(struct fwk_i2c_client *sprt_client)
 {
 	return sprt_client->sgrt_dev.privData;
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_I2C_DEV_H_ */

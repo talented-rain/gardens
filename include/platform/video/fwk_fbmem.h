@@ -13,9 +13,15 @@
 #ifndef __FWK_FBMEM_H_
 #define __FWK_FBMEM_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 #include <platform/fwk_platform.h>
+#include <platform/fwk_uaccess.h>
+#include <platform/fwk_fs.h>
 
 /*!< The defines */
 /*!< Maximum supported resolution */
@@ -133,16 +139,16 @@ struct fwk_fb_oprts
 
 /*!< The functions */
 /*!< -------------------------------------------------------------- */
-TARGET_EXT kint32_t fwk_fbmem_init(void);
-TARGET_EXT void fwk_fbmem_exit(void);
+extern kint32_t fwk_fbmem_init(void);
+extern void fwk_fbmem_exit(void);
 
 /*!< -------------------------------------------------------------- */
-TARGET_EXT struct fwk_fb_info *fwk_framebuffer_alloc(kusize_t size, struct fwk_device *sprt_dev);
-TARGET_EXT void fwk_framebuffer_release(struct fwk_fb_info *sprt_fb_info);
-TARGET_EXT kint32_t fwk_register_framebuffer(struct fwk_fb_info *sprt_fb_info);
-TARGET_EXT void fwk_unregister_framebuffer(struct fwk_fb_info *sprt_fb_info);
-TARGET_EXT struct fwk_fb_info *fwk_get_fb_info(kuint32_t idx);
-TARGET_EXT struct fwk_fb_info *fwk_file_fb_info(struct fwk_file *sprt_file);
+extern struct fwk_fb_info *fwk_framebuffer_alloc(kusize_t size, struct fwk_device *sprt_dev);
+extern void fwk_framebuffer_release(struct fwk_fb_info *sprt_fb_info);
+extern kint32_t fwk_register_framebuffer(struct fwk_fb_info *sprt_fb_info);
+extern void fwk_unregister_framebuffer(struct fwk_fb_info *sprt_fb_info);
+extern struct fwk_fb_info *fwk_get_fb_info(kuint32_t idx);
+extern struct fwk_fb_info *fwk_file_fb_info(struct fwk_file *sprt_file);
 
 /*!< API functions */
 /*!
@@ -155,5 +161,9 @@ static inline void *fwk_fb_get_drvdata(struct fwk_fb_info *sprt_fb_info)
 {
     return sprt_fb_info ? sprt_fb_info->ptr_par : mrt_nullptr;
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_FBMEM_H_ */

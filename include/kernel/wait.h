@@ -13,6 +13,10 @@
 #ifndef __KERNEL_WAIT_H_
 #define __KERNEL_WAIT_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <kernel/kernel.h>
 #include <kernel/thread.h>
@@ -56,10 +60,10 @@ typedef struct wait_queue
     srt_wait_queue_t name = __WAITQUEUE_INITIALIZER(tsk)
 
 /*!< The functions */
-TARGET_EXT void init_waitqueue_head(struct wait_queue_head *sprt_wqh);
-TARGET_EXT void add_wait_queue(struct wait_queue_head *sprt_wqh, struct wait_queue *sprt_wq);
-TARGET_EXT void remove_wait_queue(struct wait_queue_head *sprt_wqh, struct wait_queue *sprt_wq);
-TARGET_EXT void wake_up_common(struct wait_queue_head *sprt_wqh, kuint32_t state);
+extern void init_waitqueue_head(struct wait_queue_head *sprt_wqh);
+extern void add_wait_queue(struct wait_queue_head *sprt_wqh, struct wait_queue *sprt_wq);
+extern void remove_wait_queue(struct wait_queue_head *sprt_wqh, struct wait_queue *sprt_wq);
+extern void wake_up_common(struct wait_queue_head *sprt_wqh, kuint32_t state);
 
 /*!< The defines */
 #define __wait_is_interruptible(sprt_wq)                (mrt_thread_is_flags(NR_THREAD_SIG_INTR, (sprt_wq)->sprt_task))
@@ -132,5 +136,9 @@ TARGET_EXT void wake_up_common(struct wait_queue_head *sprt_wqh, kuint32_t state
     do {    \
         wake_up_common(sprt_wqh, NR_THREAD_SIG_INTR);    \
     } while (0)
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __KERNEL_WAIT_H_ */

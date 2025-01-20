@@ -11,8 +11,9 @@
 /*********************
  *      INCLUDES
  *********************/
-#include "lv_port_disp_template.h"
+#include "lv_port_disp.h"
 #include <stdbool.h>
+#include <fs/fs_intr.h>
 
 /*********************
  *      DEFINES
@@ -54,11 +55,13 @@ static kint32_t g_lvgl_fbdev_fd = -1;
  *   GLOBAL FUNCTIONS
  **********************/
 
-void lv_port_disp_init(struct fwk_disp_ctrl *sprt_dctrl)
+void lv_port_disp_init(void *args)
 {
+    struct fwk_disp_ctrl *sprt_dctrl;
     struct fwk_disp_info *sprt_disp;
 
-    sprt_disp = sprt_dctrl->sprt_di;
+    sprt_dctrl = (struct fwk_disp_ctrl *)args;
+    sprt_disp  = sprt_dctrl->sprt_di;
     if (!isValid(sprt_disp))
         return;
 
@@ -153,6 +156,40 @@ void lv_port_disp_init(struct fwk_disp_ctrl *sprt_dctrl)
     lv_disp_drv_register(&disp_drv);
 }
 
+void lv_port_disp_logo(struct fwk_disp_ctrl *sprt_dctrl)
+{
+    struct fwk_disp_info *sprt_disp = sprt_dctrl->sprt_di;
+    struct fs_stream *sprt_file;
+    struct fwk_bmp_ctrl sgrt_bctl;
+    void *buffer;
+    kuint8_t bytes_per_pixel;
+    kssize_t size;
+    kuint32_t flags;
+
+    bytes_per_pixel = sprt_disp->bpp >> 3;
+    size = sprt_disp->width * sprt_disp->height * bytes_per_pixel;
+    buffer = kmalloc(size, GFP_KERNEL);
+    if (!isValid(buffer))
+        return;
+
+    local_irq_save(&flags);
+    sprt_file = file_open(CONFIG_POWER_LOGO, O_RDONLY);
+    if (!isValid(sprt_file))
+        goto END1;
+
+    if (file_read(sprt_file, buffer, size) <= 0)
+        goto END2;
+
+    fwk_bitmap_ctrl_init(&sgrt_bctl, sprt_disp, 0, 0);
+    fwk_display_whole_bitmap(&sgrt_bctl, buffer);
+
+END2:
+    file_close(sprt_file);
+END1:
+    local_irq_restore(&flags);
+    kfree(buffer);
+}
+
 /**********************
  *   STATIC FUNCTIONS
  **********************/
@@ -202,6 +239,14 @@ static kint32_t disp_init(struct fwk_disp_ctrl *sprt_dctrl)
     sprt_tim->expires = jiffies + msecs_to_jiffies(10);
     add_timer(sprt_tim);
 
+    fwk_display_frame_exchange(sprt_disp);
+    lv_port_disp_logo(sprt_dctrl);
+
+    sgrt_var.yoffset += sgrt_var.yres;
+    mrt_dsb();
+    mrt_barrier();
+
+    virt_ioctl(fd, NR_FB_IOSET_VARINFO, &sgrt_var);
     return ER_NORMAL;
 
     virt_munmap(fb_buffer2, sgrt_fix.smem_len);
@@ -240,7 +285,7 @@ static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
         struct fwk_disp_ctrl *sprt_dctrl;
         struct fwk_disp_info *sprt_disp;
         kuint8_t  pixelbits;
-        lv_disp_t * sprt_refr;
+        lv_disp_t *sprt_refr;
         lv_disp_draw_buf_t *sprt_draw;
         
         sprt_dctrl = (struct fwk_disp_ctrl *)disp_drv->user_data;
@@ -267,6 +312,7 @@ static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
                 sgrt_var.yoffset = 0;
             
             virt_ioctl(fd, NR_FB_IOSET_VARINFO, &sgrt_var);
+            fwk_display_frame_sync(sprt_disp, sprt_disp->buf_size);
         }
         else {
             kuint32_t offset, length;

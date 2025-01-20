@@ -11,6 +11,7 @@
 LVGL_DEMO_DIR	:=	$(shell pwd)
 
 src-y	:=	$(shell find -L $(LVGL_DEMO_DIR) -name "*.c" -o -name "*.cpp")
-obj-y   +=  $(patsubst %,%, $(src-y:.c=.o))
+obj-y   +=  $(patsubst %.c,%.o, $(filter %.c, $(src-y)))
+obj-y   +=  $(patsubst %.cpp,%.o, $(filter %.cpp, $(src-y)))
 
 # end of file

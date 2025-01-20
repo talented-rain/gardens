@@ -13,6 +13,10 @@
 #ifndef __FWK_UACCESS_H_
 #define __FWK_UACCESS_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 
@@ -25,7 +29,11 @@ struct fwk_vm_area
 };
 
 /*!< The functions */
-TARGET_EXT kusize_t fwk_copy_from_user(void *ptr_dst, const void *ptr_user, kusize_t size);
-TARGET_EXT kusize_t fwk_copy_to_user(void *ptr_user, void *ptr_Src, kusize_t size);
+extern kusize_t fwk_copy_from_user(void *ptr_dst, const void *ptr_user, kusize_t size);
+extern kusize_t fwk_copy_to_user(void *ptr_user, void *ptr_Src, kusize_t size);
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_UACCESS_H_ */

@@ -13,6 +13,10 @@
 #ifndef __KERNEL_H
 #define __KERNEL_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <common/generic.h>
 #include <configs/configs.h>
@@ -64,7 +68,7 @@ enum __ERT_THREAD_SIGNALS
 };
 
 /*!< The globals */
-TARGET_EXT kuint32_t g_sched_preempt_cnt;
+extern kuint32_t g_sched_preempt_cnt;
 
 #define mrt_preempt_cnt_dec()						COUNT_DEC(g_sched_preempt_cnt)
 #define mrt_preempt_cnt_inc()						COUNT_INC(g_sched_preempt_cnt)
@@ -88,6 +92,10 @@ TARGET_EXT kuint32_t g_sched_preempt_cnt;
 	} while (0)
 
 #define mrt_preempt_is_locked()						(!!g_sched_preempt_cnt)
+#endif
+
+#ifdef __cplusplus
+    }
 #endif
 
 #endif /* __KERNEL_H */

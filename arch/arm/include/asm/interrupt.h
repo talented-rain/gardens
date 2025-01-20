@@ -13,14 +13,22 @@
 #ifndef __INTERRUPT_H
 #define __INTERRUPT_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes*/
 #include <common/basic_types.h>
 #include <common/error_types.h>
 #include <common/generic.h>
 
 /*!< The functions */
-TARGET_EXT void exec_fiq_handler(void);
-TARGET_EXT void exec_irq_handler(void);
-TARGET_EXT void exec_software_irq_handler(void);
+extern void exec_fiq_handler(void);
+extern void exec_irq_handler(void);
+extern void exec_software_irq_handler(void);
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __INTERRUPT_H */

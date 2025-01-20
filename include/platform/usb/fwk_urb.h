@@ -13,6 +13,10 @@
 #ifndef __FWK_URB_H_
 #define __FWK_URB_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 
@@ -43,31 +47,31 @@ enum __ERT_URB_PID_TYPE
 {
 /*!< 1. Super packet, bit[1:0] = 0b00 */
 #define FWK_URB_SUPER_PACKET_MASK                                       (0x00)
-    NR_URB_PidSuperTypeNone = 0x00,                                /*!< Reserved, not used */
-    NR_URB_PidSuperTypePing = 0x04,                                /*!< Ping test (for Token Packet) */
-    NR_URB_PidSuperTypeSplit = 0x08,                               /*!< Split transaction (for Token Packet) */
-    NR_URB_PidSuperTypePre = 0x0c,                                 /*!< Precursor (for Token Packet) */
-    NR_URB_PidSuperTypeErr = 0x0c,                                 /*!< Error (for HandShake Packet) */
+    NR_URB_PidSuperTypeNone = 0x00,                                     /*!< Reserved, not used */
+    NR_URB_PidSuperTypePing = 0x04,                                     /*!< Ping test (for Token Packet) */
+    NR_URB_PidSuperTypeSplit = 0x08,                                    /*!< Split transaction (for Token Packet) */
+    NR_URB_PidSuperTypePre = 0x0c,                                      /*!< Precursor (for Token Packet) */
+    NR_URB_PidSuperTypeErr = 0x0c,                                      /*!< Error (for HandShake Packet) */
 
 /*!< 2. Token packet, bit[1:0] = 0b01 */
 #define FWK_URB_TOKEN_PACKET_MASK                                       (0x01)
-    NR_URB_PidTokenTypeOut = 0x01,                                 /*!< Ask device that host will send data */
-    NR_URB_PidTokenTypeIn = 0x09,                                  /*!< Ask device taht host will recieve data */
-    NR_URB_PidTokenTypeSof = 0x05,                                 /*!< Start of frame */
-    NR_URB_PidTokenTypeSetup = 0x0d,                               /*!< Control transfer will begin */
+    NR_URB_PidTokenTypeOut = 0x01,                                      /*!< Ask device that host will send data */
+    NR_URB_PidTokenTypeIn = 0x09,                                       /*!< Ask device taht host will recieve data */
+    NR_URB_PidTokenTypeSof = 0x05,                                      /*!< Start of frame */
+    NR_URB_PidTokenTypeSetup = 0x0d,                                    /*!< Control transfer will begin */
 
 /*!< 3. Handshake packet, bit[1:0] = 0b10 */
 #define FWK_URB_HANDSHAKE_PACKET_MASK                                   (0x02)
-    NR_URB_PidHandShakeTypeAck = 0x02,                             /*!< Ackonwledge(ACK): transfer completed */
-    NR_URB_PidHandShakeTypeNAck = 0x0a,                            /*!< Not Ackonwledge(NAK): device does not ready to send/recv */
-    NR_URB_PidHandShakeTypeNYet = 0x06,                            /*!< Not ready(NYET/ERR): just for HS device, not ready or error */
-    NR_URB_PidHandShakeTypeStall = 0x0e,                           /*!< Suspend: can not transfer */
+    NR_URB_PidHandShakeTypeAck = 0x02,                                  /*!< Ackonwledge(ACK): transfer completed */
+    NR_URB_PidHandShakeTypeNAck = 0x0a,                                 /*!< Not Ackonwledge(NAK): device does not ready to send/recv */
+    NR_URB_PidHandShakeTypeNYet = 0x06,                                 /*!< Not ready(NYET/ERR): just for HS device, not ready or error */
+    NR_URB_PidHandShakeTypeStall = 0x0e,                                /*!< Suspend: can not transfer */
 
 /*!< 4. Data packet, bit[1:0] = 0b11 */
-#define FWK_URB_DATA_PACKET_MASK                                       (0x03)
-    NR_URB_PidDataTypeData0 = 0x03,                                /*!< Data packet of data0 */
-    NR_URB_PidDataTypeData1 = 0x0b,                                /*!< Data packet of data1 */
-    NR_URB_PidDataTypeData2 = 0x07,                                /*!< Data packet of data2 */
+#define FWK_URB_DATA_PACKET_MASK                                        (0x03)
+    NR_URB_PidDataTypeData0 = 0x03,                                     /*!< Data packet of data0 */
+    NR_URB_PidDataTypeData1 = 0x0b,                                     /*!< Data packet of data1 */
+    NR_URB_PidDataTypeData2 = 0x07,                                     /*!< Data packet of data2 */
     NR_URB_PidDataTypeMData = 0x0f,
 
 /*!< 
@@ -115,20 +119,20 @@ typedef struct fwk_urb_token
  * Data0 packet(pid is 0xc3)
  * CRC caculation does not include pid.
  * 
- * Êı¾İÇĞ»»Í¬²½ºÍÖØ´«(by data0 and data1)
- * (·¢ËÍÊı¾İÇ°, Ö÷»ú×´Ì¬(A) = Éè±¸×´Ì¬(B) = 0)
- *  1, ÕıÈ·Êı¾İ´«ÊäÍ¬²½
+ * æ•°æ®åˆ‡æ¢åŒæ­¥å’Œé‡ä¼ (by data0 and data1)
+ * (å‘é€æ•°æ®å‰, ä¸»æœºçŠ¶æ€(A) = è®¾å¤‡çŠ¶æ€(B) = 0)
+ *  1, æ­£ç¡®æ•°æ®ä¼ è¾“åŒæ­¥
  *      a) if (A == 0):
- *          Ö÷»ú·¢ËÍDATA0¸øÉè±¸; Éè±¸ÈçÕıÈ·½ÓÊÕ, B = 1, ²¢¸øÖ÷»ú·¢ËÍÓ¦´ğ°ü; Ö÷»úÈçÕıÈ·½ÓÊÕ, A = 1
+ *          ä¸»æœºå‘é€DATA0ç»™è®¾å¤‡; è®¾å¤‡å¦‚æ­£ç¡®æ¥æ”¶, B = 1, å¹¶ç»™ä¸»æœºå‘é€åº”ç­”åŒ…; ä¸»æœºå¦‚æ­£ç¡®æ¥æ”¶, A = 1
  *      b) if (A == 1):
- *          Ö÷»úÈç»¹Òª¼ÌĞø·¢ËÍÊı¾İ°ü, Ôò·¢ËÍDATA1; Éè±¸ÈçÕıÈ·½ÓÊÕ, B = 0, ²¢¸øÖ÷»ú·¢ËÍÓ¦´ğ°ü; Ö÷»úÈçÕıÈ·½ÓÊÕ, A = 0
- *  2, Êı¾İÖØ´«
- *          Ö÷»ú·¢ËÍDATA0, ÈôÉè±¸·¢ÏÖÊı¾İ´æÔÚÎÊÌâ, Éè±¸×´Ì¬²»±ä(BÈÔÎª0), ²¢¸øÖ÷»ú·¢ËÍ·ÇÓ¦´ğÊı¾İ°ü, Ö÷»ú½ÓÊÕµ½·ÇÓ¦´ğÊı¾İ°üºó, Ö÷»ú×´Ì¬Ò²²»±ä(AÈÔÎª0)
- *          Ö÷»úÒ»¶ÎÊ±¼äºóÆô¶¯ÖØ´«, ÈÔÈ»·¢ËÍDATA0, Ö±µ½Éè±¸½ÓÊÕÕı³£, A/B×´Ì¬·­×ª
- *  3, Ó¦´ğ°ü¹ÊÕÏ
- *          Éè±¸ÕıÈ·½ÓÊÕDATA0ºó¸øÖ÷»ú·¢ËÍÓ¦´ğ°ü, ÈôÓ¦´ğ°ü¹ÊÕÏ, Ö÷»ú²»×ö×´Ì¬±ä»¯ ===> ¼´A = 0, B = 1;
- *          Ö÷»úÒ»¶ÎÊ±¼äºóÆô¶¯ÖØ´«, ÈÔÈ»·¢ËÍDATA0, ÓÉÓÚÉè±¸×´Ì¬B = 1, ¹Ê²»»á¶Ô±¾´ÎÊı¾İ°ü½øĞĞ½ÓÊÕ, Ö±½Ó¸øÖ÷»ú·¢ËÍÓ¦´ğ°ü, Ö±µ½Ó¦´ğÕı³£. Ö÷»ú×´Ì¬·­×ª
- *  (A = 0Ê±, Ö÷»ú·¢ËÍDATA0; A = 1Ê±, Ö÷»ú·¢ËÍDATA1)
+ *          ä¸»æœºå¦‚è¿˜è¦ç»§ç»­å‘é€æ•°æ®åŒ…, åˆ™å‘é€DATA1; è®¾å¤‡å¦‚æ­£ç¡®æ¥æ”¶, B = 0, å¹¶ç»™ä¸»æœºå‘é€åº”ç­”åŒ…; ä¸»æœºå¦‚æ­£ç¡®æ¥æ”¶, A = 0
+ *  2, æ•°æ®é‡ä¼ 
+ *          ä¸»æœºå‘é€DATA0, è‹¥è®¾å¤‡å‘ç°æ•°æ®å­˜åœ¨é—®é¢˜, è®¾å¤‡çŠ¶æ€ä¸å˜(Bä»ä¸º0), å¹¶ç»™ä¸»æœºå‘é€éåº”ç­”æ•°æ®åŒ…, ä¸»æœºæ¥æ”¶åˆ°éåº”ç­”æ•°æ®åŒ…å, ä¸»æœºçŠ¶æ€ä¹Ÿä¸å˜(Aä»ä¸º0)
+ *          ä¸»æœºä¸€æ®µæ—¶é—´åå¯åŠ¨é‡ä¼ , ä»ç„¶å‘é€DATA0, ç›´åˆ°è®¾å¤‡æ¥æ”¶æ­£å¸¸, A/BçŠ¶æ€ç¿»è½¬
+ *  3, åº”ç­”åŒ…æ•…éšœ
+ *          è®¾å¤‡æ­£ç¡®æ¥æ”¶DATA0åç»™ä¸»æœºå‘é€åº”ç­”åŒ…, è‹¥åº”ç­”åŒ…æ•…éšœ, ä¸»æœºä¸åšçŠ¶æ€å˜åŒ– ===> å³A = 0, B = 1;
+ *          ä¸»æœºä¸€æ®µæ—¶é—´åå¯åŠ¨é‡ä¼ , ä»ç„¶å‘é€DATA0, ç”±äºè®¾å¤‡çŠ¶æ€B = 1, æ•…ä¸ä¼šå¯¹æœ¬æ¬¡æ•°æ®åŒ…è¿›è¡Œæ¥æ”¶, ç›´æ¥ç»™ä¸»æœºå‘é€åº”ç­”åŒ…, ç›´åˆ°åº”ç­”æ­£å¸¸. ä¸»æœºçŠ¶æ€ç¿»è½¬
+ *  (A = 0æ—¶, ä¸»æœºå‘é€DATA0; A = 1æ—¶, ä¸»æœºå‘é€DATA1)
  */
 typedef struct fwk_urb_data
 {
@@ -140,31 +144,31 @@ typedef struct fwk_urb_data
 
 /*!< 
  * Handshake packet(just obtain pid)
- * 1) ÅúÁ¿´«Êä/ÖĞ¶Ï´«Êä
+ * 1) æ‰¹é‡ä¼ è¾“/ä¸­æ–­ä¼ è¾“
  *  for IN transaction:
- *      a) Ö÷»ú·¢ËÍINÁîÅÆ°ü¸øÉè±¸;
- *      b) Éè±¸ÈçÓĞÊı¾İ, ½«·¢ËÍÊı¾İ¸øÖ÷»ú; 
- *         ÈôÉè±¸Î´×¼±¸ºÃÊı¾İ, ½«·¢ËÍNAKÎÕÊÖ°ü; 
- *         ÈôÉè±¸²»ÄÜ½øĞĞ´«Êä, ½«·¢ËÍSTALLÎÕÊÖ°ü
- *      c) Ö÷»úÕıÈ·ÊÕµ½Êı¾İºó, Ö÷»ú»á¸øÉè±¸·¢ËÍÓ¦´ğ°üACK, INÊÂÎñÍê³É
+ *      a) ä¸»æœºå‘é€INä»¤ç‰ŒåŒ…ç»™è®¾å¤‡;
+ *      b) è®¾å¤‡å¦‚æœ‰æ•°æ®, å°†å‘é€æ•°æ®ç»™ä¸»æœº; 
+ *         è‹¥è®¾å¤‡æœªå‡†å¤‡å¥½æ•°æ®, å°†å‘é€NAKæ¡æ‰‹åŒ…; 
+ *         è‹¥è®¾å¤‡ä¸èƒ½è¿›è¡Œä¼ è¾“, å°†å‘é€STALLæ¡æ‰‹åŒ…
+ *      c) ä¸»æœºæ­£ç¡®æ”¶åˆ°æ•°æ®å, ä¸»æœºä¼šç»™è®¾å¤‡å‘é€åº”ç­”åŒ…ACK, INäº‹åŠ¡å®Œæˆ
  *  for OUT transation:
- *      a) Ö÷»ú·¢ËÍOUTÁîÅÆ°ü¸øÉè±¸;
- *      b) Ö÷»ú·¢ËÍDATAÊı¾İ°ü¸øÉè±¸;
- *      c) Éè±¸ÈôÎ´×¼±¸ºÃ½ÓÊÕÖ÷»úµÄÊı¾İ, Ôò¸øÖ÷»ú·¢ËÍNAKÎÕÊÖ°ü; 
- *         ÈôÉè±¸²»ÄÜ½øĞĞ´«Êä, »á¸øÖ÷»ú·¢ËÍSTALLÎÕÊÖ°ü; 
- *         ÈôÉè±¸ÕıÈ·½ÓÊÕÊı¾İ, Ôò¸øÖ÷»ú·¢ËÍACKÎÕÊÖ°ü; 
- *         ÔÚ¸ßËÙUSB(HS)ÖĞ, ÈôÉè±¸Î´×¼±¸ºÃ, Ôò¸øÖ÷»ú·¢ËÍNYETÎÕÊÖ°ü; 
- *         ÈôÉè±¸³ö´í, Ôò·¢ERRÎÕÊÖ°ü
+ *      a) ä¸»æœºå‘é€OUTä»¤ç‰ŒåŒ…ç»™è®¾å¤‡;
+ *      b) ä¸»æœºå‘é€DATAæ•°æ®åŒ…ç»™è®¾å¤‡;
+ *      c) è®¾å¤‡è‹¥æœªå‡†å¤‡å¥½æ¥æ”¶ä¸»æœºçš„æ•°æ®, åˆ™ç»™ä¸»æœºå‘é€NAKæ¡æ‰‹åŒ…; 
+ *         è‹¥è®¾å¤‡ä¸èƒ½è¿›è¡Œä¼ è¾“, ä¼šç»™ä¸»æœºå‘é€STALLæ¡æ‰‹åŒ…; 
+ *         è‹¥è®¾å¤‡æ­£ç¡®æ¥æ”¶æ•°æ®, åˆ™ç»™ä¸»æœºå‘é€ACKæ¡æ‰‹åŒ…; 
+ *         åœ¨é«˜é€ŸUSB(HS)ä¸­, è‹¥è®¾å¤‡æœªå‡†å¤‡å¥½, åˆ™ç»™ä¸»æœºå‘é€NYETæ¡æ‰‹åŒ…; 
+ *         è‹¥è®¾å¤‡å‡ºé”™, åˆ™å‘ERRæ¡æ‰‹åŒ…
  *  for PING transation (HS):
- *      a) Ö÷»ú·¢ËÍPINGÁîÅÆ°ü¸øÉè±¸;
- *      b) ÈôÉè±¸ÕıÈ·½ÓÊÕÊı¾İ, Ôò¸øÖ÷»ú·¢ËÍACKÎÕÊÖ°ü;
- *         ÈôÉè±¸Ã»ÓĞ×¼±¸ºÃ·¢ËÍ/½ÓÊÕÊı¾İ, Ôò¸øÖ÷»ú·¢ËÍNAKÎÕÊÖ°ü;
- *         ÈôÉè±¸²»ÄÜ½øĞĞ´«Êä, Ôò¸øÖ÷»ú·¢ËÍSTALLÎÕÊÖ°ü
- * 2) ¿ØÖÆ´«Êä
- *      a) ³É¹¦: ACK
- *      b) Ê§°Ü: ERR
- * 3) Í¬²½´«Êä
- *      ÎŞÎÕÊÖ°ü
+ *      a) ä¸»æœºå‘é€PINGä»¤ç‰ŒåŒ…ç»™è®¾å¤‡;
+ *      b) è‹¥è®¾å¤‡æ­£ç¡®æ¥æ”¶æ•°æ®, åˆ™ç»™ä¸»æœºå‘é€ACKæ¡æ‰‹åŒ…;
+ *         è‹¥è®¾å¤‡æ²¡æœ‰å‡†å¤‡å¥½å‘é€/æ¥æ”¶æ•°æ®, åˆ™ç»™ä¸»æœºå‘é€NAKæ¡æ‰‹åŒ…;
+ *         è‹¥è®¾å¤‡ä¸èƒ½è¿›è¡Œä¼ è¾“, åˆ™ç»™ä¸»æœºå‘é€STALLæ¡æ‰‹åŒ…
+ * 2) æ§åˆ¶ä¼ è¾“
+ *      a) æˆåŠŸ: ACK
+ *      b) å¤±è´¥: ERR
+ * 3) åŒæ­¥ä¼ è¾“
+ *      æ— æ¡æ‰‹åŒ…
  */
 typedef struct fwk_urb_handshake
 {
@@ -256,27 +260,27 @@ enum __ERT_URB_SETUP_STDREQ
 #define FWK_URB_SETUP_WINDEX_IF_NUMBER(x)                           ((x) & 0x00f0)
 
 /*!
- * ¿ØÖÆ´«Êä: USBÃ¶¾Ù¹ı³Ì
- * (ÒÔÏÂÇëÇóÃû³ÆºöÂÔNR_URBÇ°×º, ÈçNR_URB_SetupStdReqGetStatus¼ò»¯ÎªSetupStdReqGetStatus)
- * 	1) Éè±¸ÉÏµç: USB²åÈë¶Ë¿Ú»òÏµÍ³Æô¶¯Ê±Éè±¸ÉÏµç
- * 	2) Hub¼ì²âµçÑ¹±ä»¯, ±¨¸æÖ÷»ú: hubÀûÓÃ×ÔÉíÖĞ¶Ï¶Ëµã½«ĞÅÏ¢·´À¡¸øÖ÷»ú, ¸æËßÖ÷»úÓĞÉè±¸Á¬½Ó
- * 	3) Ö÷»úÁË½âÁ¬½ÓÉè±¸: Ö÷»ú·¢ËÍÒ»¸ö"SetupStdReqGetStatus"ÇëÇó¸øhub, ÒÔÁË½â±¾´Î×´Ì¬¸Ä±äµÄÈ·ÇĞº¬Òå(Á¬½Ó or ¶Ï¿ª)
- * 	4) Ö÷»ú¼ì²âËù²åÈëµÄÉè±¸ÊÇÈ«ËÙ»¹ÊÇµÍËÙ
- * 	5) Ö÷»úÍ¨¹ıhub¸´Î»Éè±¸: ĞÂÉè±¸Á¬½Óºó, ÖÁÉÙµÈ´ı100msÒÔ±£Ö¤²åÈëÍê³É¼°Éè±¸ÎÈ¶¨; 
- * 	   Ö÷»úÖ®ºóÏòHub·¢ËÍSet_Port_FrameÇëÇó, ÒÔ¸´Î»¸ÃÉè±¸Á¬½ÓµÄ¶Ë¿Ú(D+ = D- = µÍµçÆ½, ³ÖĞøÖÁÉÙ10ms)
- * 	6) Ö÷»ú½øÒ»²½¼ì²âÈ«ËÙÉè±¸ÊÇ·ñÖ§³Ö¸ßËÙÄ£Ê½: HSºÍFS¾ùÄ¬ÈÏÒÔFSÔËĞĞ, Èô¼ì²âµ½ÆäÎªFSÉè±¸, ½«ÔÙ´Î½øĞĞ¸ßËÙ¼ì²â. ÈçÖ§³ÖHS, ÔòÇĞ»»µ½HS
- *     (¼ì²â·½·¨ÎªKJ-ChirpĞòÁĞ, ÒªÇóÖ÷»úºÍÉè±¸¾ùÖ§³ÖHS; ÇĞ»»ÖÁHSÊ±, USBÉè±¸½«¶Ï¿ªD+µÄÉÏÀ­µçÂ·)
- *     (µÚ5²½ºÍµÚ9²½ÖĞ, Ö÷»úÍ¨¹ı·¢ËÍSE0À´¸´Î»Éè±¸, Èô´ËÊ±Éè±¸¹¤×÷ÔÚHSÄ£Ê½, ½«ÖØĞÂÁ¬½ÓD+µÄÉÏÀ­µçÂ·, ÇĞ»»»ØFSÄ£Ê½)
- * 	7) Í¨¹ıHub½¨Á¢Ö÷»úºÍÉè±¸Ö®¼äµÄĞÅÏ¢¹ÜµÀ: Ö÷»ú²»Í£Ïòhub·¢ËÍ"SetupStdReqGetStatus"ÇëÇó, ÒÔ²éÑ¯Éè±¸ÊÇ·ñ¸´Î»³É¹¦. Èô³É¹¦, Éè±¸½øÈëÄ¬ÈÏ×´Ì¬. 
- * 	   µ±Ç°Í¨ĞÅ²ÉÓÃ¿ØÖÆ´«Êä, Ä¬ÈÏ¹ÜµÀÎª: µØÖ·0, ¶Ëµã0, ×ÜÏß×î´óµçÁ÷100mA
- * 	8) Ö÷»ú»ñÈ¡Ä¬ÈÏ¿ØÖÆ¹ÜµÀµÄ×î´óÊı¾İ°ü³¤¶È: Ö÷»úÊ¹ÓÃÄ¬ÈÏµØÖ·0ºÍ¶Ëµã0ÏòÉè±¸·¢ËÍ"SetupStdReqGetDescriptor"ÇëÇó»ñÈ¡Éè±¸ÃèÊö·û, µÃµ½bMaxPackSize0
- * 	9) Ö÷»úÇëÇóHubÔÙ´Î¸´Î»Éè±¸
- * 	a) Ö÷»ú¸øÉè±¸·ÖÅäÒ»¸öĞÂµØÖ·: Ö÷»ú·¢ËÍ"SetupStdReqSetAddress"ÇëÇóÏòÉè±¸·¢ËÍÒ»¸öÎ¨Ò»µÄµØÖ·. Éè±¸½øÈëµØÖ·×´Ì¬
- * 	b) Ö÷»ú»ñÈ¡²¢½âÎöÉè±¸ÃèÊö·ûĞÅÏ¢: Ö÷»ú·¢ËÍ"SetupStdReqGetDescriptor"ÇëÇó¶ÁÈ¡Éè±¸ÃèÊö·û
- * 	c) Ö÷»ú»ñÈ¡×Ö·û´®ÃèÊö·û
- * 	d) Ö÷»ú»ñÈ¡±ê×¼ÅäÖÃÃèÊö·û: Ö÷»ú·¢ËÍ"SetupStdReqGetConfig"ÇëÇóÀ´»ñÈ¡±ê×¼ÅäÖÃÃèÊö·û
- * 	e) Ö÷»ú»ñÈ¡ÅäÖÃÃèÊö·û¼¯ºÏ: Ö÷»ú¸ù¾İ±ê×¼ÅäÖÃÃèÊö·ûµÄwTotalLength, ·¢ËÍ"SetupStdReqGetConfig"ÇëÇó»ñÈ¡ÅäÖÃÃèÊö·û¼¯ºÏ
- * 	f) Ö÷»úÎªÉè±¸¹ÒÔØÇı¶¯²¢Ñ¡ÔñÒ»¸öÅäÖÃ: Ö÷»ú·¢ËÍ"SetupStdReqSetConfig"ÇëÇóÀ´ÕıÊ½È·¶¨Ñ¡ÔñÉè±¸µÄÄÄ¸öÅäÖÃ×÷Îª¹¤×÷ÅäÖÃ(Ò»°ãÖ»ÓĞÒ»¸öÅäÖÃ±»¶¨Òå). Éè±¸½øÈëÅäÖÃ×´Ì¬
+ * æ§åˆ¶ä¼ è¾“: USBæšä¸¾è¿‡ç¨‹
+ * (ä»¥ä¸‹è¯·æ±‚åç§°å¿½ç•¥NR_URBå‰ç¼€, å¦‚NR_URB_SetupStdReqGetStatusç®€åŒ–ä¸ºSetupStdReqGetStatus)
+ * 	1) è®¾å¤‡ä¸Šç”µ: USBæ’å…¥ç«¯å£æˆ–ç³»ç»Ÿå¯åŠ¨æ—¶è®¾å¤‡ä¸Šç”µ
+ * 	2) Hubæ£€æµ‹ç”µå‹å˜åŒ–, æŠ¥å‘Šä¸»æœº: hubåˆ©ç”¨è‡ªèº«ä¸­æ–­ç«¯ç‚¹å°†ä¿¡æ¯åé¦ˆç»™ä¸»æœº, å‘Šè¯‰ä¸»æœºæœ‰è®¾å¤‡è¿æ¥
+ * 	3) ä¸»æœºäº†è§£è¿æ¥è®¾å¤‡: ä¸»æœºå‘é€ä¸€ä¸ª"SetupStdReqGetStatus"è¯·æ±‚ç»™hub, ä»¥äº†è§£æœ¬æ¬¡çŠ¶æ€æ”¹å˜çš„ç¡®åˆ‡å«ä¹‰(è¿æ¥ or æ–­å¼€)
+ * 	4) ä¸»æœºæ£€æµ‹æ‰€æ’å…¥çš„è®¾å¤‡æ˜¯å…¨é€Ÿè¿˜æ˜¯ä½é€Ÿ
+ * 	5) ä¸»æœºé€šè¿‡hubå¤ä½è®¾å¤‡: æ–°è®¾å¤‡è¿æ¥å, è‡³å°‘ç­‰å¾…100msä»¥ä¿è¯æ’å…¥å®ŒæˆåŠè®¾å¤‡ç¨³å®š; 
+ * 	   ä¸»æœºä¹‹åå‘Hubå‘é€Set_Port_Frameè¯·æ±‚, ä»¥å¤ä½è¯¥è®¾å¤‡è¿æ¥çš„ç«¯å£(D+ = D- = ä½ç”µå¹³, æŒç»­è‡³å°‘10ms)
+ * 	6) ä¸»æœºè¿›ä¸€æ­¥æ£€æµ‹å…¨é€Ÿè®¾å¤‡æ˜¯å¦æ”¯æŒé«˜é€Ÿæ¨¡å¼: HSå’ŒFSå‡é»˜è®¤ä»¥FSè¿è¡Œ, è‹¥æ£€æµ‹åˆ°å…¶ä¸ºFSè®¾å¤‡, å°†å†æ¬¡è¿›è¡Œé«˜é€Ÿæ£€æµ‹. å¦‚æ”¯æŒHS, åˆ™åˆ‡æ¢åˆ°HS
+ *     (æ£€æµ‹æ–¹æ³•ä¸ºKJ-Chirpåºåˆ—, è¦æ±‚ä¸»æœºå’Œè®¾å¤‡å‡æ”¯æŒHS; åˆ‡æ¢è‡³HSæ—¶, USBè®¾å¤‡å°†æ–­å¼€D+çš„ä¸Šæ‹‰ç”µè·¯)
+ *     (ç¬¬5æ­¥å’Œç¬¬9æ­¥ä¸­, ä¸»æœºé€šè¿‡å‘é€SE0æ¥å¤ä½è®¾å¤‡, è‹¥æ­¤æ—¶è®¾å¤‡å·¥ä½œåœ¨HSæ¨¡å¼, å°†é‡æ–°è¿æ¥D+çš„ä¸Šæ‹‰ç”µè·¯, åˆ‡æ¢å›FSæ¨¡å¼)
+ * 	7) é€šè¿‡Hubå»ºç«‹ä¸»æœºå’Œè®¾å¤‡ä¹‹é—´çš„ä¿¡æ¯ç®¡é“: ä¸»æœºä¸åœå‘hubå‘é€"SetupStdReqGetStatus"è¯·æ±‚, ä»¥æŸ¥è¯¢è®¾å¤‡æ˜¯å¦å¤ä½æˆåŠŸ. è‹¥æˆåŠŸ, è®¾å¤‡è¿›å…¥é»˜è®¤çŠ¶æ€. 
+ * 	   å½“å‰é€šä¿¡é‡‡ç”¨æ§åˆ¶ä¼ è¾“, é»˜è®¤ç®¡é“ä¸º: åœ°å€0, ç«¯ç‚¹0, æ€»çº¿æœ€å¤§ç”µæµ100mA
+ * 	8) ä¸»æœºè·å–é»˜è®¤æ§åˆ¶ç®¡é“çš„æœ€å¤§æ•°æ®åŒ…é•¿åº¦: ä¸»æœºä½¿ç”¨é»˜è®¤åœ°å€0å’Œç«¯ç‚¹0å‘è®¾å¤‡å‘é€"SetupStdReqGetDescriptor"è¯·æ±‚è·å–è®¾å¤‡æè¿°ç¬¦, å¾—åˆ°bMaxPackSize0
+ * 	9) ä¸»æœºè¯·æ±‚Hubå†æ¬¡å¤ä½è®¾å¤‡
+ * 	a) ä¸»æœºç»™è®¾å¤‡åˆ†é…ä¸€ä¸ªæ–°åœ°å€: ä¸»æœºå‘é€"SetupStdReqSetAddress"è¯·æ±‚å‘è®¾å¤‡å‘é€ä¸€ä¸ªå”¯ä¸€çš„åœ°å€. è®¾å¤‡è¿›å…¥åœ°å€çŠ¶æ€
+ * 	b) ä¸»æœºè·å–å¹¶è§£æè®¾å¤‡æè¿°ç¬¦ä¿¡æ¯: ä¸»æœºå‘é€"SetupStdReqGetDescriptor"è¯·æ±‚è¯»å–è®¾å¤‡æè¿°ç¬¦
+ * 	c) ä¸»æœºè·å–å­—ç¬¦ä¸²æè¿°ç¬¦
+ * 	d) ä¸»æœºè·å–æ ‡å‡†é…ç½®æè¿°ç¬¦: ä¸»æœºå‘é€"SetupStdReqGetConfig"è¯·æ±‚æ¥è·å–æ ‡å‡†é…ç½®æè¿°ç¬¦
+ * 	e) ä¸»æœºè·å–é…ç½®æè¿°ç¬¦é›†åˆ: ä¸»æœºæ ¹æ®æ ‡å‡†é…ç½®æè¿°ç¬¦çš„wTotalLength, å‘é€"SetupStdReqGetConfig"è¯·æ±‚è·å–é…ç½®æè¿°ç¬¦é›†åˆ
+ * 	f) ä¸»æœºä¸ºè®¾å¤‡æŒ‚è½½é©±åŠ¨å¹¶é€‰æ‹©ä¸€ä¸ªé…ç½®: ä¸»æœºå‘é€"SetupStdReqSetConfig"è¯·æ±‚æ¥æ­£å¼ç¡®å®šé€‰æ‹©è®¾å¤‡çš„å“ªä¸ªé…ç½®ä½œä¸ºå·¥ä½œé…ç½®(ä¸€èˆ¬åªæœ‰ä¸€ä¸ªé…ç½®è¢«å®šä¹‰). è®¾å¤‡è¿›å…¥é…ç½®çŠ¶æ€
  */
 
 /*!< ---------------------------------------------------------------------- */
@@ -295,10 +299,10 @@ enum __ERT_URB_SETUP_STDREQ
 /*!<
  * Interrupt Transmission
  * (Consist of one transaction)
- *  ÖĞ¶Ï¶ËµãÔÚ¶ËµãÃèÊö·ûÖĞÒª±¨¸æÖ÷»ú¶Ô´Ë¶ËµãµÄ²éÑ¯Ê±¼ä, Ö÷»ú»á±£Ö¤ÔÚĞ¡ÓÚÕâ¸öÊ±¼ä¼ä¸ôµÄ·¶Î§ÄÚ°²ÅÅÒ»´Î´«Êä, ÈçhostÖ÷»ú1msÄÚÏòÊó±êÉè±¸ÇëÇóÒ»´ÎÊı¾İ.
- *  for FS endpoint, ÖĞ¶Ï´«ÊäµÄÊ±¼ä¼ä¸ôÔÚ1ms ~ 255msÖ®¼ä;
- *  for LS endpoint, Ê±¼ä¼ä¸ôÏŞÖÆÔÚ10ms ~ 255msÖ®¼ä;
- *  for HS endpoint, Ê±¼ä¼ä¸ôÎª(2 ^ (bInterval - 1)) * 125us, bIntervalµÄÖµÔÚ1 ~ 16Ö®¼ä
+ *  ä¸­æ–­ç«¯ç‚¹åœ¨ç«¯ç‚¹æè¿°ç¬¦ä¸­è¦æŠ¥å‘Šä¸»æœºå¯¹æ­¤ç«¯ç‚¹çš„æŸ¥è¯¢æ—¶é—´, ä¸»æœºä¼šä¿è¯åœ¨å°äºè¿™ä¸ªæ—¶é—´é—´éš”çš„èŒƒå›´å†…å®‰æ’ä¸€æ¬¡ä¼ è¾“, å¦‚hostä¸»æœº1mså†…å‘é¼ æ ‡è®¾å¤‡è¯·æ±‚ä¸€æ¬¡æ•°æ®.
+ *  for FS endpoint, ä¸­æ–­ä¼ è¾“çš„æ—¶é—´é—´éš”åœ¨1ms ~ 255msä¹‹é—´;
+ *  for LS endpoint, æ—¶é—´é—´éš”é™åˆ¶åœ¨10ms ~ 255msä¹‹é—´;
+ *  for HS endpoint, æ—¶é—´é—´éš”ä¸º(2 ^ (bInterval - 1)) * 125us, bIntervalçš„å€¼åœ¨1 ~ 16ä¹‹é—´
  */
 
 typedef struct fwk_urb_class_ops
@@ -340,5 +344,8 @@ typedef struct fwk_urb_ops
 
 } srt_fwk_urb_ops_t;
 
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_URB_H_ */

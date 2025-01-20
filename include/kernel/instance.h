@@ -13,40 +13,30 @@
 #ifndef __KERNEL_INSTANCE_H_
 #define __KERNEL_INSTANCE_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <kernel/kernel.h>
 #include <kernel/thread.h>
 
 /*!< The defines */
-typedef kint32_t (*thread_init_t)(void);
-
-/*!< The globals */
-TARGET_EXT thread_init_t g_thread_init_tables[];
 
 /*!< The functions */
-TARGET_EXT kint32_t rest_init(void);
-TARGET_EXT kint32_t kthread_init(void);
-TARGET_EXT kint32_t kworker_init(void);
-TARGET_EXT kint32_t term_init(void);
+/*!< kernel */
+extern kint32_t rest_init(void);
+extern kint32_t kthread_init(void);
+extern kint32_t kworker_init(void);
+extern kint32_t term_init(void);
 
-TARGET_EXT kint32_t init_proc_init(void);
+/*!< application */
+extern kint32_t init_proc_init(void);
 
-/*!< API functions */
-/*!
- * @brief	init thread tables
- * @param  	none
- * @retval 	none
- * @note   	only for user thread; called by init_proc
- */
-static inline void init_thread_table(void)
-{
-    const thread_init_t *pFunc_init;
-    
-    for (pFunc_init = g_thread_init_tables; (*pFunc_init); pFunc_init++)
-    {
-        /*!< ignore returns error */
-        (*pFunc_init)();
+extern kint32_t main(kint32_t argc, kchar_t **argv);
+
+#ifdef __cplusplus
     }
-}
+#endif
 
 #endif /* __KERNEL_CONTEXT_H_ */

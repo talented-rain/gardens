@@ -13,16 +13,16 @@
 #ifndef __FS_INTR_H
 #define __FS_INTR_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <common/generic.h>
 #include <common/api_string.h>
 #include <common/io_stream.h>
 #include <platform/fwk_kobj.h>
 #include <platform/block/fwk_gendisk.h>
-
-#ifdef __cplusplus
-    TARGET_EXT "C" {
-#endif
 
 /*!< The defines */
 struct fs_stream
@@ -36,13 +36,13 @@ struct fs_stream
 };
 
 /*!< The functions */
-TARGET_EXT struct fs_stream *file_open(const kchar_t *name, kuint32_t mode);
-TARGET_EXT void file_close(struct fs_stream *sprt_fs);
-TARGET_EXT kssize_t file_write(struct fs_stream *sprt_fs, const void *buf, kusize_t size);
-TARGET_EXT kssize_t file_read(struct fs_stream *sprt_fs, void *buf, kusize_t size);
-TARGET_EXT kssize_t file_size(struct fs_stream *sprt_fs);
-TARGET_EXT kint32_t file_lseek(struct fs_stream *sprt_fs, kuint32_t offset);
-TARGET_EXT kssize_t file_tell(struct fs_stream *sprt_fs);
+extern struct fs_stream *file_open(const kchar_t *name, kuint32_t mode);
+extern void file_close(struct fs_stream *sprt_fs);
+extern kssize_t file_write(struct fs_stream *sprt_fs, const void *buf, kusize_t size);
+extern kssize_t file_read(struct fs_stream *sprt_fs, void *buf, kusize_t size);
+extern kssize_t file_size(struct fs_stream *sprt_fs);
+extern kint32_t file_lseek(struct fs_stream *sprt_fs, kuint32_t offset);
+extern kssize_t file_tell(struct fs_stream *sprt_fs);
 
 #ifdef __cplusplus
     }

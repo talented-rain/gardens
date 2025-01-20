@@ -9,7 +9,7 @@
 /*********************
  *      INCLUDES
  *********************/
-#include "lv_port_fs_template.h"
+#include "lv_port_fs.h"
 
 #include <platform/fwk_fcntl.h>
 #include <fs/fs_intr.h>

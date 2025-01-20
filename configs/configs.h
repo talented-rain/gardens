@@ -13,6 +13,10 @@
 #ifndef __CONFIGS_H
 #define __CONFIGS_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include "mach_configs.h"
 
@@ -37,9 +41,16 @@
 #define CONFIG_DEFAULT_LOGIN                    "root"
 #define CONFIG_DEFAULT_HOST                     "heavenfox"
 
+#define CONFIG_POWER_LOGO                       "/media/FAT32_2/boot/logo/logo.bmp"
+#define CONFIG_WALL_PAPER                     "/media/FAT32_2/boot/windows/fox.bmp"
+
 /*!< armv7 */
 #if defined(CONFIG_ARCH_ARMV7)
     #include <asm/armv7/arch_common.h>
+#endif
+
+#ifdef __cplusplus
+    }
 #endif
 
 #endif /* __CONFIGS_H */

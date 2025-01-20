@@ -13,13 +13,13 @@
 #ifndef __ERROR_TYPES_H
 #define __ERROR_TYPES_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include "basic_types.h"
 #include <assert.h>
-
-#ifdef __cplusplus
-TARGET_EXT "C" {
-#endif
 
 /*!< The defines */
 /*!< error code */
@@ -72,7 +72,7 @@ enum __ERT_ERROR_CODE
 };
 
 /*!< The functions */
-TARGET_EXT void deal_assert_fail(const kchar_t *__assertion, const kchar_t *__file,
+extern void deal_assert_fail(const kchar_t *__assertion, const kchar_t *__file,
 			   					kuint32_t __line, const kchar_t *__function)
 								__THROW __attribute__ ((__noreturn__));
 /*!< The defines */

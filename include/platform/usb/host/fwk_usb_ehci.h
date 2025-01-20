@@ -13,11 +13,17 @@
 #ifndef __FWK_USB_EHCI_H_
 #define __FWK_USB_EHCI_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 
 /*!< The defines */
 
-
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_USB_EHCI_H_ */

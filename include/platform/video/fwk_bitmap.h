@@ -13,6 +13,10 @@
 #ifndef __FWK_BITMAP_H_
 #define __FWK_BITMAP_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 
@@ -79,9 +83,9 @@ typedef struct fwk_bmp_ctrl
 } srt_fwk_bmp_ctrl_t;
 
 /*!< The functions */
-TARGET_EXT kint32_t fwk_bitmap_get_and_check(struct fwk_bmp_ctrl *sprt_bctl, const kuint8_t *image);
-TARGET_EXT kint32_t fwk_display_bitmap(struct fwk_bmp_ctrl *sprt_bctl, const kuint8_t *image, kusize_t size);
-TARGET_EXT void fwk_display_whole_bitmap(struct fwk_bmp_ctrl *sprt_bctl, const kuint8_t *image);
+extern kint32_t fwk_bitmap_get_and_check(struct fwk_bmp_ctrl *sprt_bctl, const kuint8_t *image);
+extern kint32_t fwk_display_bitmap(struct fwk_bmp_ctrl *sprt_bctl, const kuint8_t *image, kusize_t size);
+extern kssize_t fwk_display_whole_bitmap(struct fwk_bmp_ctrl *sprt_bctl, const kuint8_t *image);
 
 /*!< API functions */
 /*!
@@ -100,5 +104,9 @@ static inline void fwk_bitmap_ctrl_init(struct fwk_bmp_ctrl *sprt_bctl,
     
     memset(&sprt_bctl->sgrt_bi, 0, sizeof(sprt_bctl->sgrt_bi));
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_BITMAP_H_ */

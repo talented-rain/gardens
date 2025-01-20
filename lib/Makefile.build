@@ -39,7 +39,11 @@ VPATH			+=	$(lib_path)
 INCLUDE_DIRS	+=  $(inc-y)
 
 define build_object
-	$(1) -Wp,-MD,$@.d -c $(BUILD_CFLAGS) $(MACROS) $(INCLUDE_DIRS) $(EXTRA_FLAGS) -o $(2) $(3)
+	$(1) -Wp,-MD,$@.d -c $(C_FLAGS) $(MACROS) $(INCLUDE_DIRS) $(EXTRA_FLAGS) -o $(2) $(3)
+endef
+
+define build_cxx_object
+	$(1) -Wp,-MD,$@.d -c $(CXX_FLAGS) $(MACROS) $(INCLUDE_DIRS) $(EXTRA_FLAGS) -o $(2) $(3)
 endef
 
 _force:
@@ -64,7 +68,7 @@ $(lib_output)/%.c.o : %.c _force
 	$(call build_object, $(CC), $@, $<)
 
 $(lib_output)/%.cpp.o : %.cpp _force
-	$(call build_object, $(CXX), $@, $<)
+	$(call build_cxx_object, $(CXX), $@, $<)
 
 clean:
 	if [ -d $(lib_output) ]; then rm -rf $(lib_output); fi

@@ -13,6 +13,10 @@
 #ifndef __GENERAL_H
 #define __GENERAL_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <stdio.h>
 #include <string.h>
@@ -169,7 +173,12 @@
 #define RET_BYTES_PER_LONG								(RET_BITS_PER_LONG >> 3)
 
 #define COUNT_INC(x)									do { (x)++; } while (0)
-#define COUNT_DEC(x)									do { (x) ? (x)-- : (void)0; } while (0)
+
+#ifdef __cplusplus
+#define COUNT_DEC(x)									do { (x) ? (x--) : 0; } while (0)
+#else
+#define COUNT_DEC(x)									do { (x) ? (x--) : (void)0; } while (0)
+#endif
 
 /*!< get inverse */
 #define TO_REVERSE(x)									(~(x))
@@ -189,13 +198,13 @@
 }
 
 /*!< The functions */
-TARGET_EXT kutype_t udiv_integer(kutype_t divied, kutype_t div);
-TARGET_EXT kstype_t sdiv_integer(kstype_t divied, kstype_t div);
-TARGET_EXT kutype_t udiv_remainder(kutype_t divied, kutype_t div);
-TARGET_EXT kutype_t dec_to_hex(kchar_t *buf, kutype_t number, kbool_t mode);
-TARGET_EXT kutype_t dec_to_binary(kchar_t *buf, kutype_t number);
-TARGET_EXT kint32_t ascii_to_dec(const kchar_t *str);
-TARGET_EXT kutype_t random_val(void);
+extern kutype_t udiv_integer(kutype_t divied, kutype_t div);
+extern kstype_t sdiv_integer(kstype_t divied, kstype_t div);
+extern kutype_t udiv_remainder(kutype_t divied, kutype_t div);
+extern kutype_t dec_to_hex(kchar_t *buf, kutype_t number, kbool_t mode);
+extern kutype_t dec_to_binary(kchar_t *buf, kutype_t number);
+extern kint32_t ascii_to_dec(const kchar_t *str);
+extern kutype_t random_val(void);
 
 #define mrt_udiv(divied, div)	\
 ({	\
@@ -324,5 +333,8 @@ static inline kuint8_t reverse_bit(kuint8_t val)
     return result;
 }
 
+#ifdef __cplusplus
+    }
+#endif
 
 #endif  /* __GENERAL_H */

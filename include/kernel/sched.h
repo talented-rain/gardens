@@ -13,6 +13,10 @@
 #ifndef __KERNEL_SCHED_H_
 #define __KERNEL_SCHED_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <kernel/kernel.h>
 #include <kernel/context.h>
@@ -102,37 +106,37 @@ struct scheduler_table
 /*!< The globals */
 
 /*!< The functions */
-TARGET_EXT struct thread *get_current_thread(void);
-TARGET_EXT struct list_head *get_ready_thread_table(void);
-TARGET_EXT struct thread *get_thread_handle(tid_t tid);
-TARGET_EXT void thread_set_name(tid_t tid, const kchar_t *name);
-TARGET_EXT void thread_set_self_name(const kchar_t *name);
-TARGET_EXT void thread_set_state(struct thread *sprt_thread, kuint32_t state);
-TARGET_EXT struct spin_lock *scheduler_lock(void);
-TARGET_EXT tid_t get_unused_tid_from_scheduler(kuint32_t i_start, kuint32_t count);
-TARGET_EXT kuint64_t scheduler_stats_get(void);
-TARGET_EXT void schedule_self_suspend(void);
-TARGET_EXT void schedule_self_sleep(void);
-TARGET_EXT kint32_t schedule_thread_suspend(tid_t tid);
-TARGET_EXT kint32_t schedule_thread_sleep(tid_t tid);
-TARGET_EXT kint32_t schedule_thread_wakeup(tid_t tid);
+extern struct thread *get_current_thread(void);
+extern struct list_head *get_ready_thread_table(void);
+extern struct thread *get_thread_handle(tid_t tid);
+extern void thread_set_name(tid_t tid, const kchar_t *name);
+extern void thread_set_self_name(const kchar_t *name);
+extern void thread_set_state(struct thread *sprt_thread, kuint32_t state);
+extern struct spin_lock *scheduler_lock(void);
+extern tid_t get_unused_tid_from_scheduler(kuint32_t i_start, kuint32_t count);
+extern kuint64_t scheduler_stats_get(void);
+extern void schedule_self_suspend(void);
+extern void schedule_self_sleep(void);
+extern kint32_t schedule_thread_suspend(tid_t tid);
+extern kint32_t schedule_thread_sleep(tid_t tid);
+extern kint32_t schedule_thread_wakeup(tid_t tid);
 
-TARGET_EXT kbool_t is_ready_thread_empty(void);
-TARGET_EXT kbool_t is_suspend_thread_empty(void);
-TARGET_EXT kbool_t is_sleep_thread_empty(void);
-TARGET_EXT struct thread *get_first_ready_thread(void);
-TARGET_EXT struct thread *get_first_suspend_thread(void);
-TARGET_EXT struct thread *get_first_sleep_thread(void);
-TARGET_EXT kbool_t is_thread_valid(tid_t tid);
-TARGET_EXT struct thread *next_ready_thread(struct thread *sprt_prev);
-TARGET_EXT struct thread *next_suspend_thread(struct thread *sprt_prev);
-TARGET_EXT struct thread *next_sleep_thread(struct thread *sprt_prev);
+extern kbool_t is_ready_thread_empty(void);
+extern kbool_t is_suspend_thread_empty(void);
+extern kbool_t is_sleep_thread_empty(void);
+extern struct thread *get_first_ready_thread(void);
+extern struct thread *get_first_suspend_thread(void);
+extern struct thread *get_first_sleep_thread(void);
+extern kbool_t is_thread_valid(tid_t tid);
+extern struct thread *next_ready_thread(struct thread *sprt_prev);
+extern struct thread *next_suspend_thread(struct thread *sprt_prev);
+extern struct thread *next_sleep_thread(struct thread *sprt_prev);
 
-TARGET_EXT kint32_t schedule_thread_switch(tid_t tid);
-TARGET_EXT kint32_t register_new_thread(struct thread *sprt_thread, tid_t tid);
-TARGET_EXT void __thread_init_before(void);
-TARGET_EXT struct scheduler_context *__schedule_thread(void);
-TARGET_EXT void schedule_thread(void);
+extern kint32_t schedule_thread_switch(tid_t tid);
+extern kint32_t register_new_thread(struct thread *sprt_thread, tid_t tid);
+extern void __thread_init_before(void);
+extern struct scheduler_context *__schedule_thread(void);
+extern void schedule_thread(void);
 
 /*!< The defines */
 #define mrt_current                             get_current_thread()
@@ -180,5 +184,9 @@ static inline void thread_state_signal(struct thread *sprt_thread, kuint32_t sta
     
     spin_unlock_irqrestore(&sprt_thread->sgrt_lock);
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __KERNEL_SCHED_H_ */

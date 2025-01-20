@@ -13,6 +13,10 @@
 #ifndef __FWK_NETDEV_H_
 #define __FWK_NETDEV_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 #include <platform/net/fwk_if.h>
@@ -129,15 +133,19 @@ struct fwk_ethtool_ops
 };
 
 /*!< The functions */
-TARGET_EXT struct fwk_net_device *fwk_alloc_netdev_mq(kint32_t sizeof_priv, const kchar_t *name,
+extern struct fwk_net_device *fwk_alloc_netdev_mq(kint32_t sizeof_priv, const kchar_t *name,
                                                     void (*setup) (struct fwk_net_device *sprt_ndev), kuint32_t queue_count);
-TARGET_EXT void fwk_free_netdev(struct fwk_net_device *sprt_ndev);
-TARGET_EXT struct fwk_net_device *fwk_ifname_to_ndev(const kchar_t *name);
-TARGET_EXT kint32_t fwk_register_netdevice(struct fwk_net_device *sprt_ndev);
-TARGET_EXT kint32_t fwk_unregister_netdevice(struct fwk_net_device *sprt_ndev);
+extern void fwk_free_netdev(struct fwk_net_device *sprt_ndev);
+extern struct fwk_net_device *fwk_ifname_to_ndev(const kchar_t *name);
+extern kint32_t fwk_register_netdevice(struct fwk_net_device *sprt_ndev);
+extern kint32_t fwk_unregister_netdevice(struct fwk_net_device *sprt_ndev);
 
 #define fwk_alloc_netdev(sizeof_priv, name, setup)	\
                 fwk_alloc_netdev_mq(sizeof_priv, name, setup, 1)
 #define fwk_netdev_priv(sprt_ndev)				((sprt_ndev)->private_data)
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_NETDEV_H_ */

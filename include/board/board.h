@@ -13,6 +13,10 @@
 #ifndef __BOARD_H
 #define __BOARD_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <configs/configs.h>
 #include <common/generic.h>
@@ -133,5 +137,9 @@ static inline kuint16_t le16_to_cpu(kuint16_t val)
 }
 #define mrt_le16_to_cpu(val)							le16_to_cpu(val)
 #define mrt_cpu_to_le16(val)							le16_to_cpu(val)
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __BOARD_COMMON_H */

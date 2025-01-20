@@ -14,7 +14,7 @@
 #define __ZYNQ7_PERIPH_H
 
 #ifdef __cplusplus
-    TARGET_EXT "C" {
+    extern "C" {
 #endif
 
 /*!< The includes */
@@ -1281,83 +1281,83 @@ typedef struct
 } DisplayCtrl;
 
 /*!< The functions */
-TARGET_EXT kint32_t zynq7_post_config(void);
-TARGET_EXT kchar_t *zynq7_message_info_get(kuint32_t key);
+extern kint32_t zynq7_post_config(void);
+extern kchar_t *zynq7_message_info_get(kuint32_t key);
 
-TARGET_EXT void perf_start_clock(void);
-TARGET_EXT void perf_disable_clock(void);
-TARGET_EXT void perf_reset_clock(void);
-TARGET_EXT void perf_reset_and_start_timer(void); 
-TARGET_EXT kuint32_t get_number_of_cycles_for_delay(kuint32_t delay);
+extern void perf_start_clock(void);
+extern void perf_disable_clock(void);
+extern void perf_reset_clock(void);
+extern void perf_reset_and_start_timer(void); 
+extern kuint32_t get_number_of_cycles_for_delay(kuint32_t delay);
 
 /*!< L2 Cache */
-TARGET_EXT void Xil_L2CacheSync(void);
-TARGET_EXT void Xil_L1DCacheFlushLine(kuaddr_t adr);
-TARGET_EXT void Xil_L2WriteDebugCtrl(kuint32_t Value);
-TARGET_EXT void Xil_L2CacheFlushLine(kuaddr_t adr);
-TARGET_EXT void Xil_DCacheFlushRange(kuaddr_t adr, kuint32_t len);
-TARGET_EXT void Xil_DCacheInvalidateRange(kuaddr_t adr, kuint32_t len);
+extern void Xil_L2CacheSync(void);
+extern void Xil_L1DCacheFlushLine(kuaddr_t adr);
+extern void Xil_L2WriteDebugCtrl(kuint32_t Value);
+extern void Xil_L2CacheFlushLine(kuaddr_t adr);
+extern void Xil_DCacheFlushRange(kuaddr_t adr, kuint32_t len);
+extern void Xil_DCacheInvalidateRange(kuaddr_t adr, kuint32_t len);
 
 /*!< Gpio */
-TARGET_EXT XGpioPs_Config *XGpioPs_LookupConfig(kuint16_t DeviceId);
-TARGET_EXT kint32_t XGpioPs_CfgInitialize(XGpioPs *sprt_gpio, XGpioPs_Config *sprt_cfg, kuint32_t address);
-TARGET_EXT void XGpioPs_GetBankPin(kuint32_t PinNumber, kuint8_t *BankNumber, kuint8_t *PinNumberInBank);
-TARGET_EXT kint32_t XGpioPs_GetDirectionPin(XGpioPs *sprt_gpio, kuint32_t Pin);
-TARGET_EXT kint32_t XGpioPs_SetDirectionPin(XGpioPs *sprt_gpio, kuint32_t Pin, kuint32_t Direction);
-TARGET_EXT kint32_t XGpioPs_GetOutputEnablePin(XGpioPs *sprt_gpio, kuint32_t Pin);
-TARGET_EXT kint32_t XGpioPs_SetOutputEnablePin(XGpioPs *sprt_gpio, kuint32_t Pin, kbool_t OpEnable);
-TARGET_EXT kint32_t XGpioPs_ReadPin(XGpioPs *sprt_gpio, kuint32_t Pin);
-TARGET_EXT kint32_t XGpioPs_WritePin(XGpioPs *sprt_gpio, kuint32_t Pin, kuint32_t Data);
+extern XGpioPs_Config *XGpioPs_LookupConfig(kuint16_t DeviceId);
+extern kint32_t XGpioPs_CfgInitialize(XGpioPs *sprt_gpio, XGpioPs_Config *sprt_cfg, kuint32_t address);
+extern void XGpioPs_GetBankPin(kuint32_t PinNumber, kuint8_t *BankNumber, kuint8_t *PinNumberInBank);
+extern kint32_t XGpioPs_GetDirectionPin(XGpioPs *sprt_gpio, kuint32_t Pin);
+extern kint32_t XGpioPs_SetDirectionPin(XGpioPs *sprt_gpio, kuint32_t Pin, kuint32_t Direction);
+extern kint32_t XGpioPs_GetOutputEnablePin(XGpioPs *sprt_gpio, kuint32_t Pin);
+extern kint32_t XGpioPs_SetOutputEnablePin(XGpioPs *sprt_gpio, kuint32_t Pin, kbool_t OpEnable);
+extern kint32_t XGpioPs_ReadPin(XGpioPs *sprt_gpio, kuint32_t Pin);
+extern kint32_t XGpioPs_WritePin(XGpioPs *sprt_gpio, kuint32_t Pin, kuint32_t Data);
 
 /*!< Timer */
-TARGET_EXT XScuTimer_Config *XScuTimer_LookupConfig(kuint16_t DeviceId);
-TARGET_EXT kint32_t XScuTimer_CfgInitialize(XScuTimer *sprt_scutimer, XScuTimer_Config *sprt_config, kuint32_t BaseAddr);
-TARGET_EXT void XScuTimer_Start(XScuTimer *sprt_scutimer);
-TARGET_EXT void XScuTimer_Stop(XScuTimer *sprt_scutimer);
-TARGET_EXT void XScuTimer_LoadTimer(XScuTimer *sprt_scutimer, kuint32_t value);
-TARGET_EXT void XScuTimer_RestartTimer(XScuTimer *sprt_scutimer);
-TARGET_EXT void XScuTimer_EnableAutoReload(XScuTimer *sprt_scutimer);
-TARGET_EXT void XScuTimer_DisableAutoReload(XScuTimer *sprt_scutimer);
-TARGET_EXT void XScuTimer_EnableInterrupt(XScuTimer *sprt_scutimer);
-TARGET_EXT void XScuTimer_DisableInterrupt(XScuTimer *sprt_scutimer);
-TARGET_EXT kuint32_t XScuTimer_GetInterruptStatus(XScuTimer *sprt_scutimer);
-TARGET_EXT void XScuTimer_ClearInterruptStatus(XScuTimer *sprt_scutimer);
+extern XScuTimer_Config *XScuTimer_LookupConfig(kuint16_t DeviceId);
+extern kint32_t XScuTimer_CfgInitialize(XScuTimer *sprt_scutimer, XScuTimer_Config *sprt_config, kuint32_t BaseAddr);
+extern void XScuTimer_Start(XScuTimer *sprt_scutimer);
+extern void XScuTimer_Stop(XScuTimer *sprt_scutimer);
+extern void XScuTimer_LoadTimer(XScuTimer *sprt_scutimer, kuint32_t value);
+extern void XScuTimer_RestartTimer(XScuTimer *sprt_scutimer);
+extern void XScuTimer_EnableAutoReload(XScuTimer *sprt_scutimer);
+extern void XScuTimer_DisableAutoReload(XScuTimer *sprt_scutimer);
+extern void XScuTimer_EnableInterrupt(XScuTimer *sprt_scutimer);
+extern void XScuTimer_DisableInterrupt(XScuTimer *sprt_scutimer);
+extern kuint32_t XScuTimer_GetInterruptStatus(XScuTimer *sprt_scutimer);
+extern void XScuTimer_ClearInterruptStatus(XScuTimer *sprt_scutimer);
 
 /*!< Uart */
-TARGET_EXT XUartPs_Config *XUartPs_LookupConfig(kuint16_t DeviceId);
-TARGET_EXT void XUartPs_EnableUart(XUartPs *sprt_uart);
-TARGET_EXT void XUartPs_DisableUart(XUartPs *sprt_uart);
-TARGET_EXT kint32_t XUartPs_SetBaudRate(XUartPs *sprt_uart, kuint32_t BaudRate);
-TARGET_EXT kint32_t XUartPs_CfgInitialize(XUartPs *sprt_uart, XUartPs_Config *sprt_cfg, kuint32_t address);
-TARGET_EXT kbool_t XUartPs_IsSendFull(kuint32_t address);
-TARGET_EXT kbool_t XUartPs_IsSendEmpty(kuint32_t BaseAddress);
-TARGET_EXT kbool_t XUartPs_IsRecvFull(kuint32_t BaseAddress);
-TARGET_EXT kbool_t XUartPs_IsRecvEmpty(kuint32_t address);
-TARGET_EXT kint32_t XUartPs_SendBuffer(XUartPs *sprt_uart);
-TARGET_EXT kint32_t XUartPs_ReceiveBuffer(XUartPs *sprt_uart);
-TARGET_EXT kint32_t XUartPs_Send(XUartPs *sprt_uart, kuint8_t *BufferPtr, kuint32_t NumBytes);
-TARGET_EXT kint32_t XUartPs_Recv(XUartPs *sprt_uart, kuint8_t *BufferPtr, kuint32_t NumBytes);
+extern XUartPs_Config *XUartPs_LookupConfig(kuint16_t DeviceId);
+extern void XUartPs_EnableUart(XUartPs *sprt_uart);
+extern void XUartPs_DisableUart(XUartPs *sprt_uart);
+extern kint32_t XUartPs_SetBaudRate(XUartPs *sprt_uart, kuint32_t BaudRate);
+extern kint32_t XUartPs_CfgInitialize(XUartPs *sprt_uart, XUartPs_Config *sprt_cfg, kuint32_t address);
+extern kbool_t XUartPs_IsSendFull(kuint32_t address);
+extern kbool_t XUartPs_IsSendEmpty(kuint32_t BaseAddress);
+extern kbool_t XUartPs_IsRecvFull(kuint32_t BaseAddress);
+extern kbool_t XUartPs_IsRecvEmpty(kuint32_t address);
+extern kint32_t XUartPs_SendBuffer(XUartPs *sprt_uart);
+extern kint32_t XUartPs_ReceiveBuffer(XUartPs *sprt_uart);
+extern kint32_t XUartPs_Send(XUartPs *sprt_uart, kuint8_t *BufferPtr, kuint32_t NumBytes);
+extern kint32_t XUartPs_Recv(XUartPs *sprt_uart, kuint8_t *BufferPtr, kuint32_t NumBytes);
 
 /*!< Sd */
-TARGET_EXT XSdPs_Config *XSdPs_LookupConfig(kuint16_t DeviceId);
-TARGET_EXT kint32_t XSdPs_Change_ClkFreq(XSdPs *sprt_sd, kuint32_t SelFreq);
-TARGET_EXT kint32_t XSdPs_CfgInitialize(XSdPs *sprt_sd, XSdPs_Config *sprt_cfg, kuint32_t address);
-TARGET_EXT kbool_t XSdPs_IsCardDetected(XSdPs *sprt_sd);
-TARGET_EXT kint32_t XSdPs_Change_BusWidth(XSdPs *sprt_sd, kuint32_t width);
-TARGET_EXT kint32_t XSdPs_SetBlkSize(XSdPs *sprt_sd, kuint32_t BlkCnt, kuint32_t BlkSize);
-TARGET_EXT void XSdPs_SetupADMA2DescTbl(XSdPs *sprt_sd, kuint32_t BlkCnt, const kuint8_t *Buff);
+extern XSdPs_Config *XSdPs_LookupConfig(kuint16_t DeviceId);
+extern kint32_t XSdPs_Change_ClkFreq(XSdPs *sprt_sd, kuint32_t SelFreq);
+extern kint32_t XSdPs_CfgInitialize(XSdPs *sprt_sd, XSdPs_Config *sprt_cfg, kuint32_t address);
+extern kbool_t XSdPs_IsCardDetected(XSdPs *sprt_sd);
+extern kint32_t XSdPs_Change_BusWidth(XSdPs *sprt_sd, kuint32_t width);
+extern kint32_t XSdPs_SetBlkSize(XSdPs *sprt_sd, kuint32_t BlkCnt, kuint32_t BlkSize);
+extern void XSdPs_SetupADMA2DescTbl(XSdPs *sprt_sd, kuint32_t BlkCnt, const kuint8_t *Buff);
 
 /*!< AxiVdma & Vtc */
-TARGET_EXT XAxiVdma_Config *XAxiVdma_LookupConfig(kuint16_t DeviceId);
-TARGET_EXT kint32_t XAxiVdma_CfgInitialize(XAxiVdma *sprt_vdma, XAxiVdma_Config *sprt_cfg, kuint32_t EffectiveAddr);
-TARGET_EXT XVtc_Config *XVtc_LookupConfig(kuint16_t DeviceId);
-TARGET_EXT kint32_t XVtc_CfgInitialize(XVtc *sprt_vtc, XVtc_Config *sprt_vcfg, kuint32_t EffectiveAddr);
-TARGET_EXT kint32_t DisplayInitialize(DisplayCtrl *sprt_disp, XAxiVdma *sprt_vdma, kuint16_t vtcId, 
+extern XAxiVdma_Config *XAxiVdma_LookupConfig(kuint16_t DeviceId);
+extern kint32_t XAxiVdma_CfgInitialize(XAxiVdma *sprt_vdma, XAxiVdma_Config *sprt_cfg, kuint32_t EffectiveAddr);
+extern XVtc_Config *XVtc_LookupConfig(kuint16_t DeviceId);
+extern kint32_t XVtc_CfgInitialize(XVtc *sprt_vtc, XVtc_Config *sprt_vcfg, kuint32_t EffectiveAddr);
+extern kint32_t DisplayInitialize(DisplayCtrl *sprt_disp, XAxiVdma *sprt_vdma, kuint16_t vtcId, 
                                 kuint32_t dynClkAddr, kuint8_t *framePtr[DISPLAY_NUM_FRAMES], 
                                 kuint32_t stride, VideoMode *sprt_vmode);
-TARGET_EXT kint32_t DisplayChangeFrameBuffer(DisplayCtrl *sprt_disp, kuint32_t FrameAddr, kusize_t FrameSize);
-TARGET_EXT kint32_t DisplayStart(DisplayCtrl *sprt_disp);
-TARGET_EXT kint32_t DisplayStop(DisplayCtrl *sprt_dispctrl);
+extern kint32_t DisplayChangeFrameBuffer(DisplayCtrl *sprt_disp, kuint32_t FrameAddr, kusize_t FrameSize);
+extern kint32_t DisplayStart(DisplayCtrl *sprt_disp);
+extern kint32_t DisplayStop(DisplayCtrl *sprt_dispctrl);
 
 /*!< EmacPs */
 

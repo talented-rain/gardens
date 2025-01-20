@@ -13,6 +13,10 @@
 #ifndef __FS_FATFS_H
 #define __FS_FATFS_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <common/generic.h>
 #include <common/api_string.h>
@@ -22,10 +26,6 @@
 #include <platform/block/fwk_gendisk.h>
 #include <fatfs/ff.h>
 #include <fatfs/diskio.h>
-
-#ifdef __cplusplus
-    TARGET_EXT "C" {
-#endif
 
 /*!< The defines */
 #define FATFS_DISK_PATH_LEN                 (10)
@@ -53,18 +53,18 @@ typedef struct fatfs_disk
 
 /*!< The functions */
 /*!< sd card */
-TARGET_EXT DRESULT fs_sdfatfs_write(kuint8_t physicalDrive, 
+extern DRESULT fs_sdfatfs_write(kuint8_t physicalDrive, 
                                 const kuint8_t *buffer, kuint32_t sector, kuint8_t count);
-TARGET_EXT DRESULT fs_sdfatfs_read(kuint8_t physicalDrive, 
+extern DRESULT fs_sdfatfs_read(kuint8_t physicalDrive, 
                                 kuint8_t *buffer, kuint32_t sector, kuint8_t count);
-TARGET_EXT DRESULT fs_sdfatfs_ioctl(kuint8_t physicalDrive, kuint8_t command, void *buffer);
-TARGET_EXT DSTATUS fs_sdfatfs_status(kuint8_t physicalDrive);
-TARGET_EXT DSTATUS fs_sdfatfs_initial(kuint8_t physicalDrive);
-TARGET_EXT DSTATUS fs_sdfatfs_release(kuint8_t physicalDrive);
+extern DRESULT fs_sdfatfs_ioctl(kuint8_t physicalDrive, kuint8_t command, void *buffer);
+extern DSTATUS fs_sdfatfs_status(kuint8_t physicalDrive);
+extern DSTATUS fs_sdfatfs_initial(kuint8_t physicalDrive);
+extern DSTATUS fs_sdfatfs_release(kuint8_t physicalDrive);
 
-TARGET_EXT struct fatfs_disk *fs_alloc_fatfs(kuint16_t number);
-TARGET_EXT kint32_t fs_register_fatfs(struct fatfs_disk *sprt_fdisk);
-TARGET_EXT void fs_unregister_fatfs(struct fatfs_disk *sprt_fdisk);
+extern struct fatfs_disk *fs_alloc_fatfs(kuint16_t number);
+extern kint32_t fs_register_fatfs(struct fatfs_disk *sprt_fdisk);
+extern void fs_unregister_fatfs(struct fatfs_disk *sprt_fdisk);
 
 #ifdef __cplusplus
     }

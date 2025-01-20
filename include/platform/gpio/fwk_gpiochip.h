@@ -13,6 +13,10 @@
 #ifndef __FWK_GPIOCHIP_H_
 #define __FWK_GPIOCHIP_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 #include <platform/fwk_platform.h>
@@ -50,9 +54,13 @@ typedef struct fwk_gpio_chip
 } srt_fwk_gpio_chip_t;
 
 /*!< The functions */
-TARGET_EXT kint32_t fwk_gpiochip_init(struct fwk_gpio_chip *sprt_chip, struct fwk_device *sprt_dev, kuint32_t base, kuint32_t size);
-TARGET_EXT kint32_t fwk_gpiochip_add(struct fwk_gpio_chip *sprt_chip);
-TARGET_EXT void fwk_gpiochip_del(struct fwk_gpio_chip *sprt_chip);
-TARGET_EXT struct fwk_gpio_desc *fwk_gpiochip_and_desc_find(struct fwk_gpio_node_prop *sprt_data, struct fwk_of_phandle_args *sprt_spec);
+extern kint32_t fwk_gpiochip_init(struct fwk_gpio_chip *sprt_chip, struct fwk_device *sprt_dev, kuint32_t base, kuint32_t size);
+extern kint32_t fwk_gpiochip_add(struct fwk_gpio_chip *sprt_chip);
+extern void fwk_gpiochip_del(struct fwk_gpio_chip *sprt_chip);
+extern struct fwk_gpio_desc *fwk_gpiochip_and_desc_find(struct fwk_gpio_node_prop *sprt_data, struct fwk_of_phandle_args *sprt_spec);
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_GPIOCHIP_H_ */

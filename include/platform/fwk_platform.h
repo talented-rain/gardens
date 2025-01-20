@@ -13,6 +13,10 @@
 #ifndef __FWK_BUSTYPE_H_
 #define __FWK_BUSTYPE_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 #include <platform/fwk_kobj.h>
@@ -112,16 +116,16 @@ typedef struct fwk_device_type
 #define FWK_NEXT_DRIVER(parent, list)						mrt_list_head_parent(parent, list, struct fwk_driver, sgrt_link)
 
 /*!< The globals */
-TARGET_EXT struct fwk_bus_type sgrt_fwk_platform_bus_type;
+extern struct fwk_bus_type sgrt_fwk_platform_bus_type;
 
 /*!< The functions */
-TARGET_EXT kint32_t fwk_device_driver_probe(struct fwk_device *sprt_dev);
-TARGET_EXT kint32_t fwk_device_driver_remove(struct fwk_device *sprt_dev);
-TARGET_EXT kint32_t fwk_device_driver_match(struct fwk_device *sprt_dev, struct fwk_bus_type *sprt_bus_type, void *ptr_data);
+extern kint32_t fwk_device_driver_probe(struct fwk_device *sprt_dev);
+extern kint32_t fwk_device_driver_remove(struct fwk_device *sprt_dev);
+extern kint32_t fwk_device_driver_match(struct fwk_device *sprt_dev, struct fwk_bus_type *sprt_bus_type, void *ptr_data);
 
-TARGET_EXT kint32_t fwk_device_initial(struct fwk_device *sprt_dev);
-TARGET_EXT struct fwk_device *fwk_device_create(kuint32_t type, kuint32_t devNum, kchar_t *fmt, ...);
-TARGET_EXT kint32_t fwk_device_destroy(struct fwk_device *sprt_dev);
+extern kint32_t fwk_device_initial(struct fwk_device *sprt_dev);
+extern struct fwk_device *fwk_device_create(kuint32_t type, kuint32_t devNum, kchar_t *fmt, ...);
+extern kint32_t fwk_device_destroy(struct fwk_device *sprt_dev);
 
 /*!< API functions */
 /*!
@@ -167,5 +171,9 @@ static inline void fwk_dev_del_name(struct fwk_device *sprt_dev)
 #define mrt_dev_get_name(dev)								fwk_dev_get_name(dev)
 #define mrt_dev_set_name(dev, fmt, ...)						fwk_dev_set_name(dev, fmt, ##__VA_ARGS__)
 #define mrt_dev_del_name(dev)								fwk_dev_del_name(dev)
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_BUSTYPE_H_ */

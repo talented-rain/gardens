@@ -161,6 +161,7 @@ SECTIONS
         __data_end = .;
     } > ram_ddr_0
 
+    . = ALIGN(16);
     .ARM.exidx : 
     {
         __exidx_start = .;
@@ -169,11 +170,30 @@ SECTIONS
         __exidx_end = .;
     } > ram_ddr_0
 
+    . = ALIGN(16);
     .ARM.attributes 0 : 
     { 
         __ARM_attributes_start = .;
         *(.ARM.attributes)
         __ARM_attributes_end = .;
+    } > ram_ddr_0
+
+    .sdata :
+    {
+        __sdata_start = .;
+        *(.sdata)
+        *(.sdata.*)
+        __sdata_end = .;
+
+    } > ram_ddr_0
+
+    .tdata :
+    {
+        __tdata_start = .;
+        *(.tdata)
+        *(.tdata.*)
+        __tdata_end = .;
+
     } > ram_ddr_0
 
     . = ALIGN(16);

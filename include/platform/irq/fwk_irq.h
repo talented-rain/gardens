@@ -13,18 +13,18 @@
 #ifndef __FWK_IRQ_H
 #define __FWK_IRQ_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
-
-#ifdef __cplusplus
-	TARGET_EXT "C" {
-#endif
 
 /*!< The defines */
 
 /*!< The functions */
-TARGET_EXT void initIRQ(void);
-TARGET_EXT void fwk_of_irq_init(const struct fwk_of_device_id *sprt_matches);
+extern void initIRQ(void);
+extern void fwk_of_irq_init(const struct fwk_of_device_id *sprt_matches);
 
 #ifdef __cplusplus
 	}

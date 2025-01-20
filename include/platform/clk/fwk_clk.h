@@ -13,6 +13,10 @@
 #ifndef __FWK_CLK_H_
 #define __FWK_CLK_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 #include <platform/fwk_platform.h>
@@ -103,23 +107,23 @@ typedef struct fwk_clk_ops
 } srt_fwk_clk_ops_t;
 
 /*!< The functions */
-TARGET_EXT struct fwk_clk *fwk_clk_register(struct fwk_device *sprt_dev, struct fwk_clk_hw *sprt_hw);
-TARGET_EXT void fwk_clk_unregister(struct fwk_clk *sprt_clk);
+extern struct fwk_clk *fwk_clk_register(struct fwk_device *sprt_dev, struct fwk_clk_hw *sprt_hw);
+extern void fwk_clk_unregister(struct fwk_clk *sprt_clk);
 
-TARGET_EXT struct fwk_clk *fwk_clk_config(struct fwk_clk *sprt_clk, 
+extern struct fwk_clk *fwk_clk_config(struct fwk_clk *sprt_clk, 
 									struct fwk_clk_hw *sprt_hw, const kchar_t *dev_id, const kchar_t *con_id);
-TARGET_EXT struct fwk_clk *fwk_create_clk(struct fwk_clk_hw *sprt_hw, const kchar_t *dev_id, const kchar_t *con_id);
-TARGET_EXT kint32_t fwk_init_clk(struct fwk_device *sprt_dev, struct fwk_clk *sprt_clk);
+extern struct fwk_clk *fwk_create_clk(struct fwk_clk_hw *sprt_hw, const kchar_t *dev_id, const kchar_t *con_id);
+extern kint32_t fwk_init_clk(struct fwk_device *sprt_dev, struct fwk_clk *sprt_clk);
 
-TARGET_EXT struct fwk_clk *fwk_clk_get(struct fwk_device *sprt_dev, const kchar_t *name);
-TARGET_EXT void fwk_clk_put(struct fwk_clk *sprt_clk);
-TARGET_EXT void fwk_clk_enable(struct fwk_clk *sprt_clk);
-TARGET_EXT void fwk_clk_disable(struct fwk_clk *sprt_clk);
-TARGET_EXT void fwk_clk_prepare(struct fwk_clk *sprt_clk);
-TARGET_EXT void fwk_clk_unprepare(struct fwk_clk *sprt_clk);
-TARGET_EXT kbool_t fwk_clk_is_enabled(struct fwk_clk *sprt_clk);
-TARGET_EXT void fwk_clk_prepare_enable(struct fwk_clk *sprt_clk);
-TARGET_EXT void fwk_clk_disable_unprepare(struct fwk_clk *sprt_clk);
+extern struct fwk_clk *fwk_clk_get(struct fwk_device *sprt_dev, const kchar_t *name);
+extern void fwk_clk_put(struct fwk_clk *sprt_clk);
+extern void fwk_clk_enable(struct fwk_clk *sprt_clk);
+extern void fwk_clk_disable(struct fwk_clk *sprt_clk);
+extern void fwk_clk_prepare(struct fwk_clk *sprt_clk);
+extern void fwk_clk_unprepare(struct fwk_clk *sprt_clk);
+extern kbool_t fwk_clk_is_enabled(struct fwk_clk *sprt_clk);
+extern void fwk_clk_prepare_enable(struct fwk_clk *sprt_clk);
+extern void fwk_clk_disable_unprepare(struct fwk_clk *sprt_clk);
 
 /*!< API functions */
 /*!
@@ -132,5 +136,9 @@ static inline struct fwk_clk_hw *fwk_clk_to_hw(struct fwk_clk *sprt_clk)
 {
     return sprt_clk ? sprt_clk->sprt_core->sprt_hw : mrt_nullptr;
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_CLK_H_ */

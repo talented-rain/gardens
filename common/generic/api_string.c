@@ -405,7 +405,7 @@ kusize_t do_fmt_convert(void *ptr_buf, kubyte_t *ptr_level, const kchar_t *ptr_f
                     break;
 
                 if (isValid(ptr_buf))
-                    *(ptr_data++) = num + ' ';
+                    *(ptr_data++) = num;
 
                 lenth += 1;
                 break;
@@ -524,12 +524,12 @@ kusize_t do_fmt_convert(void *ptr_buf, kubyte_t *ptr_level, const kchar_t *ptr_f
 }
 
 /*!
- * @brief   vasprintk
+ * @brief   vasprintk_safe
  * @param   ptr_buf, ptr_fmt
  * @retval  none
  * @note    String format conversion
  */
-kchar_t *vasprintk(const kchar_t *ptr_fmt, kusize_t *size, va_list sprt_list)
+kchar_t *vasprintk_safe(const kchar_t *ptr_fmt, kusize_t *size, va_list sprt_list)
 {
     va_list sprt_copy;
     kchar_t *ptr;
@@ -554,12 +554,12 @@ kchar_t *vasprintk(const kchar_t *ptr_fmt, kusize_t *size, va_list sprt_list)
 }
 
 /*!
- * @brief   lv_vasprintk
+ * @brief   lv_vasprintk_safe
  * @param   ptr_fmt, size
  * @retval  none
  * @note    String format conversion
  */
-kchar_t *lv_vasprintk(const kchar_t *ptr_fmt, kusize_t *size, kubyte_t *ptr_lv, va_list sprt_list)
+kchar_t *lv_vasprintk_safe(const kchar_t *ptr_fmt, kusize_t *size, kubyte_t *ptr_lv, va_list sprt_list)
 {
     va_list sprt_copy;
     kchar_t *ptr;
@@ -584,6 +584,24 @@ kchar_t *lv_vasprintk(const kchar_t *ptr_fmt, kusize_t *size, kubyte_t *ptr_lv, 
 }
 
 /*!
+ * @brief   vasprintk
+ * @param   ptr_buf, ptr_fmt
+ * @retval  none
+ * @note    String format conversion
+ */
+kint32_t vasprintk(void *ptr_buf, const kchar_t *ptr_fmt, va_list sprt_list)
+{
+    va_list sprt_copy;
+    kusize_t size;
+
+    va_copy(sprt_copy, sprt_list);
+    size = do_fmt_convert(ptr_buf, mrt_nullptr, ptr_fmt, sprt_copy, (kusize_t)(~0));
+    va_end(sprt_copy);
+
+    return size;
+}
+
+/*!
  * @brief   sprintk
  * @param   ptr_buf, ptr_fmt
  * @retval  none
@@ -599,6 +617,51 @@ kint32_t sprintk(void *ptr_buf, const kchar_t *ptr_fmt, ...)
     va_end(ptr_list);
 
     return size;
+}
+
+/*!
+ * @brief   sprintk_safe
+ * @param   ptr_buf, ptr_fmt
+ * @retval  none
+ * @note    String format conversion
+ */
+kchar_t *sprintk_safe(const kchar_t *ptr_fmt, ...)
+{
+    va_list sprt_list, sprt_copy;
+    kchar_t *ptr;
+    kusize_t lenth;
+
+    if (!ptr_fmt)
+        return mrt_nullptr;
+
+    va_start(sprt_list, ptr_fmt);
+
+    va_copy(sprt_copy, sprt_list);
+    lenth = do_fmt_convert(mrt_nullptr, mrt_nullptr, ptr_fmt, sprt_copy, (kusize_t)(~0));
+    va_end(sprt_copy);
+
+    ptr = kmalloc(lenth + 1, GFP_KERNEL);
+    if (!isValid(ptr)) {
+        va_end(sprt_list);
+        return mrt_nullptr;
+    }
+
+    do_fmt_convert(ptr, mrt_nullptr, ptr_fmt, sprt_list, lenth + 1);
+    va_end(sprt_list);
+
+    return ptr;
+}
+
+/*!
+ * @brief   free memory from "sprintk_safe"
+ * @param   ptr
+ * @retval  none
+ * @note    none
+ */
+void fmt_free(kchar_t *ptr)
+{
+    if (ptr)
+        kfree(ptr);
 }
 
 /*!< -------------------------------------------------------------------- */

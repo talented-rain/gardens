@@ -1,7 +1,7 @@
 /*
  * User Thread Instance (tsc task) Interface
  *
- * File Name:   tsc_app.c
+ * File Name:   tsc_task.c
  * Author:      Yang Yujun
  * E-mail:      <yujiantianhu@163.com>
  * Created on:  2024.05.21
@@ -24,15 +24,16 @@
 #include <kernel/mutex.h>
 #include <kernel/mailbox.h>
 
-#include "test_app.h"
+#include "../task.h"
+#include "test_task.h"
+
+using namespace tsk;
+using namespace stream;
 
 /*!< The defines */
-#define TSCAPP_THREAD_STACK_SIZE                          THREAD_STACK_HALF(1)    /*!< 1/2 page (2kbytes) */
+#define TSC_TASK_STACK_SIZE                     THREAD_STACK_HALF(1)    /*!< 1/2 page (2kbytes) */
 
 /*!< The globals */
-static tid_t g_tsc_app_tid;
-static struct thread_attr sgrt_tsc_app_attr;
-static kuint32_t g_tsc_app_stack[TSCAPP_THREAD_STACK_SIZE];
 
 /*!< API functions */
 /*!
@@ -41,7 +42,7 @@ static kuint32_t g_tsc_app_stack[TSCAPP_THREAD_STACK_SIZE];
  * @retval none
  * @note   trun on/off led by timer
  */
-static void *tsc_app_entry(void *args)
+static void *tsc_task_entry(void *args)
 {
     kint32_t fd;
     struct fwk_input_event sgrt_event[4] = {};
@@ -63,8 +64,11 @@ static void *tsc_app_entry(void *args)
         if ((retval < 0))
             goto END;
 
-        print_info("%s: key: %d, abs_x: %d, abs_y: %d\n", __FUNCTION__, 
-                        sgrt_event[0].value, sgrt_event[1].value, sgrt_event[2].value);
+        cout << __FUNCTION__ 
+             << ": key: "   << sgrt_event[0].value 
+             << ", abs_x: " << sgrt_event[1].value 
+             << ", abs_y: " << sgrt_event[2].value 
+             << endl;
         
 END:
         schedule_delay_ms(200);
@@ -80,28 +84,21 @@ END:
  * @retval 	error code
  * @note   	none
  */
-kint32_t tsc_app_init(void)
+kint32_t tsc_task_init(void)
 {
-    struct thread_attr *sprt_attr = &sgrt_tsc_app_attr;
-    kint32_t retval;
+    static kuint8_t g_tsc_task_stack[TSC_TASK_STACK_SIZE];
 
-	sprt_attr->detachstate = THREAD_CREATE_JOINABLE;
-	sprt_attr->inheritsched	= THREAD_INHERIT_SCHED;
-	sprt_attr->schedpolicy = THREAD_SCHED_FIFO;
+    crt_task_t *cprt_task = new crt_task_t("tsc task", 
+                                            tsc_task_entry, 
+                                            g_tsc_task_stack, 
+                                            sizeof(g_tsc_task_stack));
+    if (!cprt_task)
+        return -ER_FAILD;
 
-    /*!< thread stack */
-	thread_set_stack(sprt_attr, mrt_nullptr, g_tsc_app_stack, sizeof(g_tsc_app_stack));
-    /*!< lowest priority */
-	thread_set_priority(sprt_attr, __THREAD_HIGHER_DEFAULT(0));
-    /*!< default time slice */
-    thread_set_time_slice(sprt_attr, THREAD_TIME_DEFUALT);
+    struct mailbox &sgrt_mb = cprt_task->get_mailbox();
+    mailbox_init(&sgrt_mb, cprt_task->get_self(), "tsc-task-mailbox");
 
-    /*!< register thread */
-    retval = thread_create(&g_tsc_app_tid, sprt_attr, tsc_app_entry, mrt_nullptr);
-    if (!retval)
-        thread_set_name(g_tsc_app_tid, "tsc_app_entry");
-
-    return retval;
+    return ER_NORMAL;
 }
 
 /*!< end of file */

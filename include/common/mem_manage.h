@@ -13,12 +13,17 @@
 #ifndef __MEM_MANAGE_H
 #define __MEM_MANAGE_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include "generic.h"
+#include "list_types.h"
 #include <kernel/kernel.h>
 
 /*!< The defines */
-#define MEMORY_POOL_MAGIC                                   (0xdfa69fe3)
+#define MEMORY_POOL_MAGIC                      (0xdfa69fe3)
 
 typedef struct m_area
 {
@@ -31,17 +36,52 @@ typedef struct m_area
 /*!< memory block */
 typedef struct mem_block
 {
-    kuint32_t magic;                                        /*!< magic number, it should be set to "MEMORY_POOL_MAGIC" */
-    kuaddr_t base;											/*!< current start address */
-    kusize_t lenth;										    /*!< current block total lenth(unit: byte), including header of memory info */
-    kusize_t remain;										/*!< the lenth of remaining usable memoty(unit: byte) */
+    kuint32_t magic;                            /*!< magic number, it should be set to "MEMORY_POOL_MAGIC" */
+    kuaddr_t base;								/*!< current start address */
+    kusize_t lenth;								/*!< current block total lenth(unit: byte), including header of memory info */
+    kusize_t remain;							/*!< the lenth of remaining usable memoty(unit: byte) */
 
-    struct mem_block *sprt_prev;						    /*!< the first address of last memory block */
-    struct mem_block *sprt_next;						    /*!< the first address of next memory block */
+    struct mem_block *sprt_prev;				/*!< the first address of last memory block */
+    struct mem_block *sprt_next;				/*!< the first address of next memory block */
 
-#define IS_MEMORYPOOL_VALID(this)                           ((this)->magic == MEMORY_POOL_MAGIC)
+    struct list_head sgrt_link;
 
 } srt_mem_block_t;
+
+#define IS_MEMORYPOOL_VALID(this)               ((this)->magic == MEMORY_POOL_MAGIC)
+#define MEM_BLOCK_HEADER_SIZE                   (mrt_num_align4(sizeof(struct mem_block)))  /*!< 32bytes */
+
+enum __ERT_MEM_TYPE
+{
+    NR_MEM_1Bytes = 0,
+    NR_MEM_2Bytes,
+    NR_MEM_4Bytes,
+    NR_MEM_8Bytes,
+    NR_MEM_16Bytes,
+
+    NR_MEM_LowerBytes = NR_MEM_16Bytes,         /*!< [0, 31] */
+    NR_MEM_32Bytes,                             /*!< [32, 63] */
+    NR_MEM_64Bytes,                             /*!< [64, 127] */
+    NR_MEM_128Bytes,                            /*!< [128, 255] */
+    NR_MEM_256Bytes,                            /*!< [256, 511] */
+    NR_MEM_512Bytes,                            /*!< [512, 1023] */
+    NR_MEM_1024Bytes,                           /*!< [1024, 2047] */
+    NR_MEM_2048Bytes,                           /*!< [2048, 4095] */
+    NR_MEM_4096Bytes,                           /*!< [4096, 8191] */
+    NR_MEM_8192Bytes,                           /*!< [8192, ...] */
+    NR_MEM_HighBytes = NR_MEM_8192Bytes,
+
+    NR_MEM_NUM,
+
+    NR_MEM_LowerLimit = 1U << (NR_MEM_LowerBytes + 1),
+    NR_MEM_HighLimit = 1U << NR_MEM_HighBytes,
+};
+
+typedef struct mem_hash
+{
+    struct list_head sgrt_list;
+
+} srt_mem_hash_t;
 
 /*!< memory information of global management */
 typedef struct mem_info
@@ -50,26 +90,29 @@ typedef struct mem_info
     kusize_t lenth;
     
     struct mem_block *sprt_mem;
+    struct mem_hash sgrt_hash[NR_MEM_NUM];
+
+    void *(*alloc)(struct mem_info *sprt_info, kusize_t size);
+    void (*free)(struct mem_info *sprt_info, void *ptr_mem);
 
 } srt_mem_info_t;
 
-#define MEM_BLOCK_HEADER_SIZE								(mrt_num_align4(sizeof(struct mem_block)))
-
 /*!< The functions */
-TARGET_EXT kint32_t memory_simple_block_create(struct mem_info *sprt_info, kuaddr_t mem_addr, kusize_t size);
-TARGET_EXT void memory_simple_block_destroy(struct mem_info *sprt_info);
-TARGET_EXT void *alloc_spare_simple_memory(void *ptr_head, kusize_t size);
-TARGET_EXT void free_employ_simple_memory(void *ptr_head, void *ptr_mem);
+extern kint32_t memory_simple_block_create(struct mem_info *sprt_info, kuaddr_t mem_addr, kusize_t size);
+extern void memory_simple_block_destroy(struct mem_info *sprt_info);
+
+extern kint32_t memory_block_create(struct mem_info *sprt_info, kuaddr_t mem_addr, kusize_t size);
+extern void memory_block_destroy(struct mem_info *sprt_info);
 
 /*!< malloc */
-TARGET_EXT kbool_t malloc_block_initial(void);
-TARGET_EXT kbool_t malloc_block_self_defines(kuaddr_t base, kusize_t size);
-TARGET_EXT void malloc_block_destroy(void);
+extern kbool_t malloc_block_initial(void);
+extern kbool_t malloc_block_self_defines(kuaddr_t base, kusize_t size);
+extern void malloc_block_destroy(void);
 
 /*!< assembly */
-TARGET_EXT kuaddr_t __memset_ex(kuaddr_t _start, kuaddr_t _end, kuint32_t data);
+extern kuaddr_t __memset_ex(kuaddr_t _start, kuaddr_t _end, kuint32_t data);
 
-TARGET_EXT void *memset_ex(void *__s, unsigned int __c, size_t __n);
+extern void *memset_ex(void *__s, unsigned int __c, size_t __n);
 
 /*!< API function */
 /*!
@@ -273,7 +316,7 @@ static inline void u32_set2u8(void *addr, void *val)
  */
 static inline void u16_set2u8(void *addr, void *val)
 {
-#if 0
+#ifdef __cplusplus
     kmemcpy(addr, val, sizeof(kuint16_t));
 
 #else
@@ -348,5 +391,8 @@ void u8_set(kuint8_t *addr, kuint32_t offset, kuint8_t val)
     mrt_u8_set(addr + offset, val);
 }
 
+#ifdef __cplusplus
+    }
+#endif
 
 #endif  /* __MEM_MANAGE_H */

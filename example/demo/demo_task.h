@@ -1,7 +1,7 @@
 /*
  * User Thread Instance Tables
  *
- * File Name:   thread_table.h
+ * File Name:   demo_task.h
  * Author:      Yang Yujun
  * E-mail:      <yujiantianhu@163.com>
  * Created on:  2024.04.02
@@ -10,24 +10,33 @@
  *
  */
 
-#ifndef __THREAD_TABLE_H_
-#define __THREAD_TABLE_H_
+#ifndef __DEMO_TASK_H_
+#define __DEMO_TASK_H_
+
+#ifdef __cplusplus
 
 /*!< The globals */
 #include <common/basic_types.h>
 #include <common/error_types.h>
 #include <common/generic.h>
 #include <common/list_types.h>
+#include <common/stdload.h>
 #include <kernel/instance.h>
-
-#include "test/test_app.h"
+#include <kernel/kernel.h>
+#include <kernel/sched.h>
+#include <kernel/thread.h>
+#include <kernel/sleep.h>
+#include <kernel/mutex.h>
+#include <kernel/mailbox.h>
 
 /*!< The defines */
 
 /*!< The globals */
 
 /*!< The functions */
-TARGET_EXT kint32_t lvgl_task_init(void);
-TARGET_EXT kint32_t lwip_task_init(void);
+extern kint32_t lwip_task_init(void);
+extern kint32_t lvgl_task_init(void);
 
-#endif /* __THREAD_TABLE_H_ */
+#endif
+
+#endif /* __DEMO_TASK_H_ */

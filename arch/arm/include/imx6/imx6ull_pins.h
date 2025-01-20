@@ -13,6 +13,10 @@
 #ifndef __IMX6UL_PINS_H
 #define __IMX6UL_PINS_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <common/basic_types.h>
 #include <common/error_types.h>
@@ -265,5 +269,9 @@ static inline void hal_imx_set_pin_pad(srt_hal_imx_pin_t *sprt_cfg, kuint32_t da
     sprt_cfg->pad_data = data;
     hal_imx_pin_pad_configure(sprt_cfg);
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __IMX6UL_PINS_H */

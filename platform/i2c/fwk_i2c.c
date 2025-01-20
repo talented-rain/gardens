@@ -22,9 +22,9 @@
 #include <platform/i2c/fwk_i2c_algo.h>
 
 /*!< The globals */
-TARGET_EXT struct fwk_bus_type sgrt_fwk_i2c_bus_type;
-TARGET_EXT struct fwk_device_type sgrt_fwk_i2c_adapter_type;
-TARGET_EXT struct fwk_device_type sgrt_fwk_i2c_client_type;
+extern struct fwk_bus_type sgrt_fwk_i2c_bus_type;
+extern struct fwk_device_type sgrt_fwk_i2c_adapter_type;
+extern struct fwk_device_type sgrt_fwk_i2c_client_type;
 
 /*!< API function */
 /*!

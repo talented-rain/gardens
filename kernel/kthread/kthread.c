@@ -22,7 +22,7 @@
 #define KERL_THREAD_STACK_SIZE                          THREAD_STACK_HALF(1)   /*!< 1/2 page (2 kbytes) */
 
 /*!< The globals */
-TARGET_EXT kuint32_t g_asm_sched_flag;
+extern kuint32_t g_asm_sched_flag;
 
 static struct thread_attr sgrt_kthread_attr;
 static kuint32_t g_kthread_stack[KERL_THREAD_STACK_SIZE];
@@ -70,6 +70,23 @@ END:
 }
 
 /*!
+ * @brief	record system run ticks
+ * @param  	none
+ * @retval 	none
+ * @note   	none
+ */
+static void kthread_systime_record(void)
+{
+    static kutime_t systime = 0;
+
+    if (systime != jiffies)
+    {
+        msecs_to_timeclock(&sgrt_systime_clock, jiffies_to_msecs(systime));
+        systime = SYS_RUNTICK;
+    }
+}
+
+/*!
  * @brief	kernel thread entry
  * @param  	args: NULL normally
  * @retval 	none
@@ -101,6 +118,8 @@ static void *kthread_entry(void *args)
 
     for (;;)
     {        
+        kthread_systime_record();
+
 #if CONFIG_PREEMPT
         /*!< start timer */
         if (!sprt_tim->expires)

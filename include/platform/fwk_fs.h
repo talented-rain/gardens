@@ -13,6 +13,10 @@
 #ifndef __FWK_FS_H_
 #define __FWK_FS_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 #include <platform/fwk_inode.h>
@@ -48,7 +52,11 @@ struct fwk_file_oprts
 };
 
 /*!< The functions */
-TARGET_EXT struct fwk_file *fwk_do_filp_open(kchar_t *name, kuint32_t mode);
-TARGET_EXT void fwk_do_filp_close(struct fwk_file *sprt_file);
+extern struct fwk_file *fwk_do_filp_open(kchar_t *name, kuint32_t mode);
+extern void fwk_do_filp_close(struct fwk_file *sprt_file);
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_FS_H_ */

@@ -13,6 +13,10 @@
 #ifndef __BOARD_INIT_H
 #define __BOARD_INIT_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <common/generic.h>
 #include <common/api_string.h>
@@ -42,30 +46,30 @@ typedef struct global_data srt_gd_t;
 
 typedef kint32_t (*board_init_t) (void);
 
-TARGET_EXT kuaddr_t _SVC_MODE_STACK_BASE;
-TARGET_EXT kuaddr_t _SYS_MODE_STACK_BASE;
-TARGET_EXT kuaddr_t _IRQ_MODE_STACK_BASE;
-TARGET_EXT kuaddr_t _FIQ_MODE_STACK_BASE;
-TARGET_EXT kuaddr_t _ABT_MODE_STACK_BASE;
-TARGET_EXT kuaddr_t _UND_MODE_STACK_BASE;
+extern kuaddr_t _SVC_MODE_STACK_BASE;
+extern kuaddr_t _SYS_MODE_STACK_BASE;
+extern kuaddr_t _IRQ_MODE_STACK_BASE;
+extern kuaddr_t _FIQ_MODE_STACK_BASE;
+extern kuaddr_t _ABT_MODE_STACK_BASE;
+extern kuaddr_t _UND_MODE_STACK_BASE;
 
 /*!< The functions */
 /*!< s_init */
-TARGET_EXT void s_init(void);
+extern void s_init(void);
 
 /*!< main initializtion */
-TARGET_EXT void board_init_f(void);
-TARGET_EXT void board_init_r(void);
+extern void board_init_f(void);
+extern void board_init_r(void);
 
 /*!< other initialization */
-TARGET_EXT kuaddr_t board_init_f_alloc_reserve(kuaddr_t base);
-TARGET_EXT void board_init_f_init_reserve(kuaddr_t base);
+extern kuaddr_t board_init_f_alloc_reserve(kuaddr_t base);
+extern void board_init_f_init_reserve(kuaddr_t base);
 
 /*!< initialized by being called by "board_init_f/r" */
-TARGET_EXT kint32_t board_init_console(void);
-TARGET_EXT kint32_t board_init_light(void);
-TARGET_EXT kint32_t board_init_sdmmc(void);
-TARGET_EXT kint32_t board_init_systick(void);
+extern kint32_t board_init_console(void);
+extern kint32_t board_init_light(void);
+extern kint32_t board_init_sdmmc(void);
+extern kint32_t board_init_systick(void);
 
 /*!< API function */
 /*!
@@ -104,5 +108,9 @@ static inline kint32_t board_initcall_run_list(const board_init_t init_sequence[
 
 	return RET_BOOT_PASS;
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __BOARD_INIT_H */

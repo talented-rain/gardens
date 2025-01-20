@@ -13,6 +13,10 @@
 #ifndef __FWK_BLKDEV_H
 #define __FWK_BLKDEV_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 #include <platform/fwk_platdev.h>
@@ -33,7 +37,11 @@ struct fwk_block_device
 /*!< The globals */
 
 /*!< The functions */
-TARGET_EXT kint32_t fwk_register_blkdev(kuint32_t major, const kchar_t *name);
-TARGET_EXT void fwk_unregister_blkdev(kuint32_t major, const kchar_t *name);
+extern kint32_t fwk_register_blkdev(kuint32_t major, const kchar_t *name);
+extern void fwk_unregister_blkdev(kuint32_t major, const kchar_t *name);
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __FWK_BLKDEV_H */

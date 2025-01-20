@@ -13,6 +13,10 @@
 #ifndef __IMX6UL_CLOCKS_H
 #define __IMX6UL_CLOCKS_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <common/basic_types.h>
 #include <common/error_types.h>
@@ -784,5 +788,9 @@ static inline kuint64_t hal_imx_sysclk_freq_counter(void)
 #define IMX6UL_CLK_EPDC_PIX		                    235
 
 #define IMX6UL_CLK_END			                    236
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __IMX6UL_CLOCKS_H */

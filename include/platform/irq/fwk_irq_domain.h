@@ -13,14 +13,14 @@
 #ifndef __FWK_IRQ_DOMAIN_H
 #define __FWK_IRQ_DOMAIN_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <common/generic.h>
 #include <common/list_types.h>
 #include <platform/of/fwk_of.h>
-
-#ifdef __cplusplus
-	TARGET_EXT "C" {
-#endif
 
 /*!< The defines */
 typedef struct fwk_irq_domain
@@ -56,19 +56,19 @@ typedef struct fwk_irq_domain_ops
 } srt_fwk_irq_domain_ops_t;
 
 /*!< The functions */
-TARGET_EXT struct fwk_irq_domain *fwk_of_irq_host(struct fwk_device_node *sprt_node);
-TARGET_EXT kint32_t fwk_of_irq_parse_one(struct fwk_device_node *sprt_node, kuint32_t index, struct fwk_of_phandle_args *sprt_irq);
-TARGET_EXT kint32_t fwk_irq_find_mapping(struct fwk_irq_domain *sprt_domain, kuint32_t type, kint32_t hwirq);
-TARGET_EXT kint32_t fwk_irq_create_of_mapping(struct fwk_of_phandle_args *sprt_irq);
-TARGET_EXT kint32_t fwk_irq_of_parse_and_map(struct fwk_device_node *sprt_node, kuint32_t index);
-TARGET_EXT struct fwk_irq_domain *fwk_irq_domain_add_linear(struct fwk_device_node *of_node, kuint32_t size,
+extern struct fwk_irq_domain *fwk_of_irq_host(struct fwk_device_node *sprt_node);
+extern kint32_t fwk_of_irq_parse_one(struct fwk_device_node *sprt_node, kuint32_t index, struct fwk_of_phandle_args *sprt_irq);
+extern kint32_t fwk_irq_find_mapping(struct fwk_irq_domain *sprt_domain, kuint32_t type, kint32_t hwirq);
+extern kint32_t fwk_irq_create_of_mapping(struct fwk_of_phandle_args *sprt_irq);
+extern kint32_t fwk_irq_of_parse_and_map(struct fwk_device_node *sprt_node, kuint32_t index);
+extern struct fwk_irq_domain *fwk_irq_domain_add_linear(struct fwk_device_node *of_node, kuint32_t size,
 					 const struct fwk_irq_domain_ops *ops, void *host_data);
-TARGET_EXT struct fwk_irq_domain *fwk_irq_domain_add_hierarchy(struct fwk_irq_domain *sprt_parent, struct fwk_device_node *sprt_node, 
+extern struct fwk_irq_domain *fwk_irq_domain_add_hierarchy(struct fwk_irq_domain *sprt_parent, struct fwk_device_node *sprt_node, 
 												kuint32_t size, const struct fwk_irq_domain_ops *ops, void *host_data);
-TARGET_EXT void fwk_irq_domain_del_hierarchy(struct fwk_irq_domain *sprt_domain);
-TARGET_EXT struct fwk_irq_domain *fwk_irq_get_domain_by_name(kchar_t *name, kint32_t hwirq);
-TARGET_EXT kint32_t fwk_irq_get_by_domain(struct fwk_irq_domain *sprt_domain, kint32_t hwirq);
-TARGET_EXT kint32_t fwk_irq_get_by_domain_name(kchar_t *name, kint32_t hwirq);
+extern void fwk_irq_domain_del_hierarchy(struct fwk_irq_domain *sprt_domain);
+extern struct fwk_irq_domain *fwk_irq_get_domain_by_name(kchar_t *name, kint32_t hwirq);
+extern kint32_t fwk_irq_get_by_domain(struct fwk_irq_domain *sprt_domain, kint32_t hwirq);
+extern kint32_t fwk_irq_get_by_domain_name(kchar_t *name, kint32_t hwirq);
 
 #ifdef __cplusplus
 	}

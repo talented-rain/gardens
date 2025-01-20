@@ -13,6 +13,10 @@
 #ifndef __FWK_INODE_H_
 #define __FWK_INODE_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 #include <platform/fwk_fs.h>
@@ -55,10 +59,14 @@ struct fwk_inode
 #define FWK_PATH_SYS_DRIVER								FWK_PATH_SYSTEM"drivers/"
 
 /*!< The functions */
-TARGET_EXT kint32_t fwk_inode_set_ops(struct fwk_inode *sprt_inode, kuint32_t type, kint32_t devNum);
-TARGET_EXT struct fwk_inode *fwk_mk_inode(struct fwk_kobject *sprt_kobj, kuint32_t type, kint32_t devNum);
-TARGET_EXT void fwk_rm_inode(struct fwk_inode *sprt_inode);
-TARGET_EXT struct fwk_inode *fwk_inode_find(kchar_t *name);
-TARGET_EXT struct fwk_inode *fwk_inode_find_disk(const kchar_t *name);
+extern kint32_t fwk_inode_set_ops(struct fwk_inode *sprt_inode, kuint32_t type, kint32_t devNum);
+extern struct fwk_inode *fwk_mk_inode(struct fwk_kobject *sprt_kobj, kuint32_t type, kint32_t devNum);
+extern void fwk_rm_inode(struct fwk_inode *sprt_inode);
+extern struct fwk_inode *fwk_inode_find(kchar_t *name);
+extern struct fwk_inode *fwk_inode_find_disk(const kchar_t *name);
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_INODE_H_ */

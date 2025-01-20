@@ -13,6 +13,10 @@
 #ifndef __FWK_GENDISK_H_
 #define __FWK_GENDISK_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 #include <platform/fwk_platdev.h>
@@ -56,11 +60,15 @@ struct fwk_block_device_oprts
 /*!< The globals */
 
 /*!< The functions */
-TARGET_EXT kint32_t fwk_gendisk_init(struct fwk_gendisk *sprt_gdisk, 
+extern kint32_t fwk_gendisk_init(struct fwk_gendisk *sprt_gdisk, 
                                             const struct fwk_block_device_oprts *sprt_oprts);
-TARGET_EXT struct fwk_gendisk *fwk_alloc_gendisk(kint32_t minors, 
+extern struct fwk_gendisk *fwk_alloc_gendisk(kint32_t minors, 
                                             const struct fwk_block_device_oprts *sprt_oprts);
-TARGET_EXT kint32_t fwk_add_gendisk(struct fwk_gendisk *sprt_gdisk);
-TARGET_EXT kint32_t fwk_del_gendisk(struct fwk_gendisk *sprt_gdisk);
+extern kint32_t fwk_add_gendisk(struct fwk_gendisk *sprt_gdisk);
+extern kint32_t fwk_del_gendisk(struct fwk_gendisk *sprt_gdisk);
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __FWK_GENDISK_H_ */

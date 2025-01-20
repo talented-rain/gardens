@@ -73,9 +73,9 @@ kbool_t malloc_block_initial(void)
     if (isValid(sprt_info->sprt_mem))
         return false;
 
-    memory_simple_block_create(sprt_info, 
-                               MEMORY_HEAP_START, 
-                               MEMORY_HEAP_END - MEMORY_HEAP_START);
+    memory_block_create(sprt_info, 
+                        MEMORY_HEAP_START, 
+                        MEMORY_HEAP_END - MEMORY_HEAP_START);
 
     return true;
 }
@@ -95,7 +95,7 @@ kbool_t malloc_block_self_defines(kuaddr_t base, kusize_t size)
     if (isValid(sprt_info->sprt_mem))
         return false;
 
-    memory_simple_block_create(sprt_info, base, size);
+    memory_block_create(sprt_info, base, size);
 
     return true;
 }
@@ -108,7 +108,7 @@ kbool_t malloc_block_self_defines(kuaddr_t base, kusize_t size)
  */
 void malloc_block_destroy(void)
 {
-    memory_simple_block_destroy(&sgrt_infoMalloc);
+    memory_block_destroy(&sgrt_infoMalloc);
 }
 
 /*!
@@ -119,7 +119,10 @@ void malloc_block_destroy(void)
  */
 __weak void *malloc(size_t __size)
 {
-    return alloc_spare_simple_memory(sgrt_infoMalloc.sprt_mem, __size);
+    if (sgrt_infoMalloc.alloc)
+        return sgrt_infoMalloc.alloc(&sgrt_infoMalloc, __size);
+
+    return mrt_nullptr;
 }
 
 /*!
@@ -130,7 +133,8 @@ __weak void *malloc(size_t __size)
  */
 __weak void free(void *__ptr)
 {
-    free_employ_simple_memory(sgrt_infoMalloc.sprt_mem, __ptr);
+    if (sgrt_infoMalloc.free)
+        sgrt_infoMalloc.free(&sgrt_infoMalloc, __ptr);
 }
 
 /*!

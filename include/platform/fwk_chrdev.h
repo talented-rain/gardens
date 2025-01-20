@@ -13,6 +13,10 @@
 #ifndef __FWK_CHRDEV_H_
 #define __FWK_CHRDEV_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 
@@ -29,16 +33,20 @@ struct fwk_char_device
 };
 
 /*!< The globals */
-TARGET_EXT struct fwk_char_device *sgrt_fwk_chrdevs[];
+extern struct fwk_char_device *sgrt_fwk_chrdevs[];
 
 /*!< The functions */
 /*!< -------------------------------------------------------------- */
-TARGET_EXT kint32_t fwk_chrdev_init(void);
-TARGET_EXT void fwk_chrdev_exit(void);
+extern kint32_t fwk_chrdev_init(void);
+extern void fwk_chrdev_exit(void);
 
 /*!< -------------------------------------------------------------- */
-TARGET_EXT kint32_t fwk_alloc_chrdev(kuint32_t *devNum, kuint32_t baseminor, kuint32_t count, const kchar_t *name);
-TARGET_EXT kint32_t fwk_register_chrdev(kuint32_t devNum, kuint32_t count, const kchar_t *name);
-TARGET_EXT void fwk_unregister_chrdev(kuint32_t devNum, kuint32_t count);
+extern kint32_t fwk_alloc_chrdev(kuint32_t *devNum, kuint32_t baseminor, kuint32_t count, const kchar_t *name);
+extern kint32_t fwk_register_chrdev(kuint32_t devNum, kuint32_t count, const kchar_t *name);
+extern void fwk_unregister_chrdev(kuint32_t devNum, kuint32_t count);
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_CHRDEV_H_ */

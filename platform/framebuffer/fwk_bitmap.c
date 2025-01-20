@@ -266,7 +266,7 @@ kint32_t fwk_display_bitmap(struct fwk_bmp_ctrl *sprt_bctl, const kuint8_t *imag
  * @retval  none
  * @note    none
  */
-void fwk_display_whole_bitmap(struct fwk_bmp_ctrl *sprt_bctl, const kuint8_t *image)
+kssize_t fwk_display_whole_bitmap(struct fwk_bmp_ctrl *sprt_bctl, const kuint8_t *image)
 {
     struct fwk_disp_info *sprt_disp;
     struct fwk_bmp_info_header *sprt_bi;
@@ -282,11 +282,11 @@ void fwk_display_whole_bitmap(struct fwk_bmp_ctrl *sprt_bctl, const kuint8_t *im
     if ((!image) || 
         (!sprt_bctl) || 
         (!sprt_bctl->sprt_disp))
-        return;
+        return -ER_NULLPTR;
 
     image_offset = fwk_bitmap_get_and_check(sprt_bctl, image);
     if (image_offset < 0)
-        return;
+        return -ER_CHECKERR;
 
     ptr_bitmap = (kuint8_t *)(image + image_offset);
     sprt_bi = &sprt_bctl->sgrt_bi;
@@ -301,7 +301,7 @@ void fwk_display_whole_bitmap(struct fwk_bmp_ctrl *sprt_bctl, const kuint8_t *im
     
     if (((x_start + width) > sprt_disp->width) || 
         ((y_start + height) > sprt_disp->height))
-        return;
+        return -ER_MORE;
 
     /*!< bytes of per pixel color (RGB24: bits = 24, bytes = 3) */
     image_bpp = sprt_bi->pixelbit >> 3;
@@ -337,6 +337,8 @@ void fwk_display_whole_bitmap(struct fwk_bmp_ctrl *sprt_bctl, const kuint8_t *im
             rgb_inc += image_bpp;
         }
     }
+
+    return (width * height * (sprt_disp->bpp >> 3));
 }
 
 /*!< end of file */

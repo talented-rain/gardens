@@ -13,6 +13,10 @@
 #ifndef __FWK_MEMPOOL_H
 #define __FWK_MEMPOOL_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <common/generic.h>
 #include <common/mem_manage.h>
@@ -49,15 +53,19 @@ typedef enum nrt_gfp
 #define GFP_GET_FLAG(gfp_mask)                  ((gfp_mask) & (0x00ffffffU))
 
 /*!< The functions */
-TARGET_EXT kbool_t fwk_mempool_initial(void);
-TARGET_EXT kssize_t kmget_size(nrt_gfp_t flags);
-TARGET_EXT void *kmalloc(size_t __size, nrt_gfp_t flags);
-TARGET_EXT void *kcalloc(size_t __size, size_t __n, nrt_gfp_t flags);
-TARGET_EXT void *kzalloc(size_t __size, nrt_gfp_t flags);
-TARGET_EXT void kfree(void *__ptr);
-TARGET_EXT void *default_malloc(kusize_t size);
+extern kbool_t fwk_mempool_initial(void);
+extern kssize_t kmget_size(nrt_gfp_t flags);
+extern void *kmalloc(size_t __size, nrt_gfp_t flags);
+extern void *kcalloc(size_t __size, size_t __n, nrt_gfp_t flags);
+extern void *kzalloc(size_t __size, nrt_gfp_t flags);
+extern void kfree(void *__ptr);
+extern void *default_malloc(kusize_t size);
 
-TARGET_EXT kbool_t memory_block_self_defines(kint32_t flags, kuaddr_t base, kusize_t size);
-TARGET_EXT void memory_block_self_destroy(kint32_t flags);
+extern kbool_t memory_block_self_defines(kint32_t flags, kuaddr_t base, kusize_t size);
+extern void memory_block_self_destroy(kint32_t flags);
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif  /* __FWK_MEMPOOL_H */

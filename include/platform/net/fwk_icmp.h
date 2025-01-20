@@ -13,6 +13,10 @@
 #ifndef __FWK_ICMP_H_
 #define __FWK_ICMP_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/net/fwk_if.h>
 #include <platform/net/fwk_ip.h>
@@ -54,5 +58,9 @@ struct fwk_icmp_hdr
     } u;
     
 } __packed;
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_ICMP_H_ */

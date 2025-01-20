@@ -13,6 +13,10 @@
 #ifndef __FWK_BASIC_H_
 #define __FWK_BASIC_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <configs/configs.h>
 #include <common/generic.h>
@@ -111,6 +115,18 @@ enum __ERT_CHRDEV_MAJOR
 #define FWK_IOC_TYPE(nr)   							(((nr) >> FWK_IOC_TYPESHIFT) & FWK_IOC_TYPEMASK)
 #define FWK_IOC_NR(nr)   							(((nr) >> FWK_IOC_NRSHIFT) & FWK_IOC_NRMASK)
 
+/*!< delete and free all nodes */
+#define mrt_list_delete_all(head, prev, list)	\
+{	\
+    list = head;	\
+    while (isValid(list))	\
+    {	\
+        prev	= list;	\
+        list	= list->sprt_next;	\
+        kfree(prev);	\
+    }	\
+}
+
 /*!< params saved for kernel */
 #define TAG_PARAM_VIDEO         0
 struct video_params
@@ -146,8 +162,8 @@ struct tag_params
             (struct tag_params *)((void *)(tag) + (tag)->sgrt_hdr.size)
 
 /*!< The globals */
-TARGET_EXT struct video_params *sprt_fwk_video_params;
-TARGET_EXT struct fdt_params *sprt_fwk_fdt_params;
+extern struct video_params *sprt_fwk_video_params;
+extern struct fdt_params *sprt_fwk_fdt_params;
 
 /*!< API functions */
 /*!
@@ -171,5 +187,9 @@ static inline void fwk_io_unmap(void *virt_addr)
 {
 
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_BASIC_H_ */

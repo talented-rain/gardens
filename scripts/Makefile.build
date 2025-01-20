@@ -57,7 +57,11 @@ VPATH			+= $(cur_path)
 INCLUDE_DIRS 	+= $(sort $(inc-y))
 
 define build_object
-	$(1) -Wp,-MD,$@.d -c $(BUILD_CFLAGS) $(MACROS) $(INCLUDE_DIRS) $(EXTRA_FLAGS) -o $(2) $(3)
+	$(1) -Wp,-MD,$@.d -c $(C_FLAGS) $(MACROS) $(INCLUDE_DIRS) $(EXTRA_FLAGS) -o $(2) $(3);	
+endef
+
+define build_cxx_object
+	$(1) -Wp,-MD,$@.d -c $(CXX_FLAGS) $(MACROS) $(INCLUDE_DIRS) $(EXTRA_FLAGS) -o $(2) $(3);
 endef
 
 define build_recusion
@@ -101,7 +105,7 @@ $(obj_path)/%.o : %.c _force
 	$(call build_object, $(CC), $@, $<)
 
 $(obj_path)/%.o : %.cpp _force
-	$(call build_object, $(CXX), $@, $<)
+	$(call build_cxx_object, $(CXX), $@, $<)
 
 _clean:
 	$(call build_recusion, _clean)
@@ -113,6 +117,6 @@ _distclean: _clean
 _debug:
 	$(call build_recusion, _debug);
 	@echo '==========>' $(output-obj)
-	@echo '++++++++++>' $(build-obj)
+	@echo '++++++++++>' $(obj-y)
 
 # end of file

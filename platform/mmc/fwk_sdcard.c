@@ -1141,7 +1141,8 @@ kint32_t fwk_sdcard_read_blocks(struct fwk_sdcard *sprt_card, void *ptrBuffer,
 
     do
     {
-        iRetval = fwk_sdcard_send_rw_command(&sgrt_cmd, sprt_if, index, argument, NR_SdCard_R1_AllErrBit, true);
+        iRetval = fwk_sdcard_send_rw_command(&sgrt_cmd, sprt_if,
+        					index, argument, NR_SdCard_R1_AllErrBit, true);
         if (!iRetval)
             iRetval = sprt_if->recvData(&sgrt_data);
 
@@ -1151,7 +1152,8 @@ kint32_t fwk_sdcard_read_blocks(struct fwk_sdcard *sprt_card, void *ptrBuffer,
         return -ER_RDATA_FAILD;
 
     /*!< for reading multi blocks, it must send CMD12 to stop transmission */
-    if ((sgrt_data.blockCount > 1U) && (mrt_isBitResetl(NR_SdCard_CmdFlagsAuto12Enable, &sgrt_data.flags)))
+    if ((sgrt_data.blockCount > 1U) &&
+    	(mrt_isBitResetl(NR_SdCard_CmdFlagsAuto12Enable, &sgrt_data.flags)))
     {
         iRetval = fwk_sdcard_send_command(sprt_card, fwk_sdcard_command_stop_transmission, 0U);
         if (iRetval)
@@ -1210,7 +1212,8 @@ kint32_t fwk_sdcard_write_blocks(struct fwk_sdcard *sprt_card, void *ptrBuffer,
 
     do
     {
-        iRetval = fwk_sdcard_send_rw_command(&sgrt_cmd, sprt_if, index, argument, NR_SdCard_R1_AllErrBit, true);
+        iRetval = fwk_sdcard_send_rw_command(&sgrt_cmd, sprt_if,
+        						index, argument, NR_SdCard_R1_AllErrBit, true);
         if (!iRetval)
             iRetval = sprt_if->sendData(&sgrt_data);
 
@@ -1220,7 +1223,8 @@ kint32_t fwk_sdcard_write_blocks(struct fwk_sdcard *sprt_card, void *ptrBuffer,
         return -ER_SDATA_FAILD;
 
     /*!< for reading multi blocks, it must send CMD12 to stop transmission */
-    if ((sgrt_data.blockCount > 1U) && (mrt_isBitResetl(NR_SdCard_CmdFlagsAuto12Enable, &sgrt_data.flags)))
+    if ((sgrt_data.blockCount > 1U) &&
+    	(mrt_isBitResetl(NR_SdCard_CmdFlagsAuto12Enable, &sgrt_data.flags)))
     {
         iRetval = fwk_sdcard_send_command(sprt_card, fwk_sdcard_command_stop_transmission, 0U);
         if (iRetval)
@@ -1629,11 +1633,11 @@ kbool_t fwk_sdcard_to_normal(struct fwk_sdcard *sprt_card)
 
     /*!<
      * for imx6ull:
-     *  Ö»¸ü¸Ä¿¨»òÖ÷»úµÄÎ»¿í, CMD6¿É»Ø¸´DATA, ²»×èÈû, ÇÒ½á¹ûÕýÈ·;
-     *  Ö»¸ü¸Ä¿¨µÄÎ»¿í, CMD17¶ÁÃüÁî²»×èÈû(ÓÐÊý¾Ý¿É¶Á), µ«¶ÁÈ¡½á¹û´íÎó;
-     *  Ö»¸ü¸ÄÖ÷»úÎ»¿í, CMD17¶ÁÃüÁî×èÈû(ÎÞÊý¾Ý¿É¶Á)
+     *  Ö»ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½, CMD6ï¿½É»Ø¸ï¿½DATA, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½Ò½ï¿½ï¿½ï¿½ï¿½È·;
+     *  Ö»ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½Î»ï¿½ï¿½, CMD17ï¿½ï¿½ï¿½ï¿½ï¿½î²»ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿É¶ï¿½), ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½;
+     *  Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½, CMD17ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿É¶ï¿½)
      * 
-     *  ·ÖÎö: ´ó¸ÅÂÊÊÇÖ÷»úµÄÎÊÌâ
+     *  ï¿½ï¿½ï¿½ï¿½: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
      */
     /*!< set card DATA bus width = 4bit */
 	iRetval = fwk_sdcard_send_app_command(sprt_card, fwk_sdcard_command_set_buswidth, FWK_SDCARD_ACMD6_BUS_WIDTH_4);

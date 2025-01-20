@@ -10,6 +10,7 @@
 #
 
 obj-y	+=	generic/
+obj-y	+=	lib/
 obj-y	+=	mempool/
 
 # end of file

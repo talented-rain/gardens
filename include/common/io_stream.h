@@ -13,6 +13,10 @@
 #ifndef __IO_STREAM_H
 #define __IO_STREAM_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <common/generic.h>
 
@@ -119,11 +123,13 @@ do {   \
 #define PRINT_LEVEL_DEBUG                               PRINT_LEVEL_SOH "7"
 
 /*!< The functions */
-TARGET_EXT void io_putc(const kubyte_t ch);
-TARGET_EXT void io_putstr(const kubyte_t *msgs, kusize_t size);
-TARGET_EXT kubyte_t io_getc(kubyte_t *ch);
-TARGET_EXT kssize_t io_getstr(kubyte_t *msgs, kusize_t size);
-TARGET_EXT void printk(const kchar_t *ptr_fmt, ...);
+extern void iostream_init(void);
+
+extern void io_putc(const kubyte_t ch);
+extern void io_putstr(const kubyte_t *msgs, kusize_t size);
+extern kubyte_t io_getc(kubyte_t *ch);
+extern kssize_t io_getstr(kubyte_t *msgs, kusize_t size);
+extern void printk(const kchar_t *ptr_fmt, ...);
 
 #define print_err(fmt, ...)                             printk(PRINT_LEVEL_ERR fmt, ##__VA_ARGS__)
 #define print_warn(fmt, ...)                            printk(PRINT_LEVEL_WARNING fmt, ##__VA_ARGS__)
@@ -154,12 +160,12 @@ TARGET_EXT void printk(const kchar_t *ptr_fmt, ...);
             print_debug("%s: %d: " fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__);   \
     } while (0)
 
-TARGET_EXT kint32_t bitmap_find_first_zero_bit(void *bitmap, kuint32_t start, kusize_t total_bits);
-TARGET_EXT kint32_t bitmap_find_first_valid_bit(void *bitmap, kuint32_t start, kusize_t total_bits);
-TARGET_EXT kint32_t bitmap_find_nr_zero_bit(void *bitmap, kuint32_t start, kusize_t total_bits, kuint32_t nr);
-TARGET_EXT kint32_t bitmap_find_nr_valid_bit(void *bitmap, kuint32_t start, kusize_t total_bits, kuint32_t nr);
-TARGET_EXT void bitmap_set_nr_bit_zero(void *bitmap, kuint32_t start, kusize_t total_bits, kuint32_t nr);
-TARGET_EXT void bitmap_set_nr_bit_valid(void *bitmap, kuint32_t start, kusize_t total_bits, kuint32_t nr);
+extern kint32_t bitmap_find_first_zero_bit(void *bitmap, kuint32_t start, kusize_t total_bits);
+extern kint32_t bitmap_find_first_valid_bit(void *bitmap, kuint32_t start, kusize_t total_bits);
+extern kint32_t bitmap_find_nr_zero_bit(void *bitmap, kuint32_t start, kusize_t total_bits, kuint32_t nr);
+extern kint32_t bitmap_find_nr_valid_bit(void *bitmap, kuint32_t start, kusize_t total_bits, kuint32_t nr);
+extern void bitmap_set_nr_bit_zero(void *bitmap, kuint32_t start, kusize_t total_bits, kuint32_t nr);
+extern void bitmap_set_nr_bit_valid(void *bitmap, kuint32_t start, kusize_t total_bits, kuint32_t nr);
 
 /*!< API function */
 /*!
@@ -284,5 +290,9 @@ static inline void io_clrbit(kuaddr_t addr, kuint32_t val)
 {
     *((volatile kuaddr_t *)addr) &= ~val;
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __IO_STREAM_H */

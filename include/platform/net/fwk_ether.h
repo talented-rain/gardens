@@ -13,6 +13,10 @@
 #ifndef __FWK_ETHER_H_
 #define __FWK_ETHER_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/net/fwk_if.h>
 #include <platform/net/fwk_netif.h>
@@ -83,7 +87,7 @@ struct fwk_eth_hdr
 } __packed;
 
 /*!< The functions */
-TARGET_EXT kint16_t fwk_eth_type_trans(struct fwk_sk_buff *sprt_skb, struct fwk_net_device *sprt_ndev);
+extern kint16_t fwk_eth_type_trans(struct fwk_sk_buff *sprt_skb, struct fwk_net_device *sprt_ndev);
 
 /*!< API functions */
 static inline void fwk_eth_random_addr(kuint8_t *addr)
@@ -97,5 +101,9 @@ static inline void fwk_eth_broadcast_addr(kuint8_t *addr)
 {
     kmemset(addr, 0xff, NET_MAC_ETH_ALEN);
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_ETHER_H_ */

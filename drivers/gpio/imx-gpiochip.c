@@ -97,7 +97,7 @@ static kint32_t imx_gpiochip_driver_irq_set_type(struct fwk_irq_data *sprt_data,
 
 	offset = sprt_data->hwirq;
 	sprt_gc = fwk_irq_get_generic_data(sprt_data);
-	sprt_port = sprt_gc->private;
+	sprt_port = sprt_gc->private_data;
 	sprt_reg = (srt_hal_imx_gpio_t *)sprt_port->base;
 
 	sprt_desc = fwk_gpiochip_get_desc(&sprt_port->sgrt_gpiochip, offset);
@@ -249,7 +249,7 @@ static kint32_t imx_gpiochip_driver_probe_intc(struct fwk_platdev *sprt_pdev)
 	sprt_gc->sgrt_chip.irq_set_type = imx_gpiochip_driver_irq_set_type;
 	sprt_gc->manage_reg = (kuaddr_t)&sprt_reg->IMR;
 	sprt_gc->status_reg = (kuaddr_t)&sprt_reg->ISR;
-	sprt_gc->private = sprt_port;
+	sprt_gc->private_data = sprt_port;
 
 	fwk_irq_setup_generic_chip(sprt_port->irq_base, 32, sprt_gc, mrt_nullptr);
 	sprt_port->sprt_irqgc = sprt_gc;

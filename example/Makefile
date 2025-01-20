@@ -9,7 +9,7 @@
 # Copyright (c) 2024   Yang Yujun <yujiantianhu@163.com>
 #
 
-obj-y   +=  thread_table.o
+obj-y   +=  main.o
 
 obj-y	+=	demo/
 obj-y	+=	test/

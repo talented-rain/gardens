@@ -265,7 +265,7 @@ struct fwk_device *fwk_device_create(kuint32_t type, kuint32_t devNum, kchar_t *
         return ERR_PTR(-ER_NOTFOUND);
 
     va_start(sprt_valist, fmt);
-    name = vasprintk(fmt, mrt_nullptr, sprt_valist);
+    name = vasprintk_safe(fmt, mrt_nullptr, sprt_valist);
     va_end(sprt_valist);
 
     if (!name)

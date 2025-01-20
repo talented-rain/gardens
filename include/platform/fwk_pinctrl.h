@@ -13,6 +13,10 @@
 #ifndef __FWK_PINCTRL_H_
 #define __FWK_PINCTRL_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 #include <platform/fwk_platform.h>
@@ -226,18 +230,18 @@ typedef struct fwk_pinctrl
 } srt_fwk_pinctrl_t;
 
 /*!< The functions */
-TARGET_EXT struct fwk_pinctrl_dev *fwk_pinctrl_register(struct fwk_pinctrl_desc *sprt_desc, struct fwk_device *sprt_dev, void *driver_data);
-TARGET_EXT void fwk_pinctrl_unregister(struct fwk_pinctrl_dev *sprt_pctldev);
-TARGET_EXT struct fwk_pinctrl *fwk_pinctrl_get(struct fwk_device *sprt_dev);
-TARGET_EXT void fwk_pinctrl_put(struct fwk_pinctrl *sprt_pctl);
-TARGET_EXT struct fwk_pinctrl_state *fwk_pinctrl_lookup_state(struct fwk_pinctrl *sprt_pctl, const kchar_t *state_name);
-TARGET_EXT kint32_t fwk_pinctrl_select_state(struct fwk_pinctrl *sprt_pctl, struct fwk_pinctrl_state *sprt_state);
-TARGET_EXT kint32_t fwk_pinctrl_bind_pins(struct fwk_device *sprt_dev);
-TARGET_EXT void fwk_pinctrl_unbind_pins(struct fwk_device *sprt_dev);
+extern struct fwk_pinctrl_dev *fwk_pinctrl_register(struct fwk_pinctrl_desc *sprt_desc, struct fwk_device *sprt_dev, void *driver_data);
+extern void fwk_pinctrl_unregister(struct fwk_pinctrl_dev *sprt_pctldev);
+extern struct fwk_pinctrl *fwk_pinctrl_get(struct fwk_device *sprt_dev);
+extern void fwk_pinctrl_put(struct fwk_pinctrl *sprt_pctl);
+extern struct fwk_pinctrl_state *fwk_pinctrl_lookup_state(struct fwk_pinctrl *sprt_pctl, const kchar_t *state_name);
+extern kint32_t fwk_pinctrl_select_state(struct fwk_pinctrl *sprt_pctl, struct fwk_pinctrl_state *sprt_state);
+extern kint32_t fwk_pinctrl_bind_pins(struct fwk_device *sprt_dev);
+extern void fwk_pinctrl_unbind_pins(struct fwk_device *sprt_dev);
 
-TARGET_EXT kint32_t fwk_pinmux_map_to_setting(struct fwk_pinctrl_map const *sprt_map, struct fwk_pinctrl_setting *sprt_setting);
-TARGET_EXT kint32_t fwk_pinconf_get_by_name(struct fwk_pinctrl_dev *sprt_pctldev, const kchar_t *name);
-TARGET_EXT kint32_t fwk_pinconf_map_to_setting(struct fwk_pinctrl_map const *sprt_map, struct fwk_pinctrl_setting *sprt_setting);
+extern kint32_t fwk_pinmux_map_to_setting(struct fwk_pinctrl_map const *sprt_map, struct fwk_pinctrl_setting *sprt_setting);
+extern kint32_t fwk_pinconf_get_by_name(struct fwk_pinctrl_dev *sprt_pctldev, const kchar_t *name);
+extern kint32_t fwk_pinconf_map_to_setting(struct fwk_pinctrl_map const *sprt_map, struct fwk_pinctrl_setting *sprt_setting);
 
 /*!< API functions */
 /*!
@@ -250,5 +254,9 @@ static inline void *fwk_pinctrl_get_drvdata(struct fwk_pinctrl_dev *sprt_pctldev
 {
 	return sprt_pctldev->driver_data;
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_PINCTRL_H_ */

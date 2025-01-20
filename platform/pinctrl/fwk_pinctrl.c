@@ -50,6 +50,7 @@ static DECLARE_LIST_HEAD(sgrt_fwk_pinctrl_map_list);
  * @retval  pinctrl_dev found
  * @note    none
  */
+__unused
 static struct fwk_pinctrl *fwk_get_pinctrl_from_node(struct fwk_device_node *sprt_node)
 {
     struct fwk_pinctrl *sprt_pctl;

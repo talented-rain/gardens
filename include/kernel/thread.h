@@ -13,6 +13,10 @@
 #ifndef __THREAD_H_
 #define __THREAD_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <common/generic.h>
 #include <common/list_types.h>
@@ -39,11 +43,11 @@ typedef kint32_t tid_t;
 #define THREAD_STACK32(word)				(mrt_align4(word) >> 2)
 
 /*!< 1 page = 4 kbytes; half page = (1 / 2) page; quarter = (1 / 4) page */
-#define THREAD_STACK_PAGE(page)			    (THREAD_STACK32(((kuint32_t)(page)) << 12))
-#define THREAD_STACK_HALF(page)			    (THREAD_STACK32(((kuint32_t)(page)) << 11))
-#define THREAD_STACK_QUAR(page)			    (THREAD_STACK32(((kuint32_t)(page)) << 10))
+#define THREAD_STACK_PAGE(page)			    (THREAD_STACK8(((kuint32_t)(page)) << 12))
+#define THREAD_STACK_HALF(page)			    (THREAD_STACK8(((kuint32_t)(page)) << 11))
+#define THREAD_STACK_QUAR(page)			    (THREAD_STACK8(((kuint32_t)(page)) << 10))
 
-#define THREAD_STACK_MIN					THREAD_STACK8(1024)
+#define THREAD_STACK_MIN					THREAD_STACK8(512)
 #define THREAD_STACK_DEFAULT				THREAD_STACK8(2056)
 
 /*!<
@@ -123,7 +127,7 @@ enum __ERT_THREAD_POLICY
     THREAD_SCHED_RR
 };
 
-struct sched_param
+struct scheduler_param
 {
     kint32_t sched_priority;
     kint32_t sched_curpriority;
@@ -153,7 +157,7 @@ struct thread_attr
 {
     kint32_t detachstate;                       /*!< refer to "__ERT_THREAD_DETACH" */
     kint32_t schedpolicy;                       /*!< refer to "__ERT_THREAD_SCHED" */
-    struct sched_param sgrt_param;              /*!< schedule parameters */
+    struct scheduler_param sgrt_param;          /*!< schedule parameters */
     kint32_t inheritsched;                      /*!< refer to "__ERT_THREAD_POLICY" */
     kint32_t scope;                             /*!< the scope of threads */
     kssize_t guardsize;                         /*!< the size of the alert buffer at the end of the thread stack */
@@ -167,41 +171,41 @@ struct thread_attr
 typedef struct thread_attr srt_thread_attr_t;
 
 /*!< The defines */
-TARGET_EXT tid_t kernel_thread_create(tid_t tid, 
+extern tid_t kernel_thread_create(tid_t tid, 
                                         struct thread_attr *sprt_attr, 
                                         void *(*pfunc_start_routine) (void *), 
                                         void *ptr_args);
 
-TARGET_EXT kint32_t thread_create(tid_t *ptr_id, 
+extern kint32_t thread_create(tid_t *ptr_id, 
                                         struct thread_attr *sprt_attr, 
                                         void *(*pfunc_start_routine) (void *), 
                                         void *ptr_args);
 
-TARGET_EXT kint32_t kernel_thread_idle_create(struct thread_attr *sprt_attr, 
+extern kint32_t kernel_thread_idle_create(struct thread_attr *sprt_attr, 
                                         void *(*pfunc_start_routine) (void *), 
                                         void *ptr_args);
 
-TARGET_EXT kint32_t kernel_thread_base_create(struct thread_attr *sprt_attr, 
+extern kint32_t kernel_thread_base_create(struct thread_attr *sprt_attr, 
                                         void *(*pfunc_start_routine) (void *), 
                                         void *ptr_args);
                                                 
-TARGET_EXT kint32_t kernel_thread_init_create(struct thread_attr *sprt_attr, 
+extern kint32_t kernel_thread_init_create(struct thread_attr *sprt_attr, 
                                         void *(*pfunc_start_routine) (void *), 
                                         void *ptr_args);
 
-TARGET_EXT void *thread_attr_init(struct thread_attr *sprt_attr);
-TARGET_EXT void *thread_attr_revise(struct thread_attr *sprt_attr);
-TARGET_EXT void thread_attr_destroy(struct thread_attr *sprt_attr);
-TARGET_EXT struct thread_attr *thread_attr_get(tid_t tid);
-TARGET_EXT void *thread_set_stack(struct thread_attr *sprt_attr, 
+extern void *thread_attr_init(struct thread_attr *sprt_attr);
+extern void *thread_attr_revise(struct thread_attr *sprt_attr);
+extern void thread_attr_destroy(struct thread_attr *sprt_attr);
+extern struct thread_attr *thread_attr_get(tid_t tid);
+extern void *thread_set_stack(struct thread_attr *sprt_attr, 
                                     void *ptr_dync, void *ptr_stack, kusize_t stacksize);
 
-TARGET_EXT kint32_t thread_create_mempool(struct thread_attr *sprt_attr, void *base, kusize_t size);
-TARGET_EXT void thread_release_mempool(struct thread_attr *sprt_attr);
-TARGET_EXT void *tmalloc(size_t __size, nrt_gfp_t flags);
-TARGET_EXT void *tcalloc(size_t __size, size_t __n, nrt_gfp_t flags);
-TARGET_EXT void *tzalloc(size_t __size, nrt_gfp_t flags);
-TARGET_EXT void tfree(void *__ptr);
+extern kint32_t thread_create_mempool(struct thread_attr *sprt_attr, void *base, kusize_t size);
+extern void thread_release_mempool(struct thread_attr *sprt_attr);
+extern void *tmalloc(size_t __size, nrt_gfp_t flags);
+extern void *tcalloc(size_t __size, size_t __n, nrt_gfp_t flags);
+extern void *tzalloc(size_t __size, nrt_gfp_t flags);
+extern void tfree(void *__ptr);
 
 /*!< API functions */
 /*!
@@ -373,9 +377,9 @@ static inline kuint32_t thread_attr_getschedpolicy(struct thread_attr *sprt_attr
  * @retval 	none
  * @note   	copy param to attribute
  */
-static inline void thread_attr_setschedparam(struct thread_attr *sprt_attr, struct sched_param *sprt_param)
+static inline void thread_attr_setschedparam(struct thread_attr *sprt_attr, struct scheduler_param *sprt_param)
 {
-    memcpy(&sprt_attr->sgrt_param, sprt_param, sizeof(struct sched_param));
+    memcpy(&sprt_attr->sgrt_param, sprt_param, sizeof(struct scheduler_param));
 }
 
 /*!
@@ -384,9 +388,13 @@ static inline void thread_attr_setschedparam(struct thread_attr *sprt_attr, stru
  * @retval 	none
  * @note   	copy param from attribute
  */
-static inline void thread_attr_getschedparam(struct thread_attr *sprt_attr, struct sched_param *sprt_param)
+static inline void thread_attr_getschedparam(struct thread_attr *sprt_attr, struct scheduler_param *sprt_param)
 {
-    memcpy(sprt_param, &sprt_attr->sgrt_param, sizeof(struct sched_param));
+    memcpy(sprt_param, &sprt_attr->sgrt_param, sizeof(struct scheduler_param));
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* _THREAD_H_ */

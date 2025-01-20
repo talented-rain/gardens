@@ -40,14 +40,14 @@ void exec_irq_handler(void)
     kint32_t hardirq, softIrq;
 
     /*!< read IAR, enable IRQ */
-    hardirq = local_irq_acknowledge();
+    hardirq = hw_irq_acknowledge();
 
     /*!< find system soft IRQn, and excute IRQ handler */
     softIrq = fwk_gic_to_actual_irq(hardirq);
     fwk_do_irq_handler(softIrq);
 
     /*!< write IAR, disable IRQ */
-    local_irq_deactivate(hardirq);
+    hw_irq_deactivate(hardirq);
 }
 
 /*!
@@ -67,11 +67,11 @@ void exec_software_irq_handler(void)
     );
 
     /*!< read IAR, enable IRQ */
-    hardirq = local_irq_acknowledge();
+    hardirq = hw_irq_acknowledge();
 //  fwk_handle_softirq(hardirq, event);
 
     /*!< write IAR, disable IRQ */
-    local_irq_deactivate(hardirq);
+    hw_irq_deactivate(hardirq);
 }
 
 /* end of file*/

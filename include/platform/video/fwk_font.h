@@ -13,6 +13,10 @@
 #ifndef __FWK_FONT_H_
 #define __FWK_FONT_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 
@@ -61,13 +65,13 @@ typedef struct fwk_font_setting
 } srt_fwk_font_setting_t;
 
 /*!< 8 * 12 ASCII character dot matrix */
-TARGET_EXT const kuint8_t g_font_ascii_song12[];
+extern const kuint8_t g_font_ascii_song12[];
 
 /*!< 16 * 16 ASCII character dot matrix */
-TARGET_EXT const kuint8_t g_font_ascii_song16[];
+extern const kuint8_t g_font_ascii_song16[];
 
 /*!< 24 * 12 ASICII character dot matrix */
-TARGET_EXT const kuint8_t g_font_ascii_song24[];
+extern const kuint8_t g_font_ascii_song24[];
 
 /*!< API functions */
 /*!
@@ -80,5 +84,9 @@ static inline struct m_area *fwk_font_hz_song16_get(void)
 {
     return sprt_fwk_video_params ? &sprt_fwk_video_params->sgrt_hz16x16 : mrt_nullptr;
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_FONT_H_ */

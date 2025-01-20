@@ -13,6 +13,10 @@
 #ifndef __FWK_INPUT_H_
 #define __FWK_INPUT_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 
@@ -198,5 +202,8 @@ static inline void fwk_input_set_event(struct fwk_input_event *sprt_event, kuint
 	sprt_event->value = value;
 }
 
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_INPUT_H_ */

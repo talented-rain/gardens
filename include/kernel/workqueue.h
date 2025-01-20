@@ -13,6 +13,10 @@
 #ifndef __KERNEL_WORKQUEUE_H_
 #define __KERNEL_WORKQUEUE_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <kernel/kernel.h>
 #include <kernel/thread.h>
@@ -65,7 +69,7 @@ typedef struct workqueue_head
     foreach_list_next_entry_safe(sprt_wq, sprt_temp, &(sprt_wqh)->sgrt_work, sgrt_link)
 
 /*!< The functions */
-TARGET_EXT void schedule_work(struct workqueue *sprt_wq);
+extern void schedule_work(struct workqueue *sprt_wq);
 
 /*!< API functions */
 /*!
@@ -123,5 +127,9 @@ static inline kbool_t is_workqueue_empty(struct workqueue_head *sprt_wqh)
 {
     return mrt_list_head_empty(&sprt_wqh->sgrt_work);
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __KERNEL_WORKQUEUE_H_ */

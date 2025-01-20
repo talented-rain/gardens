@@ -13,6 +13,10 @@
 #ifndef __FWK_NETIF_H_
 #define __FWK_NETIF_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 #include <platform/net/fwk_if.h>
@@ -28,21 +32,21 @@ struct fwk_ip_hdr;
 #define mrt_ntohl(x)                mrt_be32_to_cpu(x)
 
 /*!< The functions */
-TARGET_EXT kuint32_t fwk_inet_addr(const kchar_t *addr);
-TARGET_EXT void fwk_inet_random_addr(kuint8_t *buf, kusize_t lenth);
-TARGET_EXT kuint16_t fwk_ip_network_csum(struct fwk_ip_hdr *sprt_iphdr);
-TARGET_EXT kuint16_t fwk_ip_transport_csum(struct fwk_ip_hdr *sprt_iphdr, kuint8_t *msg);
-TARGET_EXT kuint16_t fwk_ip_slow_csum(struct fwk_ip_hdr *sprt_iphdr, kuint16_t offset);
+extern kuint32_t fwk_inet_addr(const kchar_t *addr);
+extern void fwk_inet_random_addr(kuint8_t *buf, kusize_t lenth);
+extern kuint16_t fwk_ip_network_csum(struct fwk_ip_hdr *sprt_iphdr);
+extern kuint16_t fwk_ip_transport_csum(struct fwk_ip_hdr *sprt_iphdr, kuint8_t *msg);
+extern kuint16_t fwk_ip_slow_csum(struct fwk_ip_hdr *sprt_iphdr, kuint16_t offset);
 
-TARGET_EXT struct fwk_sk_buff_head *fwk_netif_rxq_get(void);
+extern struct fwk_sk_buff_head *fwk_netif_rxq_get(void);
 
-TARGET_EXT kint32_t fwk_netif_open(const kchar_t *name);
-TARGET_EXT kint32_t fwk_netif_close(const kchar_t *name);
-TARGET_EXT kint32_t fwk_netif_ioctl(kuint32_t request, kuaddr_t args);
-TARGET_EXT kint32_t fwk_netif_rx(struct fwk_sk_buff *sprt_skb);
-TARGET_EXT kint32_t fwk_dev_queue_xmit(struct fwk_sk_buff *sprt_skb);
+extern kint32_t fwk_netif_open(const kchar_t *name);
+extern kint32_t fwk_netif_close(const kchar_t *name);
+extern kint32_t fwk_netif_ioctl(kuint32_t request, kuaddr_t args);
+extern kint32_t fwk_netif_rx(struct fwk_sk_buff *sprt_skb);
+extern kint32_t fwk_dev_queue_xmit(struct fwk_sk_buff *sprt_skb);
 
-TARGET_EXT void fwk_netif_init(void (*pfunc_rx)(void *rxq, void *args), void *args);
+extern void fwk_netif_init(void (*pfunc_rx)(void *rxq, void *args), void *args);
 
 /*!< API functions */
 /*!
@@ -77,5 +81,9 @@ static inline void fwk_netif_wake_queue(struct fwk_net_device *sprt_ndev)
 {
 
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_NETIF_H_ */

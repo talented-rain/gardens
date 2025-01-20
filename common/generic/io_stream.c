@@ -81,7 +81,7 @@ void printk(const kchar_t *ptr_fmt, ...)
 //  kuint32_t i;
 
     va_start(ptr_list, ptr_fmt);
-    ptr_buf = (kubyte_t *)lv_vasprintk(ptr_fmt, &size, level, ptr_list);
+    ptr_buf = (kubyte_t *)lv_vasprintk_safe(ptr_fmt, &size, level, ptr_list);
     va_end(ptr_list);
 
     if (!isValid(ptr_buf))

@@ -13,6 +13,10 @@
 #ifndef __IMPLICIT_CALL_H
 #define __IMPLICIT_CALL_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include "boot_text.h"
 
@@ -91,8 +95,8 @@ enum __ERT_DYNC_SECTION_DEF
 #define __fwk_exit									__exit
 
 /*!< sections list*/
-TARGET_EXT const dync_init_t *dync_init_sections[];
-TARGET_EXT const dync_exit_t *dync_exit_sections[];
+extern const dync_init_t *dync_init_sections[];
+extern const dync_exit_t *dync_exit_sections[];
 
 /*!< take every member from start to end */
 #define mrt_foreach_member(ptr, start, end)	\
@@ -154,28 +158,32 @@ TARGET_EXT const dync_exit_t *dync_exit_sections[];
 #define IMPORT_DRIVER_EXIT(x)				        IMPORT_DYNC_EXIT_ENTRY(drv,  x, __DYNC_DRV_EXIT_SEC)
 
 /*!< The functions */
-TARGET_EXT kint32_t dync_initcall_run_list(const kuint32_t section);
-TARGET_EXT void dync_exitcall_run_list(const kuint32_t section);
+extern kint32_t dync_initcall_run_list(const kuint32_t section);
+extern void dync_exitcall_run_list(const kuint32_t section);
 
-TARGET_EXT kint32_t board_early_initcall(void);
-TARGET_EXT kint32_t board_late_initcall(void);
-TARGET_EXT kint32_t system_kernel_initcall(void);
-TARGET_EXT kint32_t filesystem_initcall(void);
-TARGET_EXT kint32_t platform_built_initcall(void);
-TARGET_EXT kint32_t platform_reality_initcall(void);
-TARGET_EXT kint32_t hardware_device_initcall(void);
-TARGET_EXT kint32_t abstract_driver_initcall(void);
+extern kint32_t board_early_initcall(void);
+extern kint32_t board_late_initcall(void);
+extern kint32_t system_kernel_initcall(void);
+extern kint32_t filesystem_initcall(void);
+extern kint32_t platform_built_initcall(void);
+extern kint32_t platform_reality_initcall(void);
+extern kint32_t hardware_device_initcall(void);
+extern kint32_t abstract_driver_initcall(void);
 
-TARGET_EXT void board_early_exitcall(void);
-TARGET_EXT void board_late_exitcall(void);
-TARGET_EXT void system_kernel_exitcall(void);
-TARGET_EXT void filesystem_exitcall(void);
-TARGET_EXT void platform_built_exitcall(void);
-TARGET_EXT void platform_reality_exitcall(void);
-TARGET_EXT void hardware_device_exitcall(void);
-TARGET_EXT void abstract_driver_exitcall(void);
+extern void board_early_exitcall(void);
+extern void board_late_exitcall(void);
+extern void system_kernel_exitcall(void);
+extern void filesystem_exitcall(void);
+extern void platform_built_exitcall(void);
+extern void platform_reality_exitcall(void);
+extern void hardware_device_exitcall(void);
+extern void abstract_driver_exitcall(void);
 
-TARGET_EXT kint32_t run_machine_initcall(void);
-TARGET_EXT kint32_t run_platform_initcall(void);
+extern kint32_t run_machine_initcall(void);
+extern kint32_t run_platform_initcall(void);
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __IMPLICIT_CALL_H */

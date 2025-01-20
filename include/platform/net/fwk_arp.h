@@ -13,6 +13,10 @@
 #ifndef __FWK_ARP_H_
 #define __FWK_ARP_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/net/fwk_if.h>
 
@@ -61,5 +65,9 @@ struct fwk_arp_hdr {
     kuint32_t ip_dst;
 
 } __packed;
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_ARP_H_ */

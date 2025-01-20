@@ -58,7 +58,7 @@ struct fwk_fb_info *fwk_framebuffer_alloc(kusize_t size, struct fwk_device *sprt
     if (size)
     {
         /*!< Save private variables */
-        sprt_fb_info->ptr_par = sprt_fb_info + fb_info_size;
+        sprt_fb_info->ptr_par = (void *)sprt_fb_info + fb_info_size;
         memset(sprt_fb_info->ptr_par, 0, size);
     }
 

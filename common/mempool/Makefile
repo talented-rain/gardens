@@ -10,6 +10,7 @@
 #
 
 obj-y	+=	mem_simple.o
+obj-y	+=	mem_block.o
 obj-y	+=	mem_malloc.o
 
 # end of file

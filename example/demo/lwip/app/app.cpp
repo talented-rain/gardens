@@ -17,6 +17,8 @@
 
 #include "app.h"
 
+using namespace stream;
+
 /*!< The defines */
 #define DEFAULT_IP_ADDRESS          "192.168.253.206"
 #define DEFAULT_IP_MASK             "255.255.255.0"
@@ -31,15 +33,12 @@
  * @retval none
  * @note   none
  */
-void lwip_task_startup(void *args)
+void lwip_task_startup(crt_lwip_data_t &sgrt_data)
 {
-    struct lwip_task_data *sprt_data;
     struct fwk_sockaddr_in sgrt_local;
     struct fwk_sockaddr_in sgrt_ip, sgrt_gw, sgrt_netmask;
     kint32_t sockfd;
     kint32_t retval;
-
-    sprt_data = (struct lwip_task_data *)args;
 
     sgrt_ip.sin_addr.s_addr = fwk_inet_addr(DEFAULT_IP_ADDRESS);
     sgrt_gw.sin_addr.s_addr = fwk_inet_addr(DEFAULT_GW_ADDRESS);
@@ -62,7 +61,7 @@ void lwip_task_startup(void *args)
     if (retval)
         goto fail2;
 
-    sprt_data->fd = sockfd;
+    sgrt_data.fd = sockfd;
     return;
 
 fail2:
@@ -77,16 +76,14 @@ fail1:
  * @retval none
  * @note   none
  */
-void lwip_task(void *args)
+void lwip_task(crt_lwip_data_t &sgrt_data)
 {
-    struct lwip_task_data *sprt_data;
     struct fwk_sockaddr_in sgrt_remote;
     const kchar_t *msg = "HeavenFox OS will be all the best!";
     fwk_socklen_t addrlen;
     kssize_t len;
 
-    sprt_data = (struct lwip_task_data *)args;
-    if (sprt_data->fd < 0)
+    if (sgrt_data.fd < 0)
         return;
 
     sgrt_remote.sin_port = mrt_htons(7);
@@ -94,25 +91,25 @@ void lwip_task(void *args)
     sgrt_remote.sin_addr.s_addr = fwk_inet_addr(DEFAULT_IP_ADDRESS);
     memset(sgrt_remote.zero, 0, sizeof(sgrt_remote.zero));
 
-    len = socket_sendto(sprt_data->fd, msg, strlen(msg) + 1, 0, 
+    len = socket_sendto(sgrt_data.fd, msg, strlen(msg) + 1, 0, 
                     (struct fwk_sockaddr *)&sgrt_remote, sizeof(struct fwk_sockaddr));
     if (len <= 0)
     {
-        print_warn("send msg failed!\n");
+        cout << "send msg failed!" << endl;
         return;
     }
 
     /*!< blocking */
-    len = socket_recvfrom(sprt_data->fd, sprt_data->rx_buffer, 128, 0, 
+    len = socket_recvfrom(sgrt_data.fd, sgrt_data.rx_buffer, 128, 0, 
                     (struct fwk_sockaddr *)&sgrt_remote, &addrlen);
     if (len <= 0)
     {
-        print_warn("recv msg failed!\n");
+        cout << "recv msg failed!" << endl;
         return;
     }
 
-    sprt_data->rx_buffer[len] = '\0';
-//  print_info("recv data is: %s\n", sprt_data->rx_buffer);
+    sgrt_data.rx_buffer[len] = '\0';
+//  cout << "recv data is: " << sgrt_data.rx_buffer << endl;
 }
 
 /*!< end of file */

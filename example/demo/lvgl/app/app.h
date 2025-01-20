@@ -13,10 +13,13 @@
 #ifndef __LVGL_APP_H_
 #define __LVGL_APP_H_
 
+#ifdef __cplusplus
+
 /*!< The globals */
 #include <common/basic_types.h>
 #include <common/error_types.h>
 #include <common/generic.h>
+#include <common/stdload.h>
 #include <common/list_types.h>
 #include <kernel/instance.h>
 #include <lvgl/lvgl.h>
@@ -26,7 +29,9 @@
 /*!< The globals */
 
 /*!< The functions */
-TARGET_EXT void lvgl_task_startup(void *args);
-TARGET_EXT void lvgl_task(void *args);
+extern void lvgl_task_setup(void *args);
+extern void lvgl_task(void *args);
+
+#endif
 
 #endif /* __LVGL_APP_H_ */

@@ -13,6 +13,10 @@
 #ifndef __IMX6UL_PERIPH_H
 #define __IMX6UL_PERIPH_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <common/basic_types.h>
 #include <common/error_types.h>
@@ -1056,5 +1060,8 @@ typedef struct
 #define IMX6UL_QUARDSPI_ADDR_BASE                                   (0x21E0000u)
 #define IMX6UL_QSPI_PROPERTY_ENTRY(x)                               (srt_imx_qspi_t *)IMX6UL_QUARDSPI##x##_ADDR_BASE
 
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __IMX6UL_PINS_H */

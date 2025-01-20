@@ -13,6 +13,10 @@
 #ifndef __FWK_HID_H_
 #define __FWK_HID_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 #include "fwk_ch9.h"
@@ -32,13 +36,13 @@
 
 typedef struct fwk_usb_hid_desc
 {
-    kuint8_t  bLenth;                                           /*!< ¸ÃÃèÊö·û×Ö½ÚÊý³¤¶È£¨ÓÉÏÂ¼¶ÃèÊö·û¶àÉÙ¾ö¶¨£© */
-    kuint8_t  bDescriptorType;                                  /*!< ÃèÊö·ûÀàÐÍ: FWK_USB_DT_HID */
-    kuint16_t bcdHID;                                           /*!< HIDÐ­Òé°æ±¾ */
-    kuint8_t  bCountryCode;                                     /*!< ¹ú¼Ò´úÂë */
-    kuint8_t  bNumDescriptor;                                   /*!< HIDÉè±¸Ö§³ÖµÄÏÂ¼¶ÃèÊö·ûµÄÊýÁ¿(Ò²¾ÍÊÇHIDÉè±¸ÌØÓÐµÄ±¨¸æÃèÊö·ûºÍÎïÀíÃèÊö·ûµÄ×ÛºÏ) */
-    kuint8_t  bSubDescriptorType;                               /*!< ÏÂ¼¶ÃèÊö·ûÀàÐÍ(µÚÒ»¸ö±ØÐëÊÇ±¨¸æÃèÊö·û: FWK_USB_DT_HID_REPORT) */
-    kuint16_t wDescriptorLength;                                /*!< ÏÂ¼¶ÃèÊö·ûµÄ³¤¶È */
+    kuint8_t  bLenth;                                           /*!< è¯¥æè¿°ç¬¦å­—èŠ‚æ•°é•¿åº¦ï¼ˆç”±ä¸‹çº§æè¿°ç¬¦å¤šå°‘å†³å®šï¼‰ */
+    kuint8_t  bDescriptorType;                                  /*!< æè¿°ç¬¦ç±»åž‹: FWK_USB_DT_HID */
+    kuint16_t bcdHID;                                           /*!< HIDåè®®ç‰ˆæœ¬ */
+    kuint8_t  bCountryCode;                                     /*!< å›½å®¶ä»£ç  */
+    kuint8_t  bNumDescriptor;                                   /*!< HIDè®¾å¤‡æ”¯æŒçš„ä¸‹çº§æè¿°ç¬¦çš„æ•°é‡(ä¹Ÿå°±æ˜¯HIDè®¾å¤‡ç‰¹æœ‰çš„æŠ¥å‘Šæè¿°ç¬¦å’Œç‰©ç†æè¿°ç¬¦çš„ç»¼åˆ) */
+    kuint8_t  bSubDescriptorType;                               /*!< ä¸‹çº§æè¿°ç¬¦ç±»åž‹(ç¬¬ä¸€ä¸ªå¿…é¡»æ˜¯æŠ¥å‘Šæè¿°ç¬¦: FWK_USB_DT_HID_REPORT) */
+    kuint16_t wDescriptorLength;                                /*!< ä¸‹çº§æè¿°ç¬¦çš„é•¿åº¦ */
 } srt_fwk_usb_hid_desc_t;
 
 #define FWK_USB_DT_HID_SIZE                                     (9)
@@ -55,6 +59,8 @@ enum __ERT_URB_HID_CLASS_REQ
     NR_URB_HidClassReqSetProtocol = 0x0b,
 };
 
-
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_HID_H_ */

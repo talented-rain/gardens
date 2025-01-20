@@ -13,14 +13,16 @@
 #ifndef __BASIC_TYPES_H
 #define __BASIC_TYPES_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <unistd.h>
 
 /*!< The defines */
-#define TARGET_EXT              extern
-
 #if !defined(false)
 #define false                   (0)
 #elif (0 != false)
@@ -97,6 +99,7 @@ typedef kint32_t                s32;
 typedef kuint32_t               u32;
 
 #define ARCH_PER_SIZE           sizeof(kutype_t)
+#define __RESERVED(x)           (void)(x)
 
 #define __used		            __attribute__((used))
 #define __weak                  __attribute__((weak))
@@ -104,6 +107,8 @@ typedef kuint32_t               u32;
 #define __align(x)              __attribute__((__aligned__(x)))
 #define __section(x)            __attribute__((section(x)))
 #define __force                 __attribute__((force))
+#define __unused                __attribute__((unused))
+#define __noreturn              __attribute__((noreturn))
 
 #if defined(__GNUC__)
     #define __force_inline      __attribute__((always_inline))
@@ -124,5 +129,9 @@ typedef kuint32_t               u32;
 
 #define __compiler_offsetof(a, b)   \
                                 __builtin_offsetof(a, b)
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif  /* __BASIC_TYPES_H */

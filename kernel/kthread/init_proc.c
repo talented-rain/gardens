@@ -26,6 +26,17 @@ static kuint32_t g_init_proc_stack[INIT_THREAD_STACK_SIZE];
 
 /*!< API functions */
 /*!
+ * @brief	application task main
+ * @param  	none
+ * @retval 	none
+ * @note   	none
+ */
+__weak kint32_t main(kint32_t argc, kchar_t **argv)
+{
+    /*!< dummy */
+}
+
+/*!
  * @brief	init thread entry
  * @param  	args: NULL normally
  * @retval 	none
@@ -34,9 +45,11 @@ static kuint32_t g_init_proc_stack[INIT_THREAD_STACK_SIZE];
 static void *init_proc_entry(void *args)
 {
     thread_set_self_name(__FUNCTION__);
-    init_thread_table();
 
     print_info("%s is enter, which tid is: %d\n", __FUNCTION__, mrt_current->tid);
+
+    /*!< create application: at the end of "init_proc_entry" */
+    main(0, mrt_nullptr);
 
     for (;;)
     {  

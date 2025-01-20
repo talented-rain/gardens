@@ -13,6 +13,10 @@
 #ifndef __IMX6_COMMON_H
 #define __IMX6_COMMON_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <common/generic.h>
 #include <common/io_stream.h>
@@ -22,9 +26,13 @@
 #include <imx6/imx6ull_irqvector.h>
 
 /*!< The functions */
-TARGET_EXT void imx6ull_led_init(void);
-TARGET_EXT void imx6ull_console_init(void);
-TARGET_EXT void imx6ull_sdmmc_init(void);
-TARGET_EXT void imx6ull_systick_init(void);
+extern void imx6ull_led_init(void);
+extern void imx6ull_console_init(void);
+extern void imx6ull_sdmmc_init(void);
+extern void imx6ull_systick_init(void);
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif

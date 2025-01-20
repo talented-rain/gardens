@@ -13,6 +13,10 @@
 #ifndef __FWK_I2C_CORE_H_
 #define __FWK_I2C_CORE_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 #include <platform/fwk_platform.h>
@@ -40,7 +44,7 @@ typedef struct fwk_i2c_adapter
 } srt_fwk_i2c_adapter_t;
 
 /*!< The functions */
-TARGET_EXT kint32_t fwk_i2c_transfer(struct fwk_i2c_client *sprt_client, struct fwk_i2c_msg *sprt_msgs, kint32_t num);
+extern kint32_t fwk_i2c_transfer(struct fwk_i2c_client *sprt_client, struct fwk_i2c_msg *sprt_msgs, kint32_t num);
 
 /*!< API functions */
 /*!
@@ -64,5 +68,9 @@ static inline void *fwk_i2c_adapter_get_drvdata(struct fwk_i2c_adapter *sprt_ada
 {
 	return sprt_adap->sgrt_dev.privData;
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_I2C_CORE_H_ */

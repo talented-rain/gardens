@@ -13,6 +13,11 @@
 #ifndef __GCC_CONFIG_H
 #define __GCC_CONFIG_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
+/*!< The includes */
 #include "asm_config.h"
 #include <common/basic_types.h>
 
@@ -460,5 +465,9 @@ static inline void __pop_psr(void)
 
     __set_cpsr(result);
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __GCC_CONFIG_H */

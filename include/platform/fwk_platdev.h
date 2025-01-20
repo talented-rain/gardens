@@ -13,6 +13,10 @@
 #ifndef __FWK_PLATDEV_H_
 #define __FWK_PLATDEV_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 #include <platform/fwk_platform.h>
@@ -64,12 +68,12 @@ struct fwk_platdev
 #define RESOURCE_SIZE(sprt_res)						(sprt_res ? (sprt_res->end - sprt_res->start + 1) : 0)
 
 /*!< The functions */
-TARGET_EXT kint32_t fwk_device_add(struct fwk_device *sprt_dev);
-TARGET_EXT kint32_t fwk_device_del(struct fwk_device *sprt_dev);
-TARGET_EXT struct fwk_platdev *fwk_platdevice_alloc(const kchar_t *name, kint32_t id);
-TARGET_EXT kint32_t fwk_platdevice_add(struct fwk_platdev *sprt_platdev);
-TARGET_EXT kint32_t fwk_register_platdevice(struct fwk_platdev *sprt_platdev);
-TARGET_EXT kint32_t fwk_unregister_platdevice(struct fwk_platdev *sprt_platdev);
+extern kint32_t fwk_device_add(struct fwk_device *sprt_dev);
+extern kint32_t fwk_device_del(struct fwk_device *sprt_dev);
+extern struct fwk_platdev *fwk_platdevice_alloc(const kchar_t *name, kint32_t id);
+extern kint32_t fwk_platdevice_add(struct fwk_platdev *sprt_platdev);
+extern kint32_t fwk_register_platdevice(struct fwk_platdev *sprt_platdev);
+extern kint32_t fwk_unregister_platdevice(struct fwk_platdev *sprt_platdev);
 
 /*!< API functions */
 /*!
@@ -93,5 +97,9 @@ static inline kuaddr_t fwk_address_map(struct fwk_resources *sprt_res)
 {
 	return sprt_res ? sprt_res->start : 0;
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_PLATDEV_H_ */

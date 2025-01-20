@@ -13,6 +13,10 @@
 #ifndef __FWK_PLATDRV_H_
 #define __FWK_PLATDRV_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 #include <platform/fwk_platform.h>
@@ -38,10 +42,10 @@ typedef struct fwk_platdrv
 } srt_fwk_platdrv_t;
 
 /*!< The functions */
-TARGET_EXT kint32_t fwk_driver_register(struct fwk_driver *sprt_driver);
-TARGET_EXT kint32_t fwk_driver_unregister(struct fwk_driver *sprt_driver);
-TARGET_EXT kint32_t fwk_register_platdriver(struct fwk_platdrv *sprt_platdrv);
-TARGET_EXT kint32_t fwk_unregister_platdriver(struct fwk_platdrv *sprt_platdrv);
+extern kint32_t fwk_driver_register(struct fwk_driver *sprt_driver);
+extern kint32_t fwk_driver_unregister(struct fwk_driver *sprt_driver);
+extern kint32_t fwk_register_platdriver(struct fwk_platdrv *sprt_platdrv);
+extern kint32_t fwk_unregister_platdriver(struct fwk_platdrv *sprt_platdrv);
 
 /*!< API function */
 /*!
@@ -65,5 +69,9 @@ static inline void *fwk_platform_get_drvdata(struct fwk_platdev *sprt_dev)
 {
 	return sprt_dev->sgrt_dev.privData;
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_PLATDRV_H_ */

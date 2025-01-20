@@ -13,6 +13,10 @@
 #ifndef __TIME_H
 #define __TIME_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <common/basic_types.h>
 #include <common/error_types.h>
@@ -24,11 +28,11 @@
 typedef kutype_t 	kutime_t;
 typedef kstype_t 	kstime_t;
 
-TARGET_EXT volatile kutime_t jiffies;
-TARGET_EXT volatile kutime_t jiffies_out;
+extern volatile kutime_t jiffies;
+extern volatile kutime_t jiffies_out;
 
-TARGET_EXT kutime_t *ptr_systick_counter;
-TARGET_EXT kutime_t g_delay_timer_counter;
+extern kutime_t *ptr_systick_counter;
+extern kutime_t g_delay_timer_counter;
 
 /*!< The defines */
 #define TICK_HZ                                             CONFIG_HZ
@@ -36,6 +40,8 @@ TARGET_EXT kutime_t g_delay_timer_counter;
 
 #define JIFFIES_INITVAL                                     (86400000 - 1)
 #define JIFFIES_MAX                                         ((kutime_t)(~0))
+#define SYS_RUNTICK    \
+            ((jiffies >= JIFFIES_INITVAL) ? (jiffies - JIFFIES_INITVAL) : (JIFFIES_MAX - (jiffies - JIFFIES_INITVAL)))
 
 #define TIMER_DELAY_COUNTER                                 (g_delay_timer_counter)
 #define TIMER_DELAY_COUNTER_INIT                            (0U)
@@ -101,24 +107,38 @@ struct timer_list
 #define mrt_time_before(a, b)                               mrt_time_after(b, a)            /*!< a < b ? true : false */
 #define mrt_time_before_eq(a, b)                            mrt_time_after_eq(b, a)         /*!< a <= b ? true : false */
 
+struct time_clock 
+{
+    kuint32_t year;
+    kuint8_t month;
+    kuint8_t day;
+    kuint8_t weak;
+    kuint8_t hour;
+    kuint8_t minute;
+    kuint8_t second;
+    kuint16_t milsecond;
+};
+extern struct time_clock sgrt_systime_clock;
+
 /*!< The functions */
-TARGET_EXT void simple_delay_timer_initial(void);
-TARGET_EXT void simple_delay_timer_runs(void);
+extern void simple_delay_timer_initial(void);
+extern void simple_delay_timer_runs(void);
 
-TARGET_EXT void delay_cnt(kuint32_t n);
-TARGET_EXT void delay_s(kuint32_t n_s);
-TARGET_EXT void delay_ms(kuint32_t n_ms);
-TARGET_EXT void delay_us(kuint32_t n_us);
-TARGET_EXT void wait_secs(kuint32_t seconds);
-TARGET_EXT void wait_msecs(kuint32_t milseconds);
-TARGET_EXT void wait_usecs(kuint32_t useconds);
+extern void delay_cnt(kuint32_t n);
+extern void delay_s(kuint32_t n_s);
+extern void delay_ms(kuint32_t n_ms);
+extern void delay_us(kuint32_t n_us);
+extern void wait_secs(kuint32_t seconds);
+extern void wait_msecs(kuint32_t milseconds);
+extern void wait_usecs(kuint32_t useconds);
+extern void msecs_to_timeclock(struct time_clock *sprt_tclk, kutype_t milseconds);
 
-TARGET_EXT void setup_timer(struct timer_list *sprt_timer, void (*entry)(kuint32_t), kuint32_t data);
-TARGET_EXT void add_timer(struct timer_list *sprt_timer);
-TARGET_EXT void del_timer(struct timer_list *sprt_timer);
-TARGET_EXT kbool_t find_timer(struct timer_list *sprt_timer);
-TARGET_EXT void mod_timer(struct timer_list *sprt_timer, kutime_t expires);
-TARGET_EXT void do_timer_event(void);
+extern void setup_timer(struct timer_list *sprt_timer, void (*entry)(kuint32_t), kuint32_t data);
+extern void add_timer(struct timer_list *sprt_timer);
+extern void del_timer(struct timer_list *sprt_timer);
+extern kbool_t find_timer(struct timer_list *sprt_timer);
+extern void mod_timer(struct timer_list *sprt_timer, kutime_t expires);
+extern void do_timer_event(void);
 
 /*!< API functions */
 /*!
@@ -245,5 +265,9 @@ static inline struct time_spec *msecs_to_time_spec(struct time_spec *sprt_tm, co
     
     return sprt_tm;
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __TIME_H */

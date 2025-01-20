@@ -13,6 +13,10 @@
 #ifndef __FWK_DISP_H_
 #define __FWK_DISP_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 #include <kernel/mutex.h>
@@ -53,8 +57,8 @@ typedef struct fwk_disp_ctrl
 } srt_fwk_disp_ctrl_t;
 
 #define IS_DISP_FRAME_FULL(sprt_dctrl)  \
-        ((sprt_dctrl->x_next == sprt_dctrl->x_start) && \
-            (sprt_dctrl->y_next >= sprt_dctrl->y_end))
+        (((sprt_dctrl)->x_next == (sprt_dctrl)->x_start) && \
+            ((sprt_dctrl)->y_next >= (sprt_dctrl)->y_end))
 
 #define mrt_fwk_disp_write_fb16(buffer, offset, data) \
     do {    \
@@ -84,19 +88,19 @@ typedef struct fwk_disp_ctrl
             (((src) == (dest)) ? (data) : fwk_display_convert_rgbbit(src, dest, data))
 
 /*!< The functions */
-TARGET_EXT kuint32_t fwk_display_convert_rgbbit(kuint8_t srctype, kuint8_t destype, kuint32_t data);
-TARGET_EXT void fwk_display_set_cursor(struct fwk_disp_ctrl *sprt_dctrl, 
+extern kuint32_t fwk_display_convert_rgbbit(kuint8_t srctype, kuint8_t destype, kuint32_t data);
+extern void fwk_display_set_cursor(struct fwk_disp_ctrl *sprt_dctrl, 
                             kuint32_t x_start, kuint32_t y_start, kuint32_t x_end, kuint32_t y_end);
-TARGET_EXT void fwk_display_write_straight_line(struct fwk_disp_info *sprt_disp, kuint32_t x_start, kuint32_t y_start, 
+extern void fwk_display_write_straight_line(struct fwk_disp_info *sprt_disp, kuint32_t x_start, kuint32_t y_start, 
                             kuint32_t x_end, kuint32_t y_end, kuint32_t data);
-TARGET_EXT void fwk_display_write_rectangle(struct fwk_disp_info *sprt_disp, kuint32_t x_start, kuint32_t y_start, 
+extern void fwk_display_write_rectangle(struct fwk_disp_info *sprt_disp, kuint32_t x_start, kuint32_t y_start, 
                             kuint32_t x_end, kuint32_t y_end, kuint32_t data);
-TARGET_EXT void fwk_display_fill_rectangle(struct fwk_disp_info *sprt_disp, kuint32_t x_start, kuint32_t y_start, 
+extern void fwk_display_fill_rectangle(struct fwk_disp_info *sprt_disp, kuint32_t x_start, kuint32_t y_start, 
                             kuint32_t x_end, kuint32_t y_end, kuint32_t data);
-TARGET_EXT void fwk_display_clear(struct fwk_disp_info *sprt_disp, kuint32_t data);
-TARGET_EXT kusize_t fwk_display_word(struct fwk_disp_ctrl *sprt_dctrl, const kchar_t *fmt, ...);
+extern void fwk_display_clear(struct fwk_disp_info *sprt_disp, kuint32_t data);
+extern kusize_t fwk_display_word(struct fwk_disp_ctrl *sprt_dctrl, const kchar_t *fmt, ...);
 
-TARGET_EXT void fwk_display_ctrl_init(struct fwk_disp_info *sprt_disp, void *fbuffer, 
+extern void fwk_display_ctrl_init(struct fwk_disp_info *sprt_disp, void *fbuffer, 
                           void *fbuffer2, kusize_t size, kuint32_t width, kuint32_t height, kuint32_t bpp);
 
 /*!< API functions */
@@ -183,7 +187,38 @@ void fwk_display_frame_exchange(struct fwk_disp_info *sprt_disp)
         return;
 
     sprt_disp->buffer_bak = sprt_disp->buffer;
+    mrt_barrier();
     sprt_disp->buffer = buffer;
 }
+
+/*!
+ * @brief  copy backup to active screen
+ * @param  sprt_disp
+ * @retval none
+ * @note   none
+ */
+static inline
+void fwk_display_frame_flush(struct fwk_disp_info *sprt_disp, kusize_t size)
+{
+    if (sprt_disp->buffer_bak)
+        memcpy(sprt_disp->buffer, sprt_disp->buffer_bak, size);
+}
+
+/*!
+ * @brief  copy backup to deactive screen
+ * @param  sprt_disp
+ * @retval none
+ * @note   none
+ */
+static inline
+void fwk_display_frame_sync(struct fwk_disp_info *sprt_disp, kusize_t size)
+{
+    if (sprt_disp->buffer_bak)
+        memcpy(sprt_disp->buffer_bak, sprt_disp->buffer, size);
+}
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_DISP_H_ */

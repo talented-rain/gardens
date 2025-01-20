@@ -13,6 +13,10 @@
 #ifndef __SEMAPHORE_H
 #define __SEMAPHORE_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <common/atomic_types.h>
 #include <kernel/kernel.h>
@@ -30,10 +34,10 @@ typedef struct semaphore
 }
 
 /*!< The functions */
-TARGET_EXT void sema_init(struct semaphore *sprt_sem, kuint32_t val);
-TARGET_EXT void sema_down(struct semaphore *sprt_sem);
-TARGET_EXT kint32_t sema_down_try_lock(struct semaphore *sprt_sem);
-TARGET_EXT void sema_up(struct semaphore *sprt_sem);
+extern void sema_init(struct semaphore *sprt_sem, kuint32_t val);
+extern void sema_down(struct semaphore *sprt_sem);
+extern kint32_t sema_down_try_lock(struct semaphore *sprt_sem);
+extern void sema_up(struct semaphore *sprt_sem);
 
 /*!< API functions */
 /*!
@@ -46,5 +50,9 @@ static inline kbool_t sema_is_locked(struct semaphore *sprt_sem)
 {
 	return (0 == ATOMIC_READ(&sprt_sem->sgrt_atc));
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __SEMAPHORE_H */

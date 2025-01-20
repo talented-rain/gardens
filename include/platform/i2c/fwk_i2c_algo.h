@@ -13,6 +13,10 @@
 #ifndef __FWK_I2C_ALGO_H_
 #define __FWK_I2C_ALGO_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 
@@ -45,5 +49,8 @@ struct fwk_i2c_algo
 	kuint32_t (*functionality) (struct fwk_i2c_adapter *);
 };
 
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_I2C_ALGO_H_ */

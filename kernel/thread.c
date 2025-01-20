@@ -366,7 +366,7 @@ kint32_t thread_create_mempool(struct thread_attr *sprt_attr, void *base, kusize
     if (((kuaddr_t)base) & 0x07)
         return -ER_NOTALIGN;
     
-    return memory_simple_block_create(&sprt_attr->sgrt_pool, (kuaddr_t)base, size);
+    return memory_block_create(&sprt_attr->sgrt_pool, (kuaddr_t)base, size);
 }
 
 /*!
@@ -378,7 +378,7 @@ kint32_t thread_create_mempool(struct thread_attr *sprt_attr, void *base, kusize
 void thread_release_mempool(struct thread_attr *sprt_attr)
 {
     if (sprt_attr->sgrt_pool.sprt_mem)
-        memory_simple_block_destroy(&sprt_attr->sgrt_pool);
+        memory_block_destroy(&sprt_attr->sgrt_pool);
 }
 
 /*!
@@ -400,12 +400,15 @@ void *tmalloc(size_t __size, nrt_gfp_t flags)
         goto END;
 
     sprt_info = &sprt_thread->sprt_attr->sgrt_pool;
-    p = alloc_spare_simple_memory(sprt_info->sprt_mem, __size);
-    if (!isValid(p))
-        return mrt_nullptr;
+    if (sprt_info->alloc)
+    {
+        p = sprt_info->alloc(sprt_info, __size);
+        if (!isValid(p))
+            return mrt_nullptr;
 
-    if (flags & NR_KMEM_ZERO)
-        kmemzero(p, __size);
+        if (flags & NR_KMEM_ZERO)
+            kmemzero(p, __size);
+    }
 
 END:
     return p;
@@ -449,7 +452,8 @@ void tfree(void *__ptr)
         (__ptr >= (void *)(sprt_info->base + sprt_info->lenth)))
         return;
 
-    free_employ_simple_memory(sprt_info->sprt_mem, __ptr);
+    if (sprt_info->free)
+        sprt_info->free(sprt_info, __ptr);
 }
 
 /*!< end of file */

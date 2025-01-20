@@ -13,6 +13,10 @@
 #ifndef __KERNEL_CONTEXT_H_
 #define __KERNEL_CONTEXT_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The globals */
 #include <kernel/kernel.h>
 
@@ -51,7 +55,7 @@ struct scheduler_context
 };
 
 /*!< The functions */
-TARGET_EXT void __switch_to(kuaddr_t info);
+extern void __switch_to(kuaddr_t info);
 
 /*!< API functions */
 /*!
@@ -64,5 +68,9 @@ static inline void context_switch(struct scheduler_context *sprt_info)
 {
 	__switch_to((kuaddr_t)sprt_info);
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __KERNEL_CONTEXT_H_ */

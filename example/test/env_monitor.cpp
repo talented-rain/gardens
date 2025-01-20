@@ -24,15 +24,16 @@
 #include <kernel/mutex.h>
 #include <kernel/mailbox.h>
 
-#include "test_app.h"
+#include "../task.h"
+#include "test_task.h"
+
+using namespace tsk;
+using namespace stream;
 
 /*!< The defines */
-#define ENVAPP_THREAD_STACK_SIZE                          THREAD_STACK_HALF(1)    /*!< 1/2 page (2kbytes) */
+#define ENV_TASK_STACK_SIZE                         THREAD_STACK_HALF(1)    /*!< 1/2 page (2kbytes) */
 
 /*!< The globals */
-static tid_t g_env_monitor_tid;
-static struct thread_attr sgrt_env_monitor_attr;
-static kuint32_t g_env_monitor_stack[ENVAPP_THREAD_STACK_SIZE];
 
 /*!< API functions */
 /*!
@@ -86,7 +87,12 @@ static void *env_monitor_entry(void *args)
             goto END;
         }
 
-        print_info("%s: ir: %d, als: %d, ps: %d\n", __FUNCTION__, info[0], info[1], info[2]);
+        cout << __FUNCTION__ 
+             << ": ir: "    << info[0] 
+             << ", als: "   << info[1] 
+             << ", ps: "    << info[2] 
+             << endl;
+        
         virt_close(eep_fd);
         
 END:
@@ -105,26 +111,19 @@ END:
  */
 kint32_t env_monitor_init(void)
 {
-    struct thread_attr *sprt_attr = &sgrt_env_monitor_attr;
-    kint32_t retval;
+    static kuint8_t g_env_monitor_stack[ENV_TASK_STACK_SIZE];
 
-	sprt_attr->detachstate = THREAD_CREATE_JOINABLE;
-	sprt_attr->inheritsched	= THREAD_INHERIT_SCHED;
-	sprt_attr->schedpolicy = THREAD_SCHED_FIFO;
+    crt_task_t *cprt_task = new crt_task_t("env_monitor task", 
+                                            env_monitor_entry, 
+                                            g_env_monitor_stack, 
+                                            sizeof(g_env_monitor_stack));
+    if (!cprt_task)
+        return -ER_FAILD;
 
-    /*!< thread stack */
-	thread_set_stack(sprt_attr, mrt_nullptr, g_env_monitor_stack, sizeof(g_env_monitor_stack));
-    /*!< lowest priority */
-	thread_set_priority(sprt_attr, THREAD_PROTY_DEFAULT);
-    /*!< default time slice */
-    thread_set_time_slice(sprt_attr, THREAD_TIME_DEFUALT);
+    struct mailbox &sgrt_mb = cprt_task->get_mailbox();
+    mailbox_init(&sgrt_mb, cprt_task->get_self(), "env_monitor-task-mailbox");
 
-    /*!< register thread */
-    retval = thread_create(&g_env_monitor_tid, sprt_attr, env_monitor_entry, mrt_nullptr);
-    if (!retval)
-        thread_set_name(g_env_monitor_tid, "env_monitor_entry");
-
-    return retval;
+    return ER_NORMAL;
 }
 
 /*!< end of file */

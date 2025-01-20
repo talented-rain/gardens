@@ -13,6 +13,10 @@
 #ifndef __FWK_FCNTL_H_
 #define __FWK_FCNTL_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 #include <platform/fwk_fs.h>
@@ -147,16 +151,16 @@ struct fwk_file_table
 
 /*!< The functions */
 /*!< -------------------------------------------------------------- */
-TARGET_EXT kint32_t fwk_file_system_init(void);
+extern kint32_t fwk_file_system_init(void);
 
 /*!< -------------------------------------------------------------- */
-TARGET_EXT kint32_t virt_open(const kchar_t *dev, kuint32_t mode);
-TARGET_EXT void virt_close(kint32_t fd);
-TARGET_EXT kssize_t virt_write(kint32_t fd, const void *buf, kusize_t size);
-TARGET_EXT kssize_t virt_read(kint32_t fd, void *buf, kusize_t size);
-TARGET_EXT kssize_t virt_ioctl(kint32_t fd, kuint32_t request, ...);
-TARGET_EXT void *virt_mmap(void *addr, kusize_t length, kint32_t prot, kint32_t flags, kint32_t fd, kuint32_t offset);
-TARGET_EXT kint32_t virt_munmap(void *addr, kusize_t length);
+extern kint32_t virt_open(const kchar_t *dev, kuint32_t mode);
+extern void virt_close(kint32_t fd);
+extern kssize_t virt_write(kint32_t fd, const void *buf, kusize_t size);
+extern kssize_t virt_read(kint32_t fd, void *buf, kusize_t size);
+extern kssize_t virt_ioctl(kint32_t fd, kuint32_t request, ...);
+extern void *virt_mmap(void *addr, kusize_t length, kint32_t prot, kint32_t flags, kint32_t fd, kuint32_t offset);
+extern kint32_t virt_munmap(void *addr, kusize_t length);
 
 /*!< API function */
 /*!
@@ -191,5 +195,9 @@ static inline void fwk_fdtable_put(struct fwk_file_table *sprt_table)
 {
 	sprt_table->ref_fdarr = (sprt_table->ref_fdarr > DEVICE_MAJOR_BASE) ? (sprt_table->ref_fdarr - 1) : DEVICE_MAJOR_BASE;
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_FCNTL_H_ */

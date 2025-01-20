@@ -94,22 +94,22 @@ typedef struct {
 
 extern xemacpsif_s xemacpsif;
 
-TARGET_EXT void XEmacPsIf_SentBds(xemacpsif_s *xemacpsif, XEmacPs_BdRing *txring);
-TARGET_EXT kint32_t XEmacPsIf_SgSend(xemacpsif_s *xemacpsif, struct pbuf *p);
-TARGET_EXT void XEmacPsIf_ResetRx_WithNoRxData(xemacpsif_s *xemacpsif);
-TARGET_EXT void XEmacPsIf_SetupRxBds(xemacpsif_s *xemacpsif, XEmacPs_BdRing *rxring);
-TARGET_EXT void XEmacPsIf_TxRxBuffer_Free(xemacpsif_s *xemacpsif);
-TARGET_EXT void XEmacPsIf_TxBuffer_Free(xemacpsif_s *xemacpsif);
-TARGET_EXT void XEmacPsIf_Init_OnError(xemacpsif_s *xemacps);
-TARGET_EXT void XEmacPsIf_HandleError(void *args);
-TARGET_EXT void XEmacPsIf_HandleTxErrors(void *args);
-TARGET_EXT void XEmacPsIf_SendHandler(void *arg);
-TARGET_EXT void XEmacPsIf_RecvHandler(void *arg);
-TARGET_EXT void XEmacPsIf_ErrorHandler(void *arg, u8 Direction, u32 ErrorWord);
-TARGET_EXT void XEmacPsIf_SetupIsr(void *args);
-TARGET_EXT void XEmacPs_IntrHandler(void *XEmacPsPtr);
+extern void XEmacPsIf_SentBds(xemacpsif_s *xemacpsif, XEmacPs_BdRing *txring);
+extern kint32_t XEmacPsIf_SgSend(xemacpsif_s *xemacpsif, struct pbuf *p);
+extern void XEmacPsIf_ResetRx_WithNoRxData(xemacpsif_s *xemacpsif);
+extern void XEmacPsIf_SetupRxBds(xemacpsif_s *xemacpsif, XEmacPs_BdRing *rxring);
+extern void XEmacPsIf_TxRxBuffer_Free(xemacpsif_s *xemacpsif);
+extern void XEmacPsIf_TxBuffer_Free(xemacpsif_s *xemacpsif);
+extern void XEmacPsIf_Init_OnError(xemacpsif_s *xemacps);
+extern void XEmacPsIf_HandleError(void *args);
+extern void XEmacPsIf_HandleTxErrors(void *args);
+extern void XEmacPsIf_SendHandler(void *arg);
+extern void XEmacPsIf_RecvHandler(void *arg);
+extern void XEmacPsIf_ErrorHandler(void *arg, u8 Direction, u32 ErrorWord);
+extern void XEmacPsIf_SetupIsr(void *args);
+extern void XEmacPs_IntrHandler(void *XEmacPsPtr);
 
-TARGET_EXT void XEmacPsIf_Start(xemacpsif_s *xemacps);
+extern void XEmacPsIf_Start(xemacpsif_s *xemacps);
 
 #ifdef __cplusplus
 }

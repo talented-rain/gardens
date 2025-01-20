@@ -13,6 +13,10 @@
 #ifndef __ATOMIC_TYPES_H
 #define __ATOMIC_TYPES_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include "basic_types.h"
 
@@ -239,5 +243,9 @@ static inline kbool_t atomic_is_bitset(kint32_t nr, void *ptr_addr)
 
 	return !!result;
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __ATOMIC_TYPES_H */

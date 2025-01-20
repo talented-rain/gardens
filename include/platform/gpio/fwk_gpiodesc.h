@@ -13,6 +13,10 @@
 #ifndef __FWK_GPIODESC_H_
 #define __FWK_GPIODESC_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 
@@ -90,25 +94,25 @@ typedef struct fwk_gpio_node_prop
 } srt_fwk_gpio_node_prop_t;
 
 /*!< The functions */
-TARGET_EXT kuint32_t fwk_gpiodesc_to_hwgpio(struct fwk_gpio_chip *sprt_chip, struct fwk_gpio_desc *sprt_desc);
-TARGET_EXT struct fwk_gpio_desc *fwk_gpiochip_get_desc(struct fwk_gpio_chip *sprt_chip, kuint32_t offset);
+extern kuint32_t fwk_gpiodesc_to_hwgpio(struct fwk_gpio_chip *sprt_chip, struct fwk_gpio_desc *sprt_desc);
+extern struct fwk_gpio_desc *fwk_gpiochip_get_desc(struct fwk_gpio_chip *sprt_chip, kuint32_t offset);
 
-TARGET_EXT struct fwk_gpio_desc *fwk_of_get_named_gpiodesc_flags(struct fwk_device_node *sprt_node, 
+extern struct fwk_gpio_desc *fwk_of_get_named_gpiodesc_flags(struct fwk_device_node *sprt_node, 
                                             const kchar_t *list_name, kint32_t index, kuint32_t *flags);
 
-TARGET_EXT kint32_t fwk_gpio_request(struct fwk_gpio_desc *sprt_desc, const kchar_t *label);
-TARGET_EXT void fwk_gpio_free(struct fwk_gpio_desc *sprt_desc);
-TARGET_EXT kbool_t fwk_gpio_is_requested(struct fwk_gpio_desc *sprt_desc);
-TARGET_EXT struct fwk_gpio_desc *fwk_gpio_desc_get(struct fwk_device *sprt_dev, const kchar_t *con_id, kuint32_t flags);
-TARGET_EXT void fwk_gpio_desc_put(struct fwk_gpio_desc *sprt_desc);
-TARGET_EXT kint32_t fwk_gpio_desc_to_irq(struct fwk_gpio_desc *sprt_desc);
-TARGET_EXT void fwk_gpio_set_value(struct fwk_gpio_desc *sprt_desc, kuint32_t value);
-TARGET_EXT kint32_t fwk_gpio_get_value(struct fwk_gpio_desc *sprt_desc);
-TARGET_EXT void fwk_gpio_set_direction(struct fwk_gpio_desc *sprt_desc, kuint32_t dir, kint32_t value);
-TARGET_EXT void fwk_gpio_set_direction_input(struct fwk_gpio_desc *sprt_desc);
-TARGET_EXT void fwk_gpio_set_direction_output(struct fwk_gpio_desc *sprt_desc, kint32_t value);
-TARGET_EXT kint32_t fwk_gpio_get_direction(struct fwk_gpio_desc *sprt_desc);
-TARGET_EXT kbool_t fwk_gpio_dir_is_input(struct fwk_gpio_desc *sprt_desc);
+extern kint32_t fwk_gpio_request(struct fwk_gpio_desc *sprt_desc, const kchar_t *label);
+extern void fwk_gpio_free(struct fwk_gpio_desc *sprt_desc);
+extern kbool_t fwk_gpio_is_requested(struct fwk_gpio_desc *sprt_desc);
+extern struct fwk_gpio_desc *fwk_gpio_desc_get(struct fwk_device *sprt_dev, const kchar_t *con_id, kuint32_t flags);
+extern void fwk_gpio_desc_put(struct fwk_gpio_desc *sprt_desc);
+extern kint32_t fwk_gpio_desc_to_irq(struct fwk_gpio_desc *sprt_desc);
+extern void fwk_gpio_set_value(struct fwk_gpio_desc *sprt_desc, kuint32_t value);
+extern kint32_t fwk_gpio_get_value(struct fwk_gpio_desc *sprt_desc);
+extern void fwk_gpio_set_direction(struct fwk_gpio_desc *sprt_desc, kuint32_t dir, kint32_t value);
+extern void fwk_gpio_set_direction_input(struct fwk_gpio_desc *sprt_desc);
+extern void fwk_gpio_set_direction_output(struct fwk_gpio_desc *sprt_desc, kint32_t value);
+extern kint32_t fwk_gpio_get_direction(struct fwk_gpio_desc *sprt_desc);
+extern kbool_t fwk_gpio_dir_is_input(struct fwk_gpio_desc *sprt_desc);
 
 /*!< API functions */
 /*!
@@ -143,5 +147,9 @@ static inline void fwk_gpio_desc_clr_flags(struct fwk_gpio_desc *sprt_desc, nrt_
 {
     sprt_desc->flags &= ~mrt_bit(flag);
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_GPIODESC_H_ */

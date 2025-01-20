@@ -1,7 +1,7 @@
 /*
  * User Thread Instance (light task) Interface
  *
- * File Name:   console_app.c
+ * File Name:   console_task.c
  * Author:      Yang Yujun
  * E-mail:      <yujiantianhu@163.com>
  * Created on:  2024.04.01
@@ -23,27 +23,27 @@
 #include <kernel/mutex.h>
 #include <kernel/mailbox.h>
 
-#include "test_app.h"
+#include "../task.h"
+#include "test_task.h"
+
+using namespace tsk;
+using namespace stream;
 
 /*!< The defines */
-#define CONSOLE_APP_THREAD_STACK_SIZE                       THREAD_STACK_HALF(1)    /*!< 1/2 page (1kbytes) */
+#define CONSOLE_TASK_STACK_SIZE                       THREAD_STACK_HALF(1)    /*!< 1/2 page (1kbytes) */
 
 /*!< The globals */
-static tid_t g_console_app_tid;
-static struct thread_attr sgrt_console_app_attr;
-static kuint32_t g_console_app_stack[CONSOLE_APP_THREAD_STACK_SIZE];
-static struct mailbox sgrt_console_app_mailbox;
-static kuint8_t g_console_recv_buf[1024];
 
 /*!< API functions */
 /*!
  * @brief  send mail to light thread
- * @param  sprt_mb, command_line
+ * @param  cprt_this, command_line
  * @retval none
  * @note   none
  */
-static void command_mail_to_light(struct mailbox *sprt_mb, kuint8_t *command_line)
+static void command_mail_to_light(crt_task_t *cprt_this, kuint8_t *command_line)
 {
+    struct mailbox &sgrt_mb = cprt_this->get_mailbox();
     struct mail sgrt_mail;
     struct mail_msg sgrt_msg[1] = {};
     kuint8_t status = 0;
@@ -55,7 +55,7 @@ static void command_mail_to_light(struct mailbox *sprt_mb, kuint8_t *command_lin
     else
         return;
 
-    mail_init(sprt_mb, &sgrt_mail);
+    mail_init(&sgrt_mb, &sgrt_mail);
     
     sgrt_msg[0].buffer = &status;
     sgrt_msg[0].size = 1;
@@ -69,12 +69,13 @@ static void command_mail_to_light(struct mailbox *sprt_mb, kuint8_t *command_lin
 
 /*!
  * @brief  send mail to display thread
- * @param  sprt_mb, command_line
+ * @param  cprt_this, command_line
  * @retval none
  * @note   none
  */
-static void command_mail_to_display(struct mailbox *sprt_mb, kuint8_t *command_line)
+static void command_mail_to_display(crt_task_t *cprt_this, kuint8_t *command_line)
 {
+    struct mailbox &sgrt_mb = cprt_this->get_mailbox();
     struct mail sgrt_mail;
     struct mail_msg sgrt_msg[1] = {};
     kuint8_t status = 0;
@@ -86,7 +87,7 @@ static void command_mail_to_display(struct mailbox *sprt_mb, kuint8_t *command_l
     else
         return;
 
-    mail_init(sprt_mb, &sgrt_mail);
+    mail_init(&sgrt_mb, &sgrt_mail);
     
     sgrt_msg[0].buffer = &status;
     sgrt_msg[0].size = 1;
@@ -104,30 +105,25 @@ static void command_mail_to_display(struct mailbox *sprt_mb, kuint8_t *command_l
  * @retval none
  * @note   none
  */
-static void *console_app_entry(void *args)
+static void *console_task_entry(void *args)
 {
-    struct mailbox *sprt_mb = &sgrt_console_app_mailbox;
-    kuint8_t *ptr_buf;
-    kusize_t buf_size;
-    kint32_t retval = -1;
-
-    ptr_buf = &g_console_recv_buf[0];
-    buf_size = sizeof(g_console_recv_buf);
-
-    mailbox_init(sprt_mb, mrt_current->tid, "console-app-mailbox");
+    static kuint8_t g_console_recv_buf[1024];
+    
+    crt_task_t *cprt_this = (crt_task_t *)args;
+    string cgrt_str(&g_console_recv_buf[0], sizeof(g_console_recv_buf));
 
     for (;;)
     {       
         do {
             /*!< read command line */
-            retval = io_getstr(ptr_buf, buf_size);
+            cin >> cgrt_str;
 
-        } while (retval <= 0);
+        } while (cgrt_str.real_size <= 0);
 
-        print_info("recv command line, data is: %s\n", ptr_buf);
+        cout << "recv command line, data is: " << cgrt_str.get_buf() << endl;
 
-        command_mail_to_light(sprt_mb, ptr_buf);
-        command_mail_to_display(sprt_mb, ptr_buf);
+        command_mail_to_light(cprt_this, cgrt_str.get_buf());
+        command_mail_to_display(cprt_this, cgrt_str.get_buf());
     }
 
     return args;
@@ -139,28 +135,21 @@ static void *console_app_entry(void *args)
  * @retval 	error code
  * @note   	none
  */
-kint32_t console_app_init(void)
+kint32_t console_task_init(void)
 {
-    struct thread_attr *sprt_attr = &sgrt_console_app_attr;
-    kint32_t retval;
+    static kuint8_t g_console_task_stack[CONSOLE_TASK_STACK_SIZE];
 
-    sprt_attr->detachstate = THREAD_CREATE_JOINABLE;
-    sprt_attr->inheritsched	= THREAD_INHERIT_SCHED;
-    sprt_attr->schedpolicy = THREAD_SCHED_FIFO;
+    crt_task_t *cprt_task = new crt_task_t("console task", 
+                                            console_task_entry, 
+                                            g_console_task_stack, 
+                                            sizeof(g_console_task_stack));
+    if (!cprt_task)
+        return -ER_FAILD;
 
-    /*!< thread stack */
-    thread_set_stack(sprt_attr, mrt_nullptr, g_console_app_stack, sizeof(g_console_app_stack));
-    /*!< lowest priority */
-    thread_set_priority(sprt_attr, THREAD_PROTY_DEFAULT);
-    /*!< default time slice */
-    thread_set_time_slice(sprt_attr, THREAD_TIME_DEFUALT);
+    struct mailbox &sgrt_mb = cprt_task->get_mailbox();
+    mailbox_init(&sgrt_mb, cprt_task->get_self(), "console-task-mailbox");
 
-    /*!< register thread */
-    retval = thread_create(&g_console_app_tid, sprt_attr, console_app_entry, mrt_nullptr);
-    if (!retval)
-        thread_set_name(g_console_app_tid, "console_app_entry");
-
-    return retval;
+    return ER_NORMAL;
 }
 
 /*!< end of file */

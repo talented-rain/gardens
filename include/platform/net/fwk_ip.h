@@ -13,6 +13,10 @@
 #ifndef __FWK_IP_H_
 #define __FWK_IP_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/net/fwk_if.h>
 
@@ -61,5 +65,9 @@ struct fwk_ip_hdr {
     kuint32_t	daddr;                                      /*!< destination IP address */
 
 } __packed;
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_IP_H_ */

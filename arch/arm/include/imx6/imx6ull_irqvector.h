@@ -13,6 +13,11 @@
 #ifndef __IMX6ULL_IRQVECTOR_H
 #define __IMX6ULL_IRQVECTOR_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
+/*!< The includes */
 #include <asm/armv7/gic_basic.h>
 #include <common/basic_types.h>
 #include <common/error_types.h>
@@ -184,5 +189,8 @@ typedef enum imx_irq_number
 
 } srt_imx_irq_number_t;
 
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __IMX6ULL_IRQVECTOR_H */

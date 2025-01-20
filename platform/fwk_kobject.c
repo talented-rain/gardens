@@ -501,7 +501,7 @@ kint32_t fwk_kobject_set_name_args(struct fwk_kobject *sprt_kobj, const kchar_t 
     if (sprt_kobj->name && !fmt)
         return ER_NORMAL;
 
-    ptr = vasprintk(fmt, mrt_nullptr, sprt_list);
+    ptr = vasprintk_safe(fmt, mrt_nullptr, sprt_list);
     if (!isValid(ptr))
         return -ER_NOMEM;
 

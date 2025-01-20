@@ -206,18 +206,18 @@ typedef struct {
     (XEmacPs_Bd*)((kuint32_t)(BdPtr) - (RingPtr)->Separation))
 
 /************************** Function Prototypes ******************************/
-TARGET_EXT kint32_t XEmacPs_BdRingCreate(XEmacPs_BdRing * RingPtr, kuint32_t PhysAddr,
+extern kint32_t XEmacPs_BdRingCreate(XEmacPs_BdRing * RingPtr, kuint32_t PhysAddr,
                                 kuint32_t VirtAddr, u32 Alignment, u32 BdCount);
-TARGET_EXT kint32_t XEmacPs_BdRingClone(XEmacPs_BdRing *RingPtr, XEmacPs_Bd *SrcBdPtr, u8 Direction);
-TARGET_EXT kint32_t XEmacPs_BdRingAlloc(XEmacPs_BdRing *RingPtr, u32 NumBd, XEmacPs_Bd **BdSetPtr);
-TARGET_EXT kint32_t XEmacPs_BdRingUnAlloc(XEmacPs_BdRing * RingPtr, u32 NumBd, XEmacPs_Bd * BdSetPtr);
-TARGET_EXT kint32_t XEmacPs_BdRingFree(XEmacPs_BdRing * RingPtr, u32 NumBd, XEmacPs_Bd * BdSetPtr);
-TARGET_EXT kuint32_t XEmacPs_BdRingFromHwTx(XEmacPs_BdRing * RingPtr, u32 BdLimit, XEmacPs_Bd ** BdSetPtr);
-TARGET_EXT kuint32_t XEmacPs_BdRingFromHwRx(XEmacPs_BdRing * RingPtr, u32 BdLimit, XEmacPs_Bd ** BdSetPtr);
-TARGET_EXT kint32_t XEmacPs_BdRingToHw(XEmacPs_BdRing * RingPtr, u32 NumBd, XEmacPs_Bd * BdSetPtr);
+extern kint32_t XEmacPs_BdRingClone(XEmacPs_BdRing *RingPtr, XEmacPs_Bd *SrcBdPtr, u8 Direction);
+extern kint32_t XEmacPs_BdRingAlloc(XEmacPs_BdRing *RingPtr, u32 NumBd, XEmacPs_Bd **BdSetPtr);
+extern kint32_t XEmacPs_BdRingUnAlloc(XEmacPs_BdRing * RingPtr, u32 NumBd, XEmacPs_Bd * BdSetPtr);
+extern kint32_t XEmacPs_BdRingFree(XEmacPs_BdRing * RingPtr, u32 NumBd, XEmacPs_Bd * BdSetPtr);
+extern kuint32_t XEmacPs_BdRingFromHwTx(XEmacPs_BdRing * RingPtr, u32 BdLimit, XEmacPs_Bd ** BdSetPtr);
+extern kuint32_t XEmacPs_BdRingFromHwRx(XEmacPs_BdRing * RingPtr, u32 BdLimit, XEmacPs_Bd ** BdSetPtr);
+extern kint32_t XEmacPs_BdRingToHw(XEmacPs_BdRing * RingPtr, u32 NumBd, XEmacPs_Bd * BdSetPtr);
 
-TARGET_EXT void XEmacPsIf_DmaTxDescsClean(void *args);
-TARGET_EXT kint32_t XEmacPs_DmaInit(void *args);
+extern void XEmacPsIf_DmaTxDescsClean(void *args);
+extern kint32_t XEmacPs_DmaInit(void *args);
 
 #ifdef __cplusplus
 }

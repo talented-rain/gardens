@@ -1,7 +1,7 @@
 /*
  * User Thread Instance (light task) Interface
  *
- * File Name:   light_app.c
+ * File Name:   light_app.cpp
  * Author:      Yang Yujun
  * E-mail:      <yujiantianhu@163.com>
  * Created on:  2024.04.01
@@ -23,16 +23,16 @@
 #include <kernel/mutex.h>
 #include <kernel/mailbox.h>
 
-#include "test_app.h"
+#include "../task.h"
+#include "test_task.h"
+
+using namespace tsk;
+using namespace stream;
 
 /*!< The defines */
-#define LIGHTAPP_THREAD_STACK_SIZE                          THREAD_STACK_HALF(1)    /*!< 1/2 page (1kbytes) */
+#define LIGHT_TASK_STACK_SIZE                   THREAD_STACK_HALF(1)    /*!< 1/2 page (1kbytes) */
 
 /*!< The globals */
-static tid_t g_light_app_tid;
-static struct thread_attr sgrt_light_app_attr;
-static kuint32_t g_light_app_stack[LIGHTAPP_THREAD_STACK_SIZE];
-static struct mailbox sgrt_light_app_mailbox;
 
 /*!< API functions */
 /*!
@@ -41,15 +41,16 @@ static struct mailbox sgrt_light_app_mailbox;
  * @retval none
  * @note   trun on/off led by timer
  */
-static void *light_app_entry(void *args)
+static void *light_task_entry(void *args)
 {
+    crt_task_t *cprt_this = (crt_task_t *)args;
     kbool_t status = 0;
     kint32_t fd;
-    struct mailbox *sprt_mb = &sgrt_light_app_mailbox;
+    struct mailbox &sgrt_mb = cprt_this->get_mailbox();
     struct mail *sprt_mail;
-
-    mailbox_init(&sgrt_light_app_mailbox, mrt_current->tid, "light-app-mailbox");
-    print_info("%s is running, which tid is: %d\n", __FUNCTION__, mrt_current->tid);
+    tid_t tid = cprt_this->get_self();
+    
+    cout << __FUNCTION__ << " is running, which tid is: " << tid << endl;
 
     for (;;)
     {        
@@ -57,7 +58,7 @@ static void *light_app_entry(void *args)
         if (fd < 0)
             goto END1;
         
-        sprt_mail = mail_recv(sprt_mb, 0);
+        sprt_mail = mail_recv(&sgrt_mb, 0);
         if (!isValid(sprt_mail))
             goto END2;
 
@@ -89,28 +90,21 @@ END1:
  * @retval 	error code
  * @note   	none
  */
-kint32_t light_app_init(void)
+kint32_t light_task_init(void)
 {
-    struct thread_attr *sprt_attr = &sgrt_light_app_attr;
-    kint32_t retval;
+    static kuint8_t g_light_task_stack[LIGHT_TASK_STACK_SIZE];
 
-	sprt_attr->detachstate = THREAD_CREATE_JOINABLE;
-	sprt_attr->inheritsched	= THREAD_INHERIT_SCHED;
-	sprt_attr->schedpolicy = THREAD_SCHED_FIFO;
+    crt_task_t *cprt_task = new crt_task_t("light task", 
+                                            light_task_entry, 
+                                            g_light_task_stack, 
+                                            sizeof(g_light_task_stack));
+    if (!cprt_task)
+        return -ER_FAILD;
 
-    /*!< thread stack */
-	thread_set_stack(sprt_attr, mrt_nullptr, g_light_app_stack, sizeof(g_light_app_stack));
-    /*!< lowest priority */
-	thread_set_priority(sprt_attr, THREAD_PROTY_DEFAULT);
-    /*!< default time slice */
-    thread_set_time_slice(sprt_attr, THREAD_TIME_DEFUALT);
+    struct mailbox &sgrt_mb = cprt_task->get_mailbox();
+    mailbox_init(&sgrt_mb, cprt_task->get_self(), "light-task-mailbox");
 
-    /*!< register thread */
-    retval = thread_create(&g_light_app_tid, sprt_attr, light_app_entry, mrt_nullptr);
-    if (!retval)
-        thread_set_name(g_light_app_tid, "light_app_entry");
-
-    return retval;
+    return ER_NORMAL;
 }
 
 /*!< end of file */

@@ -13,15 +13,23 @@
 #ifndef __EXCEPTION_H
 #define __EXCEPTION_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <common/basic_types.h>
 #include <common/error_types.h>
 #include <common/generic.h>
 
 /*!< The functions */
-TARGET_EXT void exec_undefined_handler(void);
-TARGET_EXT void exec_prefetch_abort_handler(void);
-TARGET_EXT void exec_data_abort_handler(void);
-TARGET_EXT void exec_unused_handler(void);
+extern void exec_undefined_handler(void);
+extern void exec_prefetch_abort_handler(void);
+extern void exec_data_abort_handler(void);
+extern void exec_unused_handler(void);
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __EXCEPTION_H */

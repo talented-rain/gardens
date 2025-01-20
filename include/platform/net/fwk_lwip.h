@@ -13,6 +13,10 @@
 #ifndef __FWK_LWIP_H_
 #define __FWK_LWIP_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/net/fwk_if.h>
 #include <platform/net/fwk_ip.h>
@@ -31,10 +35,14 @@
 #include <lwip/contrib/apps/udpecho_raw/udpecho_raw.h>
 
 /*!< The functions */
-TARGET_EXT kssize_t lwip_udp_raw_recvfrom(struct udp_pcb *sprt_upcb, void *buf, 
+extern kssize_t lwip_udp_raw_recvfrom(struct udp_pcb *sprt_upcb, void *buf, 
                                         kusize_t size, ip_addr_t *sprt_src, u16_t *port);
-TARGET_EXT kssize_t lwip_udp_raw_sendto(struct udp_pcb *sprt_upcb, const ip_addr_t *sprt_dest, 
+extern kssize_t lwip_udp_raw_sendto(struct udp_pcb *sprt_upcb, const ip_addr_t *sprt_dest, 
                                         u16_t dest_port, const void *buf, kusize_t size);
-TARGET_EXT struct udp_pcb *lwip_udp_raw_bind(const ip_addr_t *sprt_ip, u16_t port);
+extern struct udp_pcb *lwip_udp_raw_bind(const ip_addr_t *sprt_ip, u16_t port);
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_LWIP_H_ */

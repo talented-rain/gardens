@@ -13,6 +13,10 @@
 #ifndef __FWK_PM_H_
 #define __FWK_PM_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 #include <platform/fwk_platform.h>
@@ -44,5 +48,9 @@ struct fwk_dev_pm_ops
 	kint32_t (*runtime_resume)(struct fwk_device *sprt_dev);
 	kint32_t (*runtime_idle)(struct fwk_device *sprt_dev);
 };
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_PM_H_ */

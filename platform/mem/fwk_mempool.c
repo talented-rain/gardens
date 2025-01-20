@@ -77,7 +77,7 @@ kbool_t fwk_mempool_initial(void)
     /*!< ------------------------------------------------------------ */
     sprt_pool = &sgrt_kernel_mempool[FWK_MEMPOOL_KERNEL];
     sprt_info = sprt_pool->sprt_info;
-    retval = memory_simple_block_create(sprt_info, MEMORY_POOL_BASE, MEMORY_POOL_SIZE);
+    retval = memory_block_create(sprt_info, MEMORY_POOL_BASE, MEMORY_POOL_SIZE);
     if (retval)
         return false;
     
@@ -94,7 +94,7 @@ kbool_t fwk_mempool_initial(void)
     /*!< ------------------------------------------------------------ */
     sprt_pool = &sgrt_kernel_mempool[FWK_MEMPOOL_SK_BUFF];
     sprt_info = sprt_pool->sprt_info;
-    memory_simple_block_create(sprt_info, SK_BUFFER_BASE, SK_BUFFER_SIZE);
+    memory_block_create(sprt_info, SK_BUFFER_BASE, SK_BUFFER_SIZE);
     init_waitqueue_head(&sprt_pool->sgrt_wqh);
     spin_lock_init(&sprt_pool->sgrt_lock);
 
@@ -244,15 +244,18 @@ __weak void *kmalloc(size_t __size, nrt_gfp_t flags)
     spin_lock_irqsave(&sprt_pool->sgrt_lock);
 
     sprt_info = sprt_pool->sprt_info;
-    p = alloc_spare_simple_memory(sprt_info->sprt_mem, __size);
-    if (!isValid(p))
+    if (sprt_info->alloc)
     {
-        p = mrt_nullptr;
-        goto END;
-    }
+        p = sprt_info->alloc(sprt_info, __size);
+        if (!isValid(p))
+        {
+            p = mrt_nullptr;
+            goto END;
+        }
 
-    if (flags & NR_KMEM_ZERO)
-        kmemzero(p, __size);
+        if (flags & NR_KMEM_ZERO)
+            kmemzero(p, __size);
+    }
 
 END:
     spin_unlock_irqrestore(&sprt_pool->sgrt_lock);
@@ -320,7 +323,8 @@ __weak void kfree(void *__ptr)
         return;
 
     spin_lock_irqsave(&sprt_pool->sgrt_lock);
-    free_employ_simple_memory(sprt_info->sprt_mem, __ptr);
+    if (sprt_info->free)
+        sprt_info->free(sprt_info, __ptr);
     spin_unlock_irqrestore(&sprt_pool->sgrt_lock);
 }
 

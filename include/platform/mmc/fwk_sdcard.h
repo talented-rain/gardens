@@ -13,6 +13,10 @@
 #ifndef __FWK_SDCARD_H
 #define __FWK_SDCARD_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <common/generic.h>
 #include <common/io_stream.h>
@@ -801,19 +805,19 @@ enum __ERT_SDCARD_SW_VOLTAGE
 };
 
 /*!< The functions */
-TARGET_EXT void *host_sdmmc_card_initial(struct fwk_sdcard *sprt_card);
+extern void *host_sdmmc_card_initial(struct fwk_sdcard *sprt_card);
 
-TARGET_EXT void *fwk_sdcard_allocate_device(void *sprt_sd);
-TARGET_EXT void fwk_sdcard_free_device(struct fwk_sdcard *sprt_card);
-TARGET_EXT kint32_t fwk_sdcard_initial_device(struct fwk_sdcard *sprt_card);
-TARGET_EXT void fwk_sdcard_inactive_device(struct fwk_sdcard *sprt_card);
+extern void *fwk_sdcard_allocate_device(void *sprt_sd);
+extern void fwk_sdcard_free_device(struct fwk_sdcard *sprt_card);
+extern kint32_t fwk_sdcard_initial_device(struct fwk_sdcard *sprt_card);
+extern void fwk_sdcard_inactive_device(struct fwk_sdcard *sprt_card);
 
-TARGET_EXT kbool_t fwk_sdcard_is_insert(struct fwk_sdcard *sprt_card);
-TARGET_EXT kbool_t fwk_sdcard_detect(struct fwk_sdcard *sprt_card);
-TARGET_EXT kbool_t fwk_sdcard_to_normal(struct fwk_sdcard *sprt_card);
-TARGET_EXT kbool_t fwk_sdcard_rw_blocks(struct fwk_sdcard *sprt_card, void *ptrBuffer, 
+extern kbool_t fwk_sdcard_is_insert(struct fwk_sdcard *sprt_card);
+extern kbool_t fwk_sdcard_detect(struct fwk_sdcard *sprt_card);
+extern kbool_t fwk_sdcard_to_normal(struct fwk_sdcard *sprt_card);
+extern kbool_t fwk_sdcard_rw_blocks(struct fwk_sdcard *sprt_card, void *ptrBuffer, 
                                 kuint32_t iBlockStart, kuint32_t iBlockCount, nrt_fwk_sdcard_rw_t egrt_rw);
-TARGET_EXT kbool_t fwk_sdcard_format_blocks(struct fwk_sdcard *sprt_card, kuint32_t iBlockStart, kuint32_t iBlockCount);
+extern kbool_t fwk_sdcard_format_blocks(struct fwk_sdcard *sprt_card, kuint32_t iBlockStart, kuint32_t iBlockCount);
 
 /*!< API function */
 /*!
@@ -833,5 +837,9 @@ static inline kint32_t fwk_sdcard_initial_command(struct fwk_sdcard_cmd *sprt_cm
 
     return ER_NORMAL;
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __FWK_SDCARD_H */

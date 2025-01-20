@@ -138,6 +138,7 @@ void term_cmdline_excute(kint32_t argc, kchar_t **argv)
             goto succ;
     }
 
+    printk("can not access the command!\n");
     return;
 
 succ:

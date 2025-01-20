@@ -16,6 +16,8 @@
 
 /*!< The functions */
 static struct mem_block *check_employ_simple_memory(void *ptr_head, void *ptr_mem);
+static void *alloc_spare_simple_memory(struct mem_info *sprt_info, kusize_t size);
+static void free_employ_simple_memory(struct mem_info *sprt_info, void *ptr_mem);
 
 /*!< API function */
 /*!
@@ -52,8 +54,19 @@ kint32_t memory_simple_block_create(struct mem_info *sprt_info, kuaddr_t mem_add
     sprt_block->sprt_prev = mrt_nullptr;
     sprt_block->sprt_next = mrt_nullptr;
     sprt_block->magic = MEMORY_POOL_MAGIC;
+    init_list_head(&sprt_block->sgrt_link);
 
     sprt_info->sprt_mem	= sprt_block;
+    for (kint32_t index = 0; index < NR_MEM_NUM; index++)
+    {
+        struct mem_hash *sprt_hash;
+
+        sprt_hash = &sprt_info->sgrt_hash[index];
+        init_list_head(&sprt_hash->sgrt_list);
+    }
+
+    sprt_info->alloc = alloc_spare_simple_memory;
+    sprt_info->free = free_employ_simple_memory;
 
     return ER_NORMAL;
 }
@@ -80,7 +93,7 @@ void memory_simple_block_destroy(struct mem_info *sprt_info)
  * @retval  avaliable memory block pointer
  * @note    allocate spare memory space
  */
-void *alloc_spare_simple_memory(void *ptr_head, kusize_t size)
+static void *alloc_spare_simple_memory(struct mem_info *sprt_info, kusize_t size)
 {
     struct mem_block *sprt_start;
     struct mem_block *sprt_block;
@@ -88,10 +101,11 @@ void *alloc_spare_simple_memory(void *ptr_head, kusize_t size)
     kusize_t header_size, lenth, offset;
     void *ptr_mem = mrt_nullptr;
 
-    if (!isValid(ptr_head))
+    if (!isValid(sprt_info) ||
+        !sprt_info->sprt_mem)
         return mrt_nullptr;
 
-    sprt_start  = (struct mem_block *)ptr_head;
+    sprt_start  = sprt_info->sprt_mem;
     header_size	= MEM_BLOCK_HEADER_SIZE;
 
     /*!< 8 bytes alignment for memory block lenth */
@@ -136,6 +150,7 @@ void *alloc_spare_simple_memory(void *ptr_head, kusize_t size)
                 	sprt_block->sprt_next->sprt_prev = sprt_new;
                 
                 sprt_block->sprt_next = sprt_new;
+                init_list_head(&sprt_new->sgrt_link);
             }
             else
             {
@@ -158,24 +173,32 @@ void *alloc_spare_simple_memory(void *ptr_head, kusize_t size)
  */
 static struct mem_block *check_employ_simple_memory(void *ptr_head, void *ptr_mem)
 {
-    struct mem_block *sprt_block, *sprt_start = mrt_nullptr;
+    struct mem_block *sprt_block;
 
     /*!< Point to the head of info */
     sprt_block = (struct mem_block *)((kuint8_t *)ptr_mem - MEM_BLOCK_HEADER_SIZE);
     if ((!isValid(sprt_block)) || (!IS_MEMORYPOOL_VALID(sprt_block)))
         return mrt_nullptr;
 
+#if 0
+    __RESERVED(ptr_head);
+
+    if (sprt_block->base != (kuaddr_t)ptr_mem)
+        return mrt_nullptr;
+
+    return sprt_block;
+    
+#else
     /*!< check if ptr_mem was allocated from ptr_head */
-    for (sprt_start = (struct mem_block *)ptr_head; isValid(sprt_start); sprt_start = sprt_start->sprt_next)
+    for (struct mem_block *sprt_start = (struct mem_block *)ptr_head; 
+        isValid(sprt_start); sprt_start = sprt_start->sprt_next)
     {
         if (sprt_start->base == (kuaddr_t)ptr_mem)
-            break;
+            return sprt_block;
     }
 
-    if (isValid(sprt_start))
-        return sprt_block;
-
     return mrt_nullptr;
+#endif
 }
 
 /*!
@@ -184,7 +207,7 @@ static struct mem_block *check_employ_simple_memory(void *ptr_head, void *ptr_me
  * @retval  none
  * @note    free memory block which is employed
  */
-void free_employ_simple_memory(void *ptr_head, void *ptr_mem)
+static void free_employ_simple_memory(struct mem_info *sprt_info, void *ptr_mem)
 {
     struct mem_block *sprt_prev;
     struct mem_block *sprt_next;
@@ -194,7 +217,7 @@ void free_employ_simple_memory(void *ptr_head, void *ptr_mem)
         return;
 
     /*!< Point to the head of info */
-    sprt_block = check_employ_simple_memory(ptr_head, ptr_mem);
+    sprt_block = check_employ_simple_memory(sprt_info->sprt_mem, ptr_mem);
     if (!sprt_block)
         return;
 

@@ -13,6 +13,10 @@
 #ifndef __FWK_CLK_PROVIDER_H_
 #define __FWK_CLK_PROVIDER_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 #include "fwk_clk.h"
@@ -26,11 +30,14 @@ typedef struct fwk_clk_one_cell
 } srt_fwk_clk_one_cell_t;
 
 /*!< The functions */
-TARGET_EXT struct fwk_clk *fwk_of_clk_src_onecell_get(struct fwk_of_phandle_args *sprt_args, void *data);
-TARGET_EXT kint32_t fwk_clk_add_provider(struct fwk_device_node *sprt_node, 
+extern struct fwk_clk *fwk_of_clk_src_onecell_get(struct fwk_of_phandle_args *sprt_args, void *data);
+extern kint32_t fwk_clk_add_provider(struct fwk_device_node *sprt_node, 
                     struct fwk_clk *(*get)(struct fwk_of_phandle_args *, void *), void *data);
-TARGET_EXT void fwk_clk_del_provider(struct fwk_device_node *sprt_node);
-TARGET_EXT struct fwk_clk *fwk_clk_provider_look_up(struct fwk_of_phandle_args *sprt_args);
+extern void fwk_clk_del_provider(struct fwk_device_node *sprt_node);
+extern struct fwk_clk *fwk_clk_provider_look_up(struct fwk_of_phandle_args *sprt_args);
 
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_CLK_PROVIDER_H_ */

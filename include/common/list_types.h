@@ -13,32 +13,35 @@
 #ifndef __LIST_TYPES_H
 #define __LIST_TYPES_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include "generic.h"
-#include <platform/fwk_mempool.h>
 
 /*!< The defines */
 /*!< Singly List */
 struct list
 {
-	struct list *sprt_next;
+    struct list *sprt_next;
 };
 typedef struct list srt_list_t;
 
 #define LIST_INIT()	\
 {	\
-	.sprt_next = mrt_nullptr,	\
+    .sprt_next = mrt_nullptr,	\
 }
 
 #define DECLARE_LIST(list)	\
-	struct list list = LIST_INIT
+    struct list list = LIST_INIT
 
 #define DECLARE_LIST_PTR(list)	\
-	struct list *list = mrt_nullptr
+    struct list *list = mrt_nullptr
 
 /*!< search */
 #define foreach_list_next(head, tail, ptr_list, ptr_next)	\
-	for (ptr_list = head; (ptr_list != tail); ptr_list = (ptr_list)->ptr_next)
+    for (ptr_list = head; (ptr_list != tail); ptr_list = (ptr_list)->ptr_next)
 
 #define foreach_list_from_head(head, tail, ptr_list)			foreach_list_next(head, tail, ptr_list, sprt_next)
 #define foreach_list_from_next(head, tail, ptr_list)			foreach_list_next((head)->sprt_next, tail, ptr_list, sprt_next)
@@ -56,38 +59,26 @@ typedef struct list srt_list_t;
 #define mrt_list_add_head(head, list)							{ (list)->sprt_next = (head)->sprt_next; (head)->sprt_next = (list); }
 #define mrt_list_del_any(prev, list)							{ (prev)->sprt_next = (list)->sprt_next; }
 
-/*!< delete and free all nodes */
-#define mrt_list_delete_all(head, prev, list)	\
-{	\
-	list = head;	\
-	while (isValid(list))	\
-	{	\
-		prev	= list;	\
-		list	= list->sprt_next;	\
-		kfree(prev);	\
-	}	\
-}
-
 /*!< Doubly List */
 struct list_head
 {
-	struct list_head *sprt_prev;
-	struct list_head *sprt_next;
+    struct list_head *sprt_prev;
+    struct list_head *sprt_next;
 };
 typedef struct list_head srt_list_head_t;
 
 #define LIST_HEAD_INIT(list)	\
 {	\
-	.sprt_prev = (list),	\
-	.sprt_next = (list),	\
+    .sprt_prev = (list),	\
+    .sprt_next = (list),	\
 }
 
 #define DECLARE_LIST_HEAD(list)	\
-						struct list_head list = LIST_HEAD_INIT(&list)
+                        struct list_head list = LIST_HEAD_INIT(&list)
 
 /*!< list pointer defines */
 #define DECLARE_LIST_HEAD_PTR_INIT(ptr_list, list)	\
-						struct list_head *ptr_list = list;
+                        struct list_head *ptr_list = list;
 #define DECLARE_LIST_HEAD_PTR(ptr_list)							DECLARE_LIST_HEAD_PTR_INIT(ptr_list, mrt_nullptr)
 
 /*!< get every member from list */
@@ -95,29 +86,29 @@ typedef struct list_head srt_list_head_t;
 
 /*!< judge if the list has only head */
 #define IS_LIST_HEAD_SELF_HEAD(ptr_list)	\
-	(((ptr_list)->sprt_prev == (ptr_list)) && ((ptr_list)->sprt_next == (ptr_list)))
+    (((ptr_list)->sprt_prev == (ptr_list)) && ((ptr_list)->sprt_next == (ptr_list)))
 #define mrt_list_head_empty(head)								IS_LIST_HEAD_SELF_HEAD(head)
 
 /*!< get parent of every member from list */
 #define mrt_list_head_parent(parent, list, type, member)	\
 ({	\
-	mrt_next_list_head(parent, list);	\
-	(isValid(list)) ? mrt_container_of(list, type, member) : mrt_nullptr;	\
+    mrt_next_list_head(parent, list);	\
+    (isValid(list)) ? mrt_container_of(list, type, member) : mrt_nullptr;	\
 })
 
 /*!< two-way retrieval */
 #define foreach_list_head(ptr_left, ptr_right, ptr_head)	\
-	for (ptr_right = (ptr_head)->sprt_next, ptr_left = (ptr_head)->sprt_prev;	\
-		((ptr_right != ptr_head) && (ptr_left != ptr_head));	\
-		ptr_right = (ptr_right)->sprt_next, ptr_left = (ptr_left)->sprt_prev)
+    for (ptr_right = (ptr_head)->sprt_next, ptr_left = (ptr_head)->sprt_prev;	\
+        ((ptr_right != ptr_head) && (ptr_left != ptr_head));	\
+        ptr_right = (ptr_right)->sprt_next, ptr_left = (ptr_left)->sprt_prev)
 
 /*!< search forward */
 #define foreach_list_head_forward(ptr_list, ptr_head)	\
-	for (ptr_list = (ptr_head)->sprt_next; ptr_list != ptr_head; ptr_list = (ptr_list)->sprt_next)
+    for (ptr_list = (ptr_head)->sprt_next; ptr_list != ptr_head; ptr_list = (ptr_list)->sprt_next)
 
 /*!< search backward */
 #define foreach_list_head_backward(ptr_list, ptr_head)	\
-	for (ptr_list = (ptr_head)->sprt_prev; ptr_list != ptr_head; ptr_list = (ptr_list)->sprt_prev)
+    for (ptr_list = (ptr_head)->sprt_prev; ptr_list != ptr_head; ptr_list = (ptr_list)->sprt_prev)
 
 #define mrt_list_first_entry(head, type, member)				mrt_container_of((head)->sprt_next, type, member)
 #define mrt_list_last_entry(head, type, member)					mrt_container_of((head)->sprt_prev, type, member)
@@ -145,28 +136,28 @@ typedef struct list_head srt_list_head_t;
  *  ===> foreach_list_entry(sprt_dev, &sgrt_devices.head, list)
  */
 #define foreach_list_next_entry(pos, head, member)	\
-	for (pos = mrt_list_first_entry(head, typeof(*pos), member);	\
-	     &(pos->member) != (head);	\
-	     pos = mrt_list_next_entry(pos, member))
+    for (pos = mrt_list_first_entry(head, typeof(*pos), member);	\
+         &(pos->member) != (head);	\
+         pos = mrt_list_next_entry(pos, member))
 
 #define foreach_list_prev_entry(pos, head, member)	\
-	for (pos = mrt_list_last_entry(head, typeof(*pos), member);	\
-	     &(pos->member) != (head);	\
-	     pos = mrt_list_prev_entry(pos, member))
+    for (pos = mrt_list_last_entry(head, typeof(*pos), member);	\
+         &(pos->member) != (head);	\
+         pos = mrt_list_prev_entry(pos, member))
 
 /* get list and next list, and then delete current list from list_head */
 #define foreach_list_next_entry_safe(pos, temp, head, member)	\
-	for (pos = mrt_list_first_entry(head, typeof(*pos), member),	\
-		temp = mrt_list_next_entry(pos, member);	\
-	     &(pos->member) != (head);	\
-	     pos = temp, temp = mrt_list_next_entry(temp, member))
+    for (pos = mrt_list_first_entry(head, typeof(*pos), member),	\
+        temp = mrt_list_next_entry(pos, member);	\
+         &(pos->member) != (head);	\
+         pos = temp, temp = mrt_list_next_entry(temp, member))
 
 /* get list and prev list, and then delete current list from list_head */
 #define foreach_list_prev_entry_safe(pos, temp, head, member)	\
-	for (pos = mrt_list_last_entry(head, typeof(*pos), member),	\
-		temp = mrt_list_prev_entry(pos, member);	\
-	     &(pos->member) != (head);	\
-	     pos = temp, temp = mrt_list_prev_entry(temp, member))
+    for (pos = mrt_list_last_entry(head, typeof(*pos), member),	\
+        temp = mrt_list_prev_entry(pos, member);	\
+         &(pos->member) != (head);	\
+         pos = temp, temp = mrt_list_prev_entry(temp, member))
 
 /*!< API functions */
 /*!
@@ -177,8 +168,8 @@ typedef struct list_head srt_list_head_t;
  */
 static inline void init_list_head(struct list_head *sprt_list)
 {
-	sprt_list->sprt_next = sprt_list;
-	sprt_list->sprt_prev = sprt_list;
+    sprt_list->sprt_next = sprt_list;
+    sprt_list->sprt_prev = sprt_list;
 }
 
 /*!
@@ -189,19 +180,19 @@ static inline void init_list_head(struct list_head *sprt_list)
  */
 static inline kint32_t list_head_for_each(struct list_head *sprt_head, struct list_head *sprt_list)
 {
-	struct list_head *ptr_right;
-	struct list_head *ptr_left;
+    struct list_head *ptr_right;
+    struct list_head *ptr_left;
 
-	foreach_list_head(ptr_left, ptr_right, sprt_head)
-	{
-		if ((ptr_left == sprt_list) || (ptr_right == sprt_list))
-			return ER_NORMAL;
+    foreach_list_head(ptr_left, ptr_right, sprt_head)
+    {
+        if ((ptr_left == sprt_list) || (ptr_right == sprt_list))
+            return ER_NORMAL;
 
-		if (ptr_left == ptr_right)
-			break;
-	}
+        if (ptr_left == ptr_right)
+            break;
+    }
 
-	return -ER_ERROR;
+    return -ER_ERROR;
 }
 
 /*!
@@ -212,13 +203,13 @@ static inline kint32_t list_head_for_each(struct list_head *sprt_head, struct li
  */
 static inline void list_head_add_head(struct list_head *sprt_head, struct list_head *sprt_list)
 {
-	struct list_head *ptr_next = sprt_head->sprt_next;
+    struct list_head *ptr_next = sprt_head->sprt_next;
 
-	sprt_list->sprt_prev = sprt_head;
-	sprt_head->sprt_next = sprt_list;
+    sprt_list->sprt_prev = sprt_head;
+    sprt_head->sprt_next = sprt_list;
 
-	sprt_list->sprt_next = ptr_next;
-	ptr_next->sprt_prev	 = sprt_list;
+    sprt_list->sprt_next = ptr_next;
+    ptr_next->sprt_prev	 = sprt_list;
 }
 
 /*!
@@ -229,13 +220,13 @@ static inline void list_head_add_head(struct list_head *sprt_head, struct list_h
  */
 static inline void list_head_add_tail(struct list_head *sprt_head, struct list_head *sprt_list)
 {
-	struct list_head *ptr_prev = sprt_head->sprt_prev;
+    struct list_head *ptr_prev = sprt_head->sprt_prev;
 
-	sprt_list->sprt_prev = ptr_prev;
-	ptr_prev->sprt_next	 = sprt_list;
+    sprt_list->sprt_prev = ptr_prev;
+    ptr_prev->sprt_next	 = sprt_list;
 
-	sprt_list->sprt_next = sprt_head;
-	sprt_head->sprt_prev = sprt_list;
+    sprt_list->sprt_next = sprt_head;
+    sprt_head->sprt_prev = sprt_list;
 }
 
 /*!
@@ -246,10 +237,10 @@ static inline void list_head_add_tail(struct list_head *sprt_head, struct list_h
  */
 static inline void list_head_del_head(struct list_head *sprt_head)
 {
-	struct list_head *ptr_next = sprt_head->sprt_next->sprt_next;
+    struct list_head *ptr_next = sprt_head->sprt_next->sprt_next;
 
-	sprt_head->sprt_next = ptr_next;
-	ptr_next->sprt_prev	 = sprt_head;
+    sprt_head->sprt_next = ptr_next;
+    ptr_next->sprt_prev	 = sprt_head;
 }
 
 /*!
@@ -260,10 +251,10 @@ static inline void list_head_del_head(struct list_head *sprt_head)
  */
 static inline void list_head_del_tail(struct list_head *sprt_head)
 {
-	struct list_head *ptr_prev = sprt_head->sprt_prev->sprt_prev;
+    struct list_head *ptr_prev = sprt_head->sprt_prev->sprt_prev;
 
-	sprt_head->sprt_prev = ptr_prev;
-	ptr_prev->sprt_next	 = sprt_head;
+    sprt_head->sprt_prev = ptr_prev;
+    ptr_prev->sprt_next	 = sprt_head;
 }
 
 /*!
@@ -274,13 +265,13 @@ static inline void list_head_del_tail(struct list_head *sprt_head)
  */
 static inline void list_head_del(struct list_head *sprt_list)
 {
-	struct list_head *ptr_prev = sprt_list->sprt_prev;
-	struct list_head *ptr_next = sprt_list->sprt_next;
+    struct list_head *ptr_prev = sprt_list->sprt_prev;
+    struct list_head *ptr_next = sprt_list->sprt_next;
 
-	ptr_prev->sprt_next	= ptr_next;
-	ptr_next->sprt_prev	= ptr_prev;
+    ptr_prev->sprt_next	= ptr_next;
+    ptr_next->sprt_prev	= ptr_prev;
 
-	init_list_head(sprt_list);
+    init_list_head(sprt_list);
 }
 
 /*!
@@ -291,16 +282,20 @@ static inline void list_head_del(struct list_head *sprt_list)
  */
 static inline void list_head_del_safe(struct list_head *sprt_head, struct list_head *sprt_list)
 {
-	struct list_head *ptr_prev = sprt_list->sprt_prev;
-	struct list_head *ptr_next = sprt_list->sprt_next;
+    struct list_head *ptr_prev = sprt_list->sprt_prev;
+    struct list_head *ptr_next = sprt_list->sprt_next;
 
-	if (!list_head_for_each(sprt_head, sprt_list))
-	{
-		ptr_prev->sprt_next	= ptr_next;
-		ptr_next->sprt_prev	= ptr_prev;
+    if (!list_head_for_each(sprt_head, sprt_list))
+    {
+        ptr_prev->sprt_next	= ptr_next;
+        ptr_next->sprt_prev	= ptr_prev;
 
-		init_list_head(sprt_list);
-	}
+        init_list_head(sprt_list);
+    }
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif  /* __LIST_TYPES_H */

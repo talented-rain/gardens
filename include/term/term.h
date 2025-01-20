@@ -13,6 +13,10 @@
 #ifndef __TERM_H
 #define __TERM_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <common/basic_types.h>
 #include <common/error_types.h>
@@ -36,28 +40,32 @@ struct term_cmd
 };
 
 /*!< The functions */
-TARGET_EXT struct term_cmd *term_cmd_allocate(const kchar_t *name, nrt_gfp_t gfp_mask);
-TARGET_EXT void term_cmd_free(struct term_cmd *sprt_cmd);
+extern struct term_cmd *term_cmd_allocate(const kchar_t *name, nrt_gfp_t gfp_mask);
+extern void term_cmd_free(struct term_cmd *sprt_cmd);
 
-TARGET_EXT struct term_cmd *term_cmd_find_by_name(kchar_t *name);
-TARGET_EXT kint32_t term_cmd_add(struct term_cmd *sprt_cmd);
-TARGET_EXT void term_cmd_del(struct term_cmd *sprt_cmd);
+extern struct term_cmd *term_cmd_find_by_name(kchar_t *name);
+extern kint32_t term_cmd_add(struct term_cmd *sprt_cmd);
+extern void term_cmd_del(struct term_cmd *sprt_cmd);
 
-TARGET_EXT kchar_t *term_cmdline_get(void);
-TARGET_EXT void term_cmdline_excute(kint32_t argc, kchar_t **argv);
-TARGET_EXT void term_cmdline_distribute(const kchar_t *cmdline);
+extern kchar_t *term_cmdline_get(void);
+extern void term_cmdline_excute(kint32_t argc, kchar_t **argv);
+extern void term_cmdline_distribute(const kchar_t *cmdline);
 
-TARGET_EXT void term_cmd_print_login(void);
-TARGET_EXT void term_cmd_login_init(const kchar_t *login, const kchar_t *host);
-TARGET_EXT void term_cmd_set_login(const kchar_t *login);
-TARGET_EXT void term_cmd_set_host(const kchar_t *host);
+extern void term_cmd_print_login(void);
+extern void term_cmd_login_init(const kchar_t *login, const kchar_t *host);
+extern void term_cmd_set_login(const kchar_t *login);
+extern void term_cmd_set_host(const kchar_t *host);
 
 /*!< commands */
-TARGET_EXT void term_cmd_add_help(void);
-TARGET_EXT void term_cmd_add_info(void);
-TARGET_EXT void term_cmd_add_ts(void);
-TARGET_EXT void term_cmd_add_ttc(void);
-TARGET_EXT void term_cmd_add_user(void);
-TARGET_EXT void term_cmd_add_kill(void);
+extern void term_cmd_add_help(void);
+extern void term_cmd_add_info(void);
+extern void term_cmd_add_ts(void);
+extern void term_cmd_add_ttc(void);
+extern void term_cmd_add_user(void);
+extern void term_cmd_add_kill(void);
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __TERM_H */

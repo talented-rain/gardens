@@ -13,6 +13,10 @@
 #ifndef __QUEUE_H
 #define __QUEUE_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <common/basic_types.h>
 #include <common/error_types.h>
@@ -45,11 +49,15 @@ typedef struct pq_queue
 } srt_pq_t;
 
 /*!< The functions */
-TARGET_EXT struct pq_queue *pq_queue_create(kint32_t type, kusize_t data_len);
-TARGET_EXT void pq_queue_destroy(struct pq_queue *sprt_pq);
-TARGET_EXT kint32_t pq_enqueue(struct pq_queue *sprt_pq, struct pq_data *sprt_data);
-TARGET_EXT void *pq_dequeue(struct pq_queue *sprt_pq);
-TARGET_EXT void *pq_dequeue_with_chk(struct pq_queue *sprt_pq, kusize_t limit);
-TARGET_EXT kint32_t pq_queue_get_size(struct pq_queue *sprt_pq);
+extern struct pq_queue *pq_queue_create(kint32_t type, kusize_t data_len);
+extern void pq_queue_destroy(struct pq_queue *sprt_pq);
+extern kint32_t pq_enqueue(struct pq_queue *sprt_pq, struct pq_data *sprt_data);
+extern void *pq_dequeue(struct pq_queue *sprt_pq);
+extern void *pq_dequeue_with_chk(struct pq_queue *sprt_pq, kusize_t limit);
+extern kint32_t pq_queue_get_size(struct pq_queue *sprt_pq);
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __QUEUE_H */

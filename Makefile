@@ -108,7 +108,7 @@ COMPILER_LIBC	:=	$(strip $(patsubst %-, $(COMPILER_PATH)/%/libc, $(COMPILER)))
 LIBS_PATH		:=  -L $(COMPILER_LIBC)/usr/lib	\
 					-L $(COMPILER_LIBC)/lib
 
-LIBS			:=	--static -lgcc -lm -lc
+LIBS			:=	--static -lc -lgcc -lstdc++ -lm
 EXTRA_FLAGS		:=  -fexec-charset=GB2312
 
 ifeq ($(CONFIG_VFP),y)
@@ -135,7 +135,6 @@ BUILD_CFLAGS	+=	-O2
 endif
 
 BUILD_CFLAGS	+= 	-Wundef	\
-					-Wstrict-prototypes	\
 					-Wno-trigraphs \
                     -fno-strict-aliasing	\
 					-fno-common \
@@ -144,6 +143,10 @@ BUILD_CFLAGS	+= 	-Wundef	\
 					-fno-exceptions	\
 					-fno-builtin-memcpy	\
 					-munaligned-access
+
+C_FLAGS			:=	$(BUILD_CFLAGS)	\
+					-Wstrict-prototypes
+CXX_FLAGS		:=	$(BUILD_CFLAGS) -std=c++11
 
 # *********************************************************************
 
@@ -196,7 +199,7 @@ SOURCE_DIRS		:=	$(ARCH_DIRS) $(COMMON_DIRS) $(BOOT_DIRS) $(BOARD_DIRS) $(PLATFOR
 INCLUDE_DIRS	:= 	$(patsubst %, -I%, $(INCLUDE_DIRS))
 
 export ARCH TYPE CLASS CPU VENDOR CC CXX LD AR OBJDUMP OBJCOPY READELF
-export LIBS_PATH LIBS EXTRA_FLAGS BUILD_CFLAGS MACROS CONF_MAKEFILE
+export LIBS_PATH LIBS EXTRA_FLAGS C_FLAGS CXX_FLAGS MACROS CONF_MAKEFILE
 export PROJECT_DIR LINK_SCRIPT DTC BUILD_SCRIPT INCLUDE_DIRS
 export IMAGE_PATH OBJECT_PATH OBJECT_EXEC EXT_LIB_DIRS EXT_LIB_EXEC
 export TARGET_EXEC TARGET_BINY TARGET_IMGE TARGET_NASM TARGET_LASM TARGET_MMAP

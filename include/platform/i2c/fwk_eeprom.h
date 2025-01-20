@@ -13,6 +13,10 @@
 #ifndef __FWK_EEPROM_H_
 #define __FWK_EEPROM_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 
@@ -28,5 +32,9 @@ struct fwk_eeprom
 	kuint8_t *buf;
 	kusize_t size;
 };
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_EEPROM_H_ */

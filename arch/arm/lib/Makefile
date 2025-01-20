@@ -11,6 +11,8 @@
 
 obj-y	+=	crt0.o
 
+obj-y	+=	unwind.o
+
 obj-y	+=	lib1funcs.o
 obj-y	+=	memory.o
 

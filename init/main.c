@@ -101,6 +101,7 @@ void start_kernel(void)
 
     /*!< initial memory pool */
     fwk_mempool_initial();
+    iostream_init();
     print_info("\nstart kernel ...... \n");
 
     /*!< populate params from bootloader */

@@ -13,6 +13,10 @@
 #ifndef __TRIE_TREE_H
 #define __TRIE_TREE_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <common/basic_types.h>
 #include <common/error_types.h>
@@ -49,13 +53,13 @@ typedef struct trie_tree {
 } srt_trie_tree_t;
 
 /*!< The functions */
-TARGET_EXT kint32_t get_trie_node_branch(kchar_t ch);
-TARGET_EXT struct trie_node **create_trie_branch(struct trie_tree *sprt_tree, struct trie_node *sprt_node, kuint32_t size);
-TARGET_EXT struct trie_node *allocate_trie_node(struct trie_tree *sprt_tree, struct trie_node *sprt_par, struct trie_node **sprt_branches);
-TARGET_EXT struct trie_node *find_trie_node(struct trie_tree *sprt_tree, const char *name);
-TARGET_EXT struct trie_link *trie_tree_look_up(struct trie_tree *sprt_tree, const kchar_t *name);
-TARGET_EXT void trie_node_add(struct trie_tree *sprt_tree, const kchar_t *name, struct trie_link *sprt_link);
-TARGET_EXT void trie_node_del(struct trie_tree *sprt_tree, const kchar_t *name);
+extern kint32_t get_trie_node_branch(kchar_t ch);
+extern struct trie_node **create_trie_branch(struct trie_tree *sprt_tree, struct trie_node *sprt_node, kuint32_t size);
+extern struct trie_node *allocate_trie_node(struct trie_tree *sprt_tree, struct trie_node *sprt_par, struct trie_node **sprt_branches);
+extern struct trie_node *find_trie_node(struct trie_tree *sprt_tree, const char *name);
+extern struct trie_link *trie_tree_look_up(struct trie_tree *sprt_tree, const kchar_t *name);
+extern void trie_node_add(struct trie_tree *sprt_tree, const kchar_t *name, struct trie_link *sprt_link);
+extern void trie_node_del(struct trie_tree *sprt_tree, const kchar_t *name);
 
 /*!< The defines */
 #define DECLARE_TRIE_TREE(name, branch, max, get_func, alloc_func, free_func) \
@@ -77,5 +81,9 @@ TARGET_EXT void trie_node_del(struct trie_tree *sprt_tree, const kchar_t *name);
     void *ptr_member = (void *)trie_tree_look_up(tree, name);  \
     ptr_member ? mrt_container_of(ptr_member, type, member) : NULL; \
 })
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __TRIE_TREE_H */

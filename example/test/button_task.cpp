@@ -1,7 +1,7 @@
 /*
  * User Thread Instance (button task) Interface
  *
- * File Name:   button_app.c
+ * File Name:   button_task.c
  * Author:      Yang Yujun
  * E-mail:      <yujiantianhu@163.com>
  * Created on:  2024.05.25
@@ -23,34 +23,33 @@
 #include <kernel/mutex.h>
 #include <kernel/mailbox.h>
 
-#include "test_app.h"
+#include "../task.h"
+#include "test_task.h"
+
+using namespace tsk;
+using namespace stream;
 
 /*!< The defines */
-#define BUTTONAPP_THREAD_STACK_SIZE                          THREAD_STACK_HALF(1)    /*!< 1/2 page (1kbytes) */
+#define BUTTON_TASK_STACK_SIZE                          THREAD_STACK_HALF(1)    /*!< 1/2 page (1kbytes) */
 
 /*!< The globals */
-static tid_t g_button_app_tid;
-static struct thread_attr sgrt_button_app_attr;
-static kuint32_t g_button_app_stack[BUTTONAPP_THREAD_STACK_SIZE];
-static struct mailbox sgrt_button_app_mailbox;
 
 /*!< API functions */
 /*!
- * @brief  light task
+ * @brief  button task
  * @param  none
  * @retval none
  * @note   trun on/off led by timer
  */
-static void *button_app_entry(void *args)
+static void *button_task_entry(void *args)
 {
+    crt_task_t *cprt_this = (crt_task_t *)args;
     kuint8_t status = 0, last_status = 0;
     kint32_t fd;
-    struct mailbox *sprt_mb = &sgrt_button_app_mailbox;
+    struct mailbox &sgrt_mb = cprt_this->get_mailbox();
     struct mail *sprt_mail = mrt_nullptr;
     struct mail_msg sgrt_msg[1] = {};
     kssize_t retval;
-
-    mailbox_init(sprt_mb, mrt_current->tid, "button-app-mailbox");
 
     do {
         fd = virt_open("/dev/input/event0", O_RDONLY);
@@ -66,9 +65,9 @@ static void *button_app_entry(void *args)
             goto END;
         
         if (sprt_mail)
-            mail_destroy(sprt_mb, sprt_mail);
+            mail_destroy(&sgrt_mb, sprt_mail);
 
-        sprt_mail = mail_create(sprt_mb);
+        sprt_mail = mail_create(&sgrt_mb);
         if (!isValid(sprt_mail))
         {
             sprt_mail = mrt_nullptr;
@@ -94,33 +93,27 @@ END:
 }
 
 /*!
- * @brief	create light app task
+ * @brief	create button app task
  * @param  	none
  * @retval 	error code
  * @note   	none
  */
-kint32_t button_app_init(void)
+kint32_t button_task_init(void)
 {
-    struct thread_attr *sprt_attr = &sgrt_button_app_attr;
-    kint32_t retval;
+    static kuint8_t g_button_task_stack[BUTTON_TASK_STACK_SIZE];
 
-	sprt_attr->detachstate = THREAD_CREATE_JOINABLE;
-	sprt_attr->inheritsched	= THREAD_INHERIT_SCHED;
-	sprt_attr->schedpolicy = THREAD_SCHED_FIFO;
+    crt_task_t *cprt_task = new crt_task_t("button task", 
+                                            button_task_entry, 
+                                            g_button_task_stack, 
+                                            sizeof(g_button_task_stack),
+                                            __THREAD_HIGHER_DEFAULT(1));
+    if (!cprt_task)
+        return -ER_FAILD;
 
-    /*!< thread stack */
-	thread_set_stack(sprt_attr, mrt_nullptr, g_button_app_stack, sizeof(g_button_app_stack));
-    /*!< lowest priority */
-	thread_set_priority(sprt_attr, __THREAD_HIGHER_DEFAULT(1));
-    /*!< default time slice */
-    thread_set_time_slice(sprt_attr, THREAD_TIME_DEFUALT);
+    struct mailbox &sgrt_mb = cprt_task->get_mailbox();
+    mailbox_init(&sgrt_mb, cprt_task->get_self(), "button-task-mailbox");
 
-    /*!< register thread */
-    retval = thread_create(&g_button_app_tid, sprt_attr, button_app_entry, mrt_nullptr);
-    if (!retval)
-        thread_set_name(g_button_app_tid, "button_app_entry");
-
-    return retval;
+    return ER_NORMAL;
 }
 
 /*!< end of file */

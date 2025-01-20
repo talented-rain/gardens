@@ -145,8 +145,8 @@ static kint32_t xsdk_hdmi_open(struct fwk_fb_info *sprt_info, kint32_t user)
 
     print_info("hdmi device is opened\n");
 
-    memset_ex(sprt_info->screen_base, 0xffffffff, sprt_info->screen_size);
-    print_info("clear full screen with white color\n");
+    memset_ex(sprt_info->screen_base, 0x00000000, sprt_info->screen_size);
+    print_info("clear full screen with black color\n");
 
     return ER_NORMAL;
 }

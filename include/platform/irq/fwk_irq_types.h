@@ -13,16 +13,16 @@
 #ifndef __FWK_IRQ_TYPES_H
 #define __FWK_IRQ_TYPES_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <common/generic.h>
 #include <common/list_types.h>
 
 #include "fwk_irq_domain.h"
 #include "fwk_irq_chip.h"
-
-#ifdef __cplusplus
-TARGET_EXT "C" {
-#endif
 
 /*!< The defines */
 #define	SWI_EVENT_SCHEDULED						0x00000001
@@ -94,23 +94,23 @@ typedef struct fwk_irq_desc
 } srt_fwk_irq_desc_t;
 
 /*!< The functions */
-TARGET_EXT struct fwk_irq_desc *fwk_irq_to_desc(kuint32_t virq);
-TARGET_EXT struct fwk_irq_desc *fwk_irq_data_to_desc(struct fwk_irq_data *sprt_data);
-TARGET_EXT struct fwk_irq_data *fwk_irq_get_data(kuint32_t virq);
-TARGET_EXT struct fwk_irq_data *fwk_irq_domain_get_data(struct fwk_irq_domain *sprt_domain, kuint32_t hwirq);
-TARGET_EXT void fwk_irq_desc_set_type(kuint32_t virq, kuint32_t type);
-TARGET_EXT kint32_t fwk_irq_domain_find_map(struct fwk_irq_domain *sprt_domain, kuint32_t hwirq, kuint32_t type);
-TARGET_EXT kint32_t fwk_irq_domain_alloc_irqs(struct fwk_irq_domain *sprt_domain, kint32_t irq_base, kuint32_t hwirq, kuint32_t nr_irqs);
-TARGET_EXT void fwk_irq_desc_free(kint32_t irq);
-TARGET_EXT void fwk_irq_domain_free_irqs(struct fwk_irq_domain *sprt_domain);
-TARGET_EXT kint32_t fwk_of_irq_get(struct fwk_device_node *sprt_node, kuint32_t index);
+extern struct fwk_irq_desc *fwk_irq_to_desc(kuint32_t virq);
+extern struct fwk_irq_desc *fwk_irq_data_to_desc(struct fwk_irq_data *sprt_data);
+extern struct fwk_irq_data *fwk_irq_get_data(kuint32_t virq);
+extern struct fwk_irq_data *fwk_irq_domain_get_data(struct fwk_irq_domain *sprt_domain, kuint32_t hwirq);
+extern void fwk_irq_desc_set_type(kuint32_t virq, kuint32_t type);
+extern kint32_t fwk_irq_domain_find_map(struct fwk_irq_domain *sprt_domain, kuint32_t hwirq, kuint32_t type);
+extern kint32_t fwk_irq_domain_alloc_irqs(struct fwk_irq_domain *sprt_domain, kint32_t irq_base, kuint32_t hwirq, kuint32_t nr_irqs);
+extern void fwk_irq_desc_free(kint32_t irq);
+extern void fwk_irq_domain_free_irqs(struct fwk_irq_domain *sprt_domain);
+extern kint32_t fwk_of_irq_get(struct fwk_device_node *sprt_node, kuint32_t index);
 
-TARGET_EXT void *fwk_find_irq_action(kint32_t irq, const kchar_t *name, void *ptrDev);
-TARGET_EXT kint32_t fwk_request_irq(kint32_t irq, irq_handler_t handler, kuint32_t flags, const kchar_t *name, void *ptrDev);
-TARGET_EXT void fwk_free_irq(kint32_t irq, void *ptrDev);
-TARGET_EXT void fwk_destroy_irq_action(kint32_t irq);
-TARGET_EXT void fwk_do_irq_handler(kint32_t softIrq);
-TARGET_EXT void fwk_handle_softirq(kint32_t softIrq, kuint32_t event);
+extern void *fwk_find_irq_action(kint32_t irq, const kchar_t *name, void *ptrDev);
+extern kint32_t fwk_request_irq(kint32_t irq, irq_handler_t handler, kuint32_t flags, const kchar_t *name, void *ptrDev);
+extern void fwk_free_irq(kint32_t irq, void *ptrDev);
+extern void fwk_destroy_irq_action(kint32_t irq);
+extern void fwk_do_irq_handler(kint32_t softIrq);
+extern void fwk_handle_softirq(kint32_t softIrq, kuint32_t event);
 
 #ifdef __cplusplus
 	}

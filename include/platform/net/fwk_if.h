@@ -13,6 +13,10 @@
 #ifndef __FWK_IF_H_
 #define __FWK_IF_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 
@@ -191,11 +195,11 @@ enum __ERT_NETWORK_IFR
 #define NETWORK_IFR_GET_MTU     FWK_IOR('n', NR_NETWORK_IFR_MTU, struct fwk_ifreq)
 
 /*!< The globals */
-TARGET_EXT struct fwk_network_if_ops *sprt_fwk_network_if_oprts;
+extern struct fwk_network_if_ops *sprt_fwk_network_if_oprts;
 
 /*!< The functions */
-TARGET_EXT struct fwk_network_if *network_find_node(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip);
-TARGET_EXT struct fwk_network_if *network_next_node(struct fwk_network_if *sprt_if);
+extern struct fwk_network_if *network_find_node(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip);
+extern struct fwk_network_if *network_next_node(struct fwk_network_if *sprt_if);
 
 /*!< API functions */
 /*!
@@ -208,5 +212,9 @@ static inline void network_set_default_ops(const struct fwk_network_if_ops *sprt
 {
     sprt_fwk_network_if_oprts = (struct fwk_network_if_ops *)sprt_oprts;
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< _FWK_MAC_H_ */

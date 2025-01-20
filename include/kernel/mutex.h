@@ -13,6 +13,10 @@
 #ifndef __MUTEX_H
 #define __MUTEX_H
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <common/atomic_types.h>
 #include <kernel/kernel.h>
@@ -27,10 +31,10 @@ typedef struct mutex_lock
 #define MUTEX_LOCK_INIT()					{ .sgrt_atc = ATOMIC_INIT() }
 
 /*!< The functions */
-TARGET_EXT void mutex_init(struct mutex_lock *sprt_lock);
-TARGET_EXT void mutex_lock(struct mutex_lock *sprt_lock);
-TARGET_EXT kint32_t mutex_try_lock(struct mutex_lock *sprt_lock);
-TARGET_EXT void mutex_unlock(struct mutex_lock *sprt_lock);
+extern void mutex_init(struct mutex_lock *sprt_lock);
+extern void mutex_lock(struct mutex_lock *sprt_lock);
+extern kint32_t mutex_try_lock(struct mutex_lock *sprt_lock);
+extern void mutex_unlock(struct mutex_lock *sprt_lock);
 
 /*!< API functions */
 /*!
@@ -43,5 +47,9 @@ static inline kbool_t mutex_is_locked(struct mutex_lock *sprt_lock)
 {
 	return !!ATOMIC_READ(&sprt_lock->sgrt_atc);
 }
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __MUTEX_H */

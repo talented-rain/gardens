@@ -13,6 +13,10 @@
 #ifndef __FWK_USB_HOST_H_
 #define __FWK_USB_HOST_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <platform/fwk_basic.h>
 
@@ -61,5 +65,8 @@ typedef struct fwk_usb_host_if
 
 } srt_fwk_usb_host_if_t;
 
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /*!< __FWK_USB_HOST_H_ */

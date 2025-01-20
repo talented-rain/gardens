@@ -745,27 +745,27 @@ typedef struct XEmacPs_Instance {
           ? TRUE : FALSE)
 
 /************************** Function Prototypes *****************************/
-TARGET_EXT void XEmacPs_Start(XEmacPs *sprt_emacps);
-TARGET_EXT void XEmacPs_Stop(XEmacPs *sprt_emacps);
-TARGET_EXT void XEmacPs_SetQueuePtr(XEmacPs *sprt_emacps, kuint32_t QPtr, u8 QueueNum, u16 Direction);
-TARGET_EXT void XEmacPs_ClearHash(XEmacPs *sprt_emacps);
-TARGET_EXT kint32_t XEmacPs_SetMacAddress(XEmacPs *sprt_emacps, void *AddressPtr, u8 Index);
-TARGET_EXT kint32_t XEmacPs_SetTypeIdCheck(XEmacPs *sprt_emacps, u32 Id_Check, u8 Index);
-TARGET_EXT kint32_t XEmacPs_SetOptions(XEmacPs *sprt_emacps, u32 Options);
-TARGET_EXT kint32_t XEmacPs_ClearOptions(XEmacPs *sprt_emacps, u32 Options);
-TARGET_EXT void XEmacPs_Reset(XEmacPs *sprt_emacps);
-TARGET_EXT void XEmacPs_SetMdioDivisor(XEmacPs *sprt_emacps, XEmacPs_MdcDiv Divisor);
+extern void XEmacPs_Start(XEmacPs *sprt_emacps);
+extern void XEmacPs_Stop(XEmacPs *sprt_emacps);
+extern void XEmacPs_SetQueuePtr(XEmacPs *sprt_emacps, kuint32_t QPtr, u8 QueueNum, u16 Direction);
+extern void XEmacPs_ClearHash(XEmacPs *sprt_emacps);
+extern kint32_t XEmacPs_SetMacAddress(XEmacPs *sprt_emacps, void *AddressPtr, u8 Index);
+extern kint32_t XEmacPs_SetTypeIdCheck(XEmacPs *sprt_emacps, u32 Id_Check, u8 Index);
+extern kint32_t XEmacPs_SetOptions(XEmacPs *sprt_emacps, u32 Options);
+extern kint32_t XEmacPs_ClearOptions(XEmacPs *sprt_emacps, u32 Options);
+extern void XEmacPs_Reset(XEmacPs *sprt_emacps);
+extern void XEmacPs_SetMdioDivisor(XEmacPs *sprt_emacps, XEmacPs_MdcDiv Divisor);
 
-TARGET_EXT XEmacPs_Config *XEmacPs_LookupConfig(u16 DeviceId);
-TARGET_EXT kint32_t XEmacPs_CfgInitialize(XEmacPs *sprt_emacps, XEmacPs_Config * CfgPtr, kuint32_t EffectiveAddress);
+extern XEmacPs_Config *XEmacPs_LookupConfig(u16 DeviceId);
+extern kint32_t XEmacPs_CfgInitialize(XEmacPs *sprt_emacps, XEmacPs_Config * CfgPtr, kuint32_t EffectiveAddress);
 
-TARGET_EXT kint32_t XEmacPs_PhyRead(XEmacPs *sprt_emacps, u32 PhyAddress, u32 RegisterNum, u16 *PhyDataPtr);
-TARGET_EXT kint32_t XEmacPs_PhyWrite(XEmacPs *sprt_emacps, u32 PhyAddress, u32 RegisterNum, u16 PhyData);
-TARGET_EXT void XEmacPs_PhyDetect(XEmacPs *sprt_xemac);
-TARGET_EXT void XEmacPs_SetOperatingSpeed(XEmacPs *sprt_emacps, u16 Speed);
-TARGET_EXT kint32_t XEmacPs_PhySetup(XEmacPs *xemacpsp, kuint32_t phy_addr);
+extern kint32_t XEmacPs_PhyRead(XEmacPs *sprt_emacps, u32 PhyAddress, u32 RegisterNum, u16 *PhyDataPtr);
+extern kint32_t XEmacPs_PhyWrite(XEmacPs *sprt_emacps, u32 PhyAddress, u32 RegisterNum, u16 PhyData);
+extern void XEmacPs_PhyDetect(XEmacPs *sprt_xemac);
+extern void XEmacPs_SetOperatingSpeed(XEmacPs *sprt_emacps, u16 Speed);
+extern kint32_t XEmacPs_PhySetup(XEmacPs *xemacpsp, kuint32_t phy_addr);
 
-TARGET_EXT void XEmacPs_Init(XEmacPs *xemacpsp, void *hwaddr);
+extern void XEmacPs_Init(XEmacPs *xemacpsp, void *hwaddr);
 
 #ifdef __cplusplus
 }

@@ -13,6 +13,10 @@
 #ifndef __KERNEL_SIGNAL_H_
 #define __KERNEL_SIGNAL_H_
 
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 /*!< The includes */
 #include <kernel/kernel.h>
 
@@ -58,5 +62,9 @@
 /* These should not be considered constants from userland.  */
 #define SIGRTMIN	                        33
 #define SIGRTMAX	                        64
+
+#ifdef __cplusplus
+    }
+#endif
 
 #endif /* __KERNEL_SIGNAL_H_ */
