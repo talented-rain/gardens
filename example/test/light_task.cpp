@@ -27,7 +27,7 @@
 #include "test_task.h"
 
 using namespace tsk;
-using namespace stream;
+using namespace bsc;
 
 /*!< The defines */
 #define LIGHT_TASK_STACK_SIZE                   THREAD_STACK_HALF(1)    /*!< 1/2 page (1kbytes) */
@@ -78,7 +78,7 @@ static void *light_task_entry(void *args)
 END2:
         virt_close(fd);
 END1:
-        schedule_delay_ms(200);
+        msleep(200);
     }
 
     return args;

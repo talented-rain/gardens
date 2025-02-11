@@ -27,7 +27,7 @@
 #include "test_task.h"
 
 using namespace tsk;
-using namespace stream;
+using namespace bsc;
 
 /*!< The defines */
 #define BUTTON_TASK_STACK_SIZE                          THREAD_STACK_HALF(1)    /*!< 1/2 page (1kbytes) */
@@ -54,7 +54,7 @@ static void *button_task_entry(void *args)
     do {
         fd = virt_open("/dev/input/event0", O_RDONLY);
         if (mrt_unlikely(fd < 0))
-            schedule_delay_ms(200);
+            msleep(200);
 
     } while (fd < 0);
 
@@ -85,7 +85,7 @@ static void *button_task_entry(void *args)
         last_status = status;
 
 END:
-        schedule_delay_ms(200);
+        msleep(200);
     }
 
     virt_close(fd);

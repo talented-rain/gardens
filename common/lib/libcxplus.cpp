@@ -1,7 +1,7 @@
 /*
  * C++ Standard Lib Reload
  *
- * File Name:   stdload.cpp
+ * File Name:   libcxplus.cpp
  * Author:      Yang Yujun
  * E-mail:      <yujiantianhu@163.com>
  * Created on:  2025.01.07
@@ -11,19 +11,19 @@
  */
 
 /*!< The globals */
-#include <common/stdload.h>
+#include <common/libcxplus.h>
 #include <common/io_stream.h>
 
 /*!< The defines */
 
 /*!< The globals */
-BEGIN_NAMESPACE(stream)
+BEGIN_NAMESPACE(bsc)
 
 istream cin;
 ostream cout;
 ostream cerr;
 
-END_NAMESPACE(stream)
+END_NAMESPACE(bsc)
 
 /*!< The functions */
 /*!

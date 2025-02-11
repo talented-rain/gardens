@@ -125,10 +125,6 @@ void start_kernel(void)
     if (fwk_of_platform_populate_init())
         goto fail;
 
-    /* platform initcall */
-    if (run_platform_initcall())
-        goto fail;
-
     /*!< enable interrupt */
     mrt_enable_cpu_irq();
 

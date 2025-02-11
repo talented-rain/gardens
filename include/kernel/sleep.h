@@ -24,9 +24,10 @@
 
 /*!< The functions */
 extern void schedule_timeout(kutime_t count);
-extern void schedule_delay(kuint32_t seconds);
-extern void schedule_delay_ms(kuint32_t milseconds);
-extern void schedule_delay_us(kuint32_t useconds);
+
+extern kuint32_t sleep(kuint32_t seconds);
+extern kuint32_t msleep(kuint32_t milseconds);
+extern kint32_t usleep(kuint32_t useconds);
 
 #ifdef __cplusplus
     }

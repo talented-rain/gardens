@@ -126,6 +126,7 @@ static kint32_t fatfs_disk_unmount(struct fwk_gendisk *sprt_gdisk)
     sprt_fdisk->path_lenth = 0;
 
     memset(&sprt_fdisk->sgrt_fatfs, 0, sizeof(sprt_fdisk->sgrt_fatfs));
+    print_info("unmount fatfs disk \"%s\"\n", sprt_fdisk->diskPath);
 
     return ER_NORMAL;
 }

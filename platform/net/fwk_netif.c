@@ -405,6 +405,8 @@ kint32_t fwk_netif_rx(struct fwk_sk_buff *sprt_skb)
 /*!< ----------------------------------------------------------------------- */
 struct fwk_netif_tcb
 {
+    struct fwk_sk_buff_head sgrt_head;
+    
     void *args;
     void (*pfunc_rx)(void *rxq, void *args);
 };
@@ -419,6 +421,7 @@ static void *fwk_netif_rx_entry(void *args)
 {
     struct fwk_netif_tcb *sprt_tcb;
     struct fwk_sk_buff_head *sprt_head;
+    kuint32_t flags;
 
     sprt_head = fwk_netif_rxq_get();
     sprt_tcb = (struct fwk_netif_tcb *)args;
@@ -426,13 +429,17 @@ static void *fwk_netif_rx_entry(void *args)
     for (;;)
     {
         if (mrt_skbuff_list_empty(sprt_head))
-            goto END;
+            schedule_self_suspend();
+
+        local_irq_save(&flags);
+
+        fwk_skb_split(&sprt_tcb->sgrt_head, sprt_head);
+        fwk_skb_list_init(sprt_head);
+
+        local_irq_restore(&flags);
 
         if (sprt_tcb->pfunc_rx)
-            sprt_tcb->pfunc_rx(sprt_head, sprt_tcb->args);
-
-    END:
-        schedule_self_suspend();
+            sprt_tcb->pfunc_rx(&sprt_tcb->sgrt_head, sprt_tcb->args);       
     }
 
     return args;
@@ -456,6 +463,7 @@ void fwk_netif_init(void (*pfunc_rx)(void *rxq, void *args), void *args)
 
     sprt_tcb->args = args;
     sprt_tcb->pfunc_rx = pfunc_rx;
+    fwk_skb_list_init(&sprt_tcb->sgrt_head);
 
     sprt_head = fwk_netif_rxq_get();
     fwk_skb_list_init(sprt_head);

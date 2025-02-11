@@ -321,6 +321,7 @@ static inline kint32_t fwk_skb_transport_offset(struct fwk_sk_buff *sprt_skb)
 static inline void fwk_skb_list_init(struct fwk_sk_buff_head *sprt_head)
 {
     sprt_head->sprt_prev = sprt_head->sprt_next = (struct fwk_sk_buff *)sprt_head;
+    sprt_head->qlen = 0;
 }
 
 /*!
@@ -341,6 +342,24 @@ static inline kint32_t fwk_skb_add_tail(struct fwk_sk_buff_head *sprt_head, stru
     sprt_head->qlen++;
 
     return ER_NORMAL;
+}
+
+/*!
+ * @brief   copy sprt_from to sprt_to
+ * @param   sprt_to, sprt_from
+ * @retval  none
+ * @note    none
+ */
+static inline void fwk_skb_split(struct fwk_sk_buff_head *sprt_to, struct fwk_sk_buff_head *sprt_from)
+{
+    struct fwk_sk_buff *sprt_next = sprt_to->sprt_prev->sprt_next;
+
+    sprt_to->sprt_prev->sprt_next = sprt_from->sprt_next;
+    sprt_from->sprt_next->sprt_prev = sprt_next;
+    sprt_to->sprt_prev = sprt_from->sprt_prev;
+    sprt_from->sprt_prev->sprt_next = (struct fwk_sk_buff *)sprt_to;
+
+    sprt_to->qlen += sprt_from->qlen;
 }
 
 /*!

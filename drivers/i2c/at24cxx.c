@@ -67,7 +67,7 @@ static kint32_t at24cxx_write_eeprom(struct at24cxx_drv_info *sprt_info, kuint8_
     struct fwk_i2c_msg sgrt_msgs;
 
     /*!< keep a certain interval between two writes */
-    schedule_delay_ms(100);
+    msleep(100);
 
     sgrt_msgs.addr = sprt_info->sprt_client->addr;
     sgrt_msgs.flags = 0;

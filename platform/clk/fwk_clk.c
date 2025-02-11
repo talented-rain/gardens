@@ -14,6 +14,7 @@
 #include <platform/of/fwk_of.h>
 #include <platform/clk/fwk_clk.h>
 #include <platform/clk/fwk_clk_provider.h>
+#include <kernel/mutex.h>
 
 /*!< API function */
 /*!
@@ -33,7 +34,9 @@ struct fwk_clk *fwk_clk_config(struct fwk_clk *sprt_clk, struct fwk_clk_hw *sprt
     sprt_clk->sprt_core = sprt_hw->sprt_core;
     sprt_clk->flags &= ~NR_FWK_CLK_IS_DYNAMIC;
 
+    mutex_lock(&sprt_hw->sprt_core->sgrt_mutex);
     list_head_add_tail(&sprt_hw->sprt_core->sgrt_clks, &sprt_clk->sgrt_link);
+    mutex_unlock(&sprt_hw->sprt_core->sgrt_mutex);
 
     return sprt_clk;
 }
@@ -112,6 +115,7 @@ struct fwk_clk *fwk_clk_register(struct fwk_device *sprt_dev, struct fwk_clk_hw 
     sprt_core->sprt_hw = sprt_hw;
     sprt_hw->sprt_core = sprt_core;
     init_list_head(&sprt_core->sgrt_clks);
+    mutex_init(&sprt_core->sgrt_mutex);
 
     sprt_core->parent_names = kzalloc(sprt_init->num_parents * sizeof(kchar_t *), GFP_KERNEL);
     if (!isValid(sprt_core->parent_names))
@@ -121,8 +125,7 @@ struct fwk_clk *fwk_clk_register(struct fwk_device *sprt_dev, struct fwk_clk_hw 
     {
         sprt_core->parent_names[i] = sprt_init->parent_names[i];
 
-        ERR_OUT(!sprt_core->parent_names[i], 
-                    "parent names is empty!\n");
+        ERR_OUT(!sprt_core->parent_names[i], "parent names is empty!\n");
         if (!sprt_core->parent_names[i])
             goto fail2;
     }
@@ -164,9 +167,12 @@ void fwk_clk_unregister(struct fwk_clk *sprt_clk)
     struct fwk_clk *sprt_child, *sprt_temp;
 
     sprt_hw = fwk_clk_to_hw(sprt_clk);
+    mutex_lock(&sprt_hw->sprt_core->sgrt_mutex);
 
     foreach_list_next_entry_safe(sprt_child, sprt_temp, &sprt_hw->sprt_core->sgrt_clks, sgrt_link)
         fwk_free_clk(sprt_child);
+
+    mutex_unlock(&sprt_hw->sprt_core->sgrt_mutex);
 
     if (sprt_hw->sprt_core->parent_names)
         kfree(sprt_hw->sprt_core->parent_names);

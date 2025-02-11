@@ -1,7 +1,7 @@
 /*
  * C++ Standard Lib Reload
  *
- * File Name:   stdload.h
+ * File Name:   libcxplus.h
  * Author:      Yang Yujun
  * E-mail:      <yujiantianhu@163.com>
  * Created on:  2025.01.07
@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef __STDLOAD_H
-#define __STDLOAD_H
+#ifndef __LIBCXPLUS_H
+#define __LIBCXPLUS_H
 
 /*!< The globals */
 #include <common/generic.h>
@@ -20,6 +20,11 @@
 /*!< The defines */
 #define BEGIN_NAMESPACE(name)                       namespace name {
 #define END_NAMESPACE(name)                         }
+
+/*!< ------------------------------------------------------------- */
+/*!< namespace is "basic" */
+BEGIN_NAMESPACE(bsc)
+/*!< ------------------------------------------------------------- */
 
 class string {
 public:
@@ -58,10 +63,6 @@ private:
     kssize_t lenth;
     kbool_t isdync;
 };
-
-/*!< ------------------------------------------------------------- */
-BEGIN_NAMESPACE(stream)
-/*!< ------------------------------------------------------------- */
 
 static inline void endl(void)
 {
@@ -147,7 +148,7 @@ extern ostream cout;
 extern ostream cerr;
 
 /*!< ------------------------------------------------------------- */
-END_NAMESPACE(stream)
+END_NAMESPACE(bsc)
 /*!< ------------------------------------------------------------- */
 
 #endif

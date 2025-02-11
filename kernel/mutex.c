@@ -38,7 +38,7 @@ void mutex_init(struct mutex_lock *sprt_lock)
  * @brief   mutex lock
  * @param   sprt_lock
  * @retval  none
- * @note    if it has been locked, schedule another thread
+ * @note    if it has been locked, schedule another thread; otherwise, lock it
  */
 void mutex_lock(struct mutex_lock *sprt_lock)
 {
@@ -49,6 +49,21 @@ void mutex_lock(struct mutex_lock *sprt_lock)
         schedule_thread();
     
     atomic_inc(&sprt_lock->sgrt_atc);
+}
+
+/*!
+ * @brief   mutex wait
+ * @param   sprt_lock
+ * @retval  none
+ * @note    if it has been locked, schedule another thread
+ */
+void mutex_wait(struct mutex_lock *sprt_lock)
+{
+    if (!mrt_current)
+        return;
+
+    while (mutex_is_locked(sprt_lock))
+        schedule_thread();
 }
 
 /*!

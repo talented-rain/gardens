@@ -56,12 +56,12 @@ static void *lvgl_task_entry(void *args)
     lv_port_fs_init();
 
     lvgl_task_setup(&sgrt_dctrl);
-    schedule_delay_ms(1);
+    msleep(1);
 
     for (;;)
     {
         lvgl_task(&sgrt_dctrl);
-        schedule_delay_ms(100);
+        msleep(100);
     }
 
     return args;

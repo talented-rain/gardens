@@ -139,6 +139,13 @@ extern srt_gic_t *fwk_get_gic_data(kuint32_t gic_nr);
 extern kint32_t fwk_gic_to_actual_irq(kint32_t hwirq);
 extern kint32_t fwk_gpc_to_gic_irq(kint32_t virq);
 
+/*!< API function */
+/*!
+ * @brief   gic enbale irq
+ * @param   none
+ * @retval  none
+ * @note    enable IRQ: group0
+ */
 static inline void hw_enable_irq(kint32_t hwirq)
 {
     srt_gic_t *sprt_gic = fwk_get_gic_data(0);
@@ -148,6 +155,12 @@ static inline void hw_enable_irq(kint32_t hwirq)
     mrt_setbit_towords(hwirq, &sprt_dist->D_ISENABLER);
 }
 
+/*!
+ * @brief   gic disable irq
+ * @param   none
+ * @retval  none
+ * @note    disable IRQ: group0
+ */
 static inline void hw_disable_irq(kint32_t hwirq)
 {
     srt_gic_t *sprt_gic = fwk_get_gic_data(0);

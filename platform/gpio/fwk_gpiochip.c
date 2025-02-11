@@ -13,9 +13,11 @@
 /*!< The includes */
 #include <platform/gpio/fwk_gpiochip.h>
 #include <platform/gpio/fwk_gpiodesc.h>
+#include <kernel/rw_lock.h>
 
 /*!< The globals */
 static DECLARE_LIST_HEAD(sgrt_fwk_gpiochip_list);
+static struct rw_lock sgrt_gpiochip_lock = RW_LOCK_INIT();
 
 /*!< API function */
 /*!
@@ -146,7 +148,10 @@ kint32_t fwk_gpiochip_add(struct fwk_gpio_chip *sprt_chip)
     }
 
     sprt_chip->sprt_desc = sprt_desc;
+
+    wr_lock(&sgrt_gpiochip_lock);
     list_head_add_tail(&sgrt_fwk_gpiochip_list, &sprt_chip->sgrt_link);
+    wr_unlock(&sgrt_gpiochip_lock);
 
     return ER_NORMAL;
 }
@@ -184,11 +189,15 @@ struct fwk_gpio_desc *fwk_gpiochip_and_desc_find(struct fwk_gpio_node_prop *sprt
     if (!sprt_spec || !sprt_data)
         return mrt_nullptr;
 
+    rd_lock(&sgrt_gpiochip_lock);
+
     foreach_list_next_entry(sprt_chip, &sgrt_fwk_gpiochip_list, sgrt_link)
     {
         gpio = sprt_chip->of_xlate(sprt_chip, sprt_spec, &flags);
         if (gpio < 0)
             continue;
+
+        rd_unlock(&sgrt_gpiochip_lock);
 
         sprt_data->sprt_par = sprt_spec->sprt_node;
         sprt_data->gpio = gpio;
@@ -198,6 +207,7 @@ struct fwk_gpio_desc *fwk_gpiochip_and_desc_find(struct fwk_gpio_node_prop *sprt
         return fwk_gpiochip_get_desc(sprt_chip, gpio);
     }
 
+    rd_unlock(&sgrt_gpiochip_lock);
     return mrt_nullptr;
 }
 

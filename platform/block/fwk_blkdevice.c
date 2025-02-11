@@ -16,6 +16,7 @@
 #include <platform/fwk_fs.h>
 #include <platform/block/fwk_gendisk.h>
 #include <platform/fwk_platdrv.h>
+#include <kernel/mutex.h>
 
 /*!< The defines */
 struct fwk_block_major_name
@@ -26,6 +27,7 @@ struct fwk_block_major_name
 
 /*!< The globals */
 struct fwk_block_major_name *sgrt_block_major_name[DEVICE_MAX_NUM];
+static struct mutex_lock sgrt_blkdev_mutex = MUTEX_LOCK_INIT();
 
 /*!< API function */
 /*!
@@ -126,13 +128,18 @@ kint32_t fwk_register_blkdev(kuint32_t major, const kchar_t *name)
 {
     struct fwk_block_major_name *sprt_blkdev;
 
+    mutex_lock(&sgrt_blkdev_mutex);
+
     sprt_blkdev = __fwk_register_blkdev(major, name);
     if (!isValid(sprt_blkdev))
     {
+        mutex_unlock(&sgrt_blkdev_mutex);
         print_err("register block device \"%s\" failed!\n", name);
+
         return -ER_FAILD;
     }
 
+    mutex_unlock(&sgrt_blkdev_mutex);
     return ER_NORMAL;
 }
 
@@ -144,7 +151,9 @@ kint32_t fwk_register_blkdev(kuint32_t major, const kchar_t *name)
  */
 void fwk_unregister_blkdev(kuint32_t major, const kchar_t *name)
 {
+    mutex_lock(&sgrt_blkdev_mutex);
     __fwk_unregister_blkdev(major, name);
+    mutex_unlock(&sgrt_blkdev_mutex);
 }
 
 /* end of file */

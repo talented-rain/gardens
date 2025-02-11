@@ -53,7 +53,7 @@ static void *init_proc_entry(void *args)
 
     for (;;)
     {  
-        schedule_delay_ms(200);
+        msleep(200);
     }
 
     return args;

@@ -13,6 +13,7 @@
 /*!< The includes */
 #include <configs/configs.h>
 #include <common/time.h>
+#include <kernel/spinlock.h>
 
 /*!< The defines */
 #define DELAY_SIMPLE_COUNTER_PER_MS								(0x7ff)
@@ -31,6 +32,7 @@ static kuint32_t g_simple_delay_timer = 0;
 static kuint32_t g_simple_timeout_cnt = 0;
 
 static DECLARE_LIST_HEAD(sgrt_global_timer_list);
+static DECLARE_SPIN_LOCK(sgrt_global_timer_lock);
 
 /*!< API function */
 /*!
@@ -210,7 +212,9 @@ void add_timer(struct timer_list *sprt_timer)
         (!sprt_timer->expires))
         return;
 
+    spin_lock_irqsave(&sgrt_global_timer_lock);
     list_head_add_tail(&sgrt_global_timer_list, &sprt_timer->sgrt_link);
+    spin_unlock_irqrestore(&sgrt_global_timer_lock);
 }
 
 /*!
@@ -224,7 +228,9 @@ void del_timer(struct timer_list *sprt_timer)
     if (!isValid(sprt_timer))
         return;
 
+    spin_lock_irqsave(&sgrt_global_timer_lock);
     list_head_del_safe(&sgrt_global_timer_list, &sprt_timer->sgrt_link);
+    spin_unlock_irqrestore(&sgrt_global_timer_lock);
 }
 
 /*!

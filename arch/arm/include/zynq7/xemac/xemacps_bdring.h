@@ -67,9 +67,9 @@ typedef struct {
 	kuint32_t PhysBaseAddr;/**< Physical address of 1st BD in list */
 	kuint32_t BaseBdAddr;	 /**< Virtual address of 1st BD in list */
 	kuint32_t HighBdAddr;	 /**< Virtual address of last BD in the list */
-	u32 Length;	 /**< Total size of ring in bytes */
+	kuint32_t Length;	 /**< Total size of ring in bytes */
 	kbool_t IsRunning;	 /**< Flag to indicate DMA is started */
-	u32 Separation;	 /**< Number of bytes between the starting address
+	kuint32_t Separation;	 /**< Number of bytes between the starting address
                                   of adjacent BDs */
 	XEmacPs_Bd *FreeHead;
 			     /**< First BD in the free group */
@@ -81,11 +81,11 @@ typedef struct {
 	XEmacPs_Bd *BdaRestart;
 			     /**< BDA to load when channel is started */
 
-	volatile u32 HwCnt;    /**< Number of BDs in work group */
-	u32 PreCnt;     /**< Number of BDs in pre-work group */
-	u32 FreeCnt;    /**< Number of allocatable BDs in the free group */
-	u32 PostCnt;    /**< Number of BDs in post-work group */
-	u32 AllCnt;     /**< Total Number of BDs for channel */
+	volatile kuint32_t HwCnt;    /**< Number of BDs in work group */
+	kuint32_t PreCnt;     /**< Number of BDs in pre-work group */
+	kuint32_t FreeCnt;    /**< Number of allocatable BDs in the free group */
+	kuint32_t PostCnt;    /**< Number of BDs in post-work group */
+	kuint32_t AllCnt;     /**< Total Number of BDs for channel */
 } XEmacPs_BdRing;
 
 
@@ -106,11 +106,11 @@ typedef struct {
 *
 * @note
 * C-style signature:
-*    u32 XEmacPs_BdRingCntCalc(u32 Alignment, u32 Bytes)
+*    kuint32_t XEmacPs_BdRingCntCalc(kuint32_t Alignment, kuint32_t Bytes)
 *
 ******************************************************************************/
 #define XEmacPs_BdRingCntCalc(Alignment, Bytes)                    \
-    (u32)((Bytes) / (sizeof(XEmacPs_Bd)))
+    (kuint32_t)((Bytes) / (sizeof(XEmacPs_Bd)))
 
 /*****************************************************************************/
 /**
@@ -127,11 +127,11 @@ typedef struct {
 *
 * @note
 * C-style signature:
-*    u32 XEmacPs_BdRingMemCalc(u32 Alignment, u32 NumBd)
+*    kuint32_t XEmacPs_BdRingMemCalc(kuint32_t Alignment, kuint32_t NumBd)
 *
 ******************************************************************************/
 #define XEmacPs_BdRingMemCalc(Alignment, NumBd)                    \
-    (u32)(sizeof(XEmacPs_Bd) * (NumBd))
+    (kuint32_t)(sizeof(XEmacPs_Bd) * (NumBd))
 
 /****************************************************************************/
 /**
@@ -144,7 +144,7 @@ typedef struct {
 *
 * @note
 * C-style signature:
-*    u32 XEmacPs_BdRingGetCnt(XEmacPs_BdRing* RingPtr)
+*    kuint32_t XEmacPs_BdRingGetCnt(XEmacPs_BdRing* RingPtr)
 *
 *****************************************************************************/
 #define XEmacPs_BdRingGetCnt(RingPtr) ((RingPtr)->AllCnt)
@@ -160,7 +160,7 @@ typedef struct {
 *
 * @note
 * C-style signature:
-*    u32 XEmacPs_BdRingGetFreeCnt(XEmacPs_BdRing* RingPtr)
+*    kuint32_t XEmacPs_BdRingGetFreeCnt(XEmacPs_BdRing* RingPtr)
 *
 *****************************************************************************/
 #define XEmacPs_BdRingGetFreeCnt(RingPtr)   ((RingPtr)->FreeCnt)
@@ -206,23 +206,32 @@ typedef struct {
     (XEmacPs_Bd*)((kuint32_t)(BdPtr) - (RingPtr)->Separation))
 
 /************************** Function Prototypes ******************************/
-extern kint32_t XEmacPs_BdRingCreate(XEmacPs_BdRing * RingPtr, kuint32_t PhysAddr,
-                                kuint32_t VirtAddr, u32 Alignment, u32 BdCount);
-extern kint32_t XEmacPs_BdRingClone(XEmacPs_BdRing *RingPtr, XEmacPs_Bd *SrcBdPtr, u8 Direction);
-extern kint32_t XEmacPs_BdRingAlloc(XEmacPs_BdRing *RingPtr, u32 NumBd, XEmacPs_Bd **BdSetPtr);
-extern kint32_t XEmacPs_BdRingUnAlloc(XEmacPs_BdRing * RingPtr, u32 NumBd, XEmacPs_Bd * BdSetPtr);
-extern kint32_t XEmacPs_BdRingFree(XEmacPs_BdRing * RingPtr, u32 NumBd, XEmacPs_Bd * BdSetPtr);
-extern kuint32_t XEmacPs_BdRingFromHwTx(XEmacPs_BdRing * RingPtr, u32 BdLimit, XEmacPs_Bd ** BdSetPtr);
-extern kuint32_t XEmacPs_BdRingFromHwRx(XEmacPs_BdRing * RingPtr, u32 BdLimit, XEmacPs_Bd ** BdSetPtr);
-extern kint32_t XEmacPs_BdRingToHw(XEmacPs_BdRing * RingPtr, u32 NumBd, XEmacPs_Bd * BdSetPtr);
+// extern kint32_t XEmacPs_BdRingCreate(XEmacPs_BdRing * RingPtr, kuint32_t PhysAddr,
+//                                 kuint32_t VirtAddr, kuint32_t Alignment, kuint32_t BdCount);
+// extern kint32_t XEmacPs_BdRingClone(XEmacPs_BdRing *RingPtr, XEmacPs_Bd *SrcBdPtr, kuint8_t Direction);
+// extern kint32_t XEmacPs_BdRingAlloc(XEmacPs_BdRing *RingPtr, kuint32_t NumBd, XEmacPs_Bd **BdSetPtr);
+// extern kint32_t XEmacPs_BdRingUnAlloc(XEmacPs_BdRing * RingPtr, kuint32_t NumBd, XEmacPs_Bd * BdSetPtr);
+// extern kint32_t XEmacPs_BdRingFree(XEmacPs_BdRing * RingPtr, kuint32_t NumBd, XEmacPs_Bd * BdSetPtr);
+// extern kuint32_t XEmacPs_BdRingFromHwTx(XEmacPs_BdRing * RingPtr, kuint32_t BdLimit, XEmacPs_Bd ** BdSetPtr);
+// extern kuint32_t XEmacPs_BdRingFromHwRx(XEmacPs_BdRing * RingPtr, kuint32_t BdLimit, XEmacPs_Bd ** BdSetPtr);
+// extern kint32_t XEmacPs_BdRingToHw(XEmacPs_BdRing * RingPtr, kuint32_t NumBd, XEmacPs_Bd * BdSetPtr);
+// 
+// extern void XEmacPsIf_DmaTxDescsClean(void *args);
+// extern kint32_t XEmacPs_DmaInit(void *args);
 
-extern void XEmacPsIf_DmaTxDescsClean(void *args);
-extern kint32_t XEmacPs_DmaInit(void *args);
+extern kint32_t XEmacPs_BdRingCreate(XEmacPs_BdRing *sprt_bdring, kuint32_t PhysAddr,
+                            kuint32_t VirtAddr, kuint32_t Alignment, kuint32_t BdCount);
+extern kint32_t XEmacPs_BdRingClone(XEmacPs_BdRing *sprt_bdring, XEmacPs_Bd *sprt_bd, kuint8_t Direction);
+extern kint32_t XEmacPs_BdRingAlloc(XEmacPs_BdRing *sprt_bdring, kuint32_t NumBd, XEmacPs_Bd **sprt_bd);
+extern kint32_t XEmacPs_BdRingUnAlloc(XEmacPs_BdRing *sprt_bdring, kuint32_t NumBd, XEmacPs_Bd *sprt_bd);
+extern kint32_t XEmacPs_BdRingFree(XEmacPs_BdRing *sprt_bdring, kuint32_t NumBd, XEmacPs_Bd *sprt_bd);
+extern kuint32_t XEmacPs_BdRingFromHwTx(XEmacPs_BdRing *sprt_bdring, kuint32_t BdLimit, XEmacPs_Bd **sprt_bd);
+extern kuint32_t XEmacPs_BdRingFromHwRx(XEmacPs_BdRing *sprt_bdring, kuint32_t BdLimit, XEmacPs_Bd **sprt_bd);
+extern kint32_t XEmacPs_BdRingToHw(XEmacPs_BdRing *sprt_bdring, kuint32_t NumBd, XEmacPs_Bd *sprt_bd);
 
 #ifdef __cplusplus
-}
+	}
 #endif
-
 
 #endif /* end of protection macros */
 /** @} */

@@ -20,6 +20,7 @@
 /*!< The includes */
 #include <common/generic.h>
 #include <common/list_types.h>
+#include <kernel/spinlock.h>
 
 #include "fwk_irq_domain.h"
 #include "fwk_irq_chip.h"
@@ -88,6 +89,8 @@ typedef struct fwk_irq_desc
 
 	struct list_head sgrt_link;
 	struct radix_link sgrt_radix;
+
+	struct spin_lock sgrt_lock;
 	
 	struct fwk_irq_data sgrt_data;
 

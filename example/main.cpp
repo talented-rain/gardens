@@ -108,7 +108,7 @@ crt_task_t::crt_task_t(const kchar_t *name, void *(*task_entry)(void *),
     }
 
     thread_set_name(this->tid, name);
-    stream::cout << "create new task: " << name << stream::endl;
+    bsc::cout << "create new task: " << name << bsc::endl;
 }
 
 /*!

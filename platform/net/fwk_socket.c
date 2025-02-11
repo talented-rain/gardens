@@ -17,6 +17,7 @@
 #include <platform/net/fwk_netif.h>
 #include <platform/net/fwk_socket.h>
 #include <kernel/mutex.h>
+#include <kernel/rw_lock.h>
 
 /*!< The defines */
 
@@ -24,6 +25,7 @@
 struct fwk_network_if_ops *sprt_fwk_network_if_oprts = mrt_nullptr;
 
 static struct mutex_lock sgrt_socket_mutex = MUTEX_LOCK_INIT();
+static struct rw_lock sgrt_network_mutex = RW_LOCK_INIT();
 static DECLARE_LIST_HEAD(sgrt_fwk_network_nodes);
 static DECLARE_RADIX_TREE(sgrt_sockets_radix_tree, default_malloc, kfree);
 static kuint32_t g_allocated_sockets[mrt_align(NET_SOCKETS_MAX, RET_BITS_PER_INT) / RET_BITS_PER_INT] = { 0 };
@@ -42,16 +44,24 @@ struct fwk_network_if *network_find_node(const kchar_t *name, struct fwk_sockadd
 {
     struct fwk_network_if *sprt_if;
 
+    rd_lock(&sgrt_network_mutex);
     foreach_list_next_entry(sprt_if, &sgrt_fwk_network_nodes, sgrt_link)
     {
         if (name && (!strcmp(sprt_if->ifname, name)))
+        {
+            rd_unlock(&sgrt_network_mutex);
             return sprt_if;
+        }
 
         if ((sprt_ip) && 
             (sprt_if->sgrt_ip.sin_addr.s_addr == sprt_ip->sin_addr.s_addr))
+        {
+            rd_unlock(&sgrt_network_mutex);
             return sprt_if;
+        }
     }
 
+    rd_unlock(&sgrt_network_mutex);
     return mrt_nullptr;
 }
 
@@ -113,7 +123,10 @@ kint32_t net_link_up(const kchar_t *name, struct fwk_sockaddr_in *sprt_ip,
     if (sprt_if->sprt_oprts->link_up(sprt_if))
         goto fail;
 
+    wr_lock(&sgrt_network_mutex);
     list_head_add_tail(&sgrt_fwk_network_nodes, &sprt_if->sgrt_link);
+    wr_unlock(&sgrt_network_mutex);
+
     return ER_NORMAL;
     
 fail:
@@ -163,9 +176,12 @@ kint32_t net_link_down(const kchar_t *name)
         return -ER_FAILD;
 
     fwk_netif_close(name);
-    list_head_del(&sprt_if->sgrt_link);
-    kfree(sprt_if);
 
+    wr_lock(&sgrt_network_mutex);
+    list_head_del(&sprt_if->sgrt_link);
+    wr_unlock(&sgrt_network_mutex);
+
+    kfree(sprt_if);
     return ER_NORMAL;
 }
 

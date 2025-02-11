@@ -14,10 +14,13 @@
 #include <platform/fwk_fcntl.h>
 #include <platform/net/fwk_ether.h>
 #include <platform/net/fwk_if.h>
+#include <kernel/mailbox.h>
 
+#include "../../../task.h"
 #include "app.h"
 
-using namespace stream;
+using namespace bsc;
+using namespace tsk;
 
 /*!< The defines */
 #define DEFAULT_IP_ADDRESS          "192.168.253.206"
@@ -33,7 +36,7 @@ using namespace stream;
  * @retval none
  * @note   none
  */
-void lwip_task_startup(crt_lwip_data_t &sgrt_data)
+void crt_lwip_data_t::startup(void)
 {
     struct fwk_sockaddr_in sgrt_local;
     struct fwk_sockaddr_in sgrt_ip, sgrt_gw, sgrt_netmask;
@@ -61,7 +64,7 @@ void lwip_task_startup(crt_lwip_data_t &sgrt_data)
     if (retval)
         goto fail2;
 
-    sgrt_data.fd = sockfd;
+    this->fd = sockfd;
     return;
 
 fail2:
@@ -76,14 +79,17 @@ fail1:
  * @retval none
  * @note   none
  */
-void lwip_task(crt_lwip_data_t &sgrt_data)
+void crt_lwip_data_t::excute(void)
 {
     struct fwk_sockaddr_in sgrt_remote;
     const kchar_t *msg = "HeavenFox OS will be all the best!";
     fwk_socklen_t addrlen;
     kssize_t len;
+    crt_task_t *cprt_this = (crt_task_t *)this->args;
+    struct mailbox &sgrt_mb = cprt_this->get_mailbox();
+    struct mail *sprt_mail;
 
-    if (sgrt_data.fd < 0)
+    if (this->fd < 0)
         return;
 
     sgrt_remote.sin_port = mrt_htons(7);
@@ -91,7 +97,7 @@ void lwip_task(crt_lwip_data_t &sgrt_data)
     sgrt_remote.sin_addr.s_addr = fwk_inet_addr(DEFAULT_IP_ADDRESS);
     memset(sgrt_remote.zero, 0, sizeof(sgrt_remote.zero));
 
-    len = socket_sendto(sgrt_data.fd, msg, strlen(msg) + 1, 0, 
+    len = socket_sendto(this->fd, msg, strlen(msg) + 1, 0, 
                     (struct fwk_sockaddr *)&sgrt_remote, sizeof(struct fwk_sockaddr));
     if (len <= 0)
     {
@@ -100,7 +106,7 @@ void lwip_task(crt_lwip_data_t &sgrt_data)
     }
 
     /*!< blocking */
-    len = socket_recvfrom(sgrt_data.fd, sgrt_data.rx_buffer, 128, 0, 
+    len = socket_recvfrom(this->fd, this->rx_buffer, 128, 0, 
                     (struct fwk_sockaddr *)&sgrt_remote, &addrlen);
     if (len <= 0)
     {
@@ -108,8 +114,28 @@ void lwip_task(crt_lwip_data_t &sgrt_data)
         return;
     }
 
-    sgrt_data.rx_buffer[len] = '\0';
-//  cout << "recv data is: " << sgrt_data.rx_buffer << endl;
+    this->rx_buffer[len] = '\0';
+
+    sprt_mail = mail_recv(&sgrt_mb, 0);
+    if (!isValid(sprt_mail))
+        goto END;
+
+    if (sprt_mail->sprt_msg->type == NR_MAIL_TYPE_SERIAL)
+    {
+        kchar_t *buffer = (kchar_t *)sprt_mail->sprt_msg[0].buffer;
+
+        if (!kstrncmp(buffer, "echo", 4))
+            this->echo_cnt++;
+    }
+
+    mail_recv_finish(sprt_mail);
+
+END:
+    if (this->echo_cnt)
+    {
+        this->echo_cnt--;
+        cout << "recv data is: " << this->rx_buffer << endl;
+    }
 }
 
 /*!< end of file */

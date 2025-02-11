@@ -69,7 +69,7 @@ static void *kworker_entry(void *args)
         continue;
 
 END:
-        schedule_delay_ms(200);
+        msleep(200);
     }
 
     return args;

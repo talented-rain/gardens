@@ -12,9 +12,11 @@
 
 /*!< The includes */
 #include <platform/fwk_chrdev.h>
+#include <kernel/mutex.h>
 
 /*!< The globals */
 struct fwk_char_device *sgrt_fwk_chrdevs[DEVICE_MAX_NUM];
+static struct mutex_lock sgrt_fwk_chrdev_lock = MUTEX_LOCK_INIT();
 
 /*!< The functions */
 static struct fwk_char_device *__fwk_register_chrdev(kuint32_t major, kuint32_t baseminor, kuint32_t count, const kchar_t *name);
@@ -235,7 +237,10 @@ kint32_t fwk_alloc_chrdev(kuint32_t *devNum, kuint32_t baseminor, kuint32_t coun
 {
     struct fwk_char_device *sprt_chrdev;
 
+    mutex_lock(&sgrt_fwk_chrdev_lock);
     sprt_chrdev = __fwk_register_chrdev(0, baseminor, count, name);
+    mutex_unlock(&sgrt_fwk_chrdev_lock);
+
     if (!isValid(sprt_chrdev))
         return -ER_FAULT;
 
@@ -257,6 +262,8 @@ kint32_t fwk_register_chrdev(kuint32_t devNum, kuint32_t count, const kchar_t *n
     kuint32_t n, next;
 
     last = devNum + count;
+
+    mutex_lock(&sgrt_fwk_chrdev_lock);
     for (n = devNum; n < last; n = next)
     {
         major = GET_DEV_MAJOR(n);
@@ -268,14 +275,18 @@ kint32_t fwk_register_chrdev(kuint32_t devNum, kuint32_t count, const kchar_t *n
             goto fail;
     }
 
+    mutex_unlock(&sgrt_fwk_chrdev_lock);
     return ER_NORMAL;
 
 fail:
+    mutex_unlock(&sgrt_fwk_chrdev_lock);
+
     /*!<
      * If the registration fails, you will need to cancel the previous registration together
      * The number of devices that have been registered: count = n - devNum
      */
     fwk_unregister_chrdev(devNum, n - devNum);
+
     return -ER_FAILD;
 }
 
@@ -292,6 +303,8 @@ void fwk_unregister_chrdev(kuint32_t devNum, kuint32_t count)
     kuint32_t n, next;
 
     last = devNum + count;
+
+    mutex_lock(&sgrt_fwk_chrdev_lock);
     for (n = devNum; n < last; n = next)
     {
         major = GET_DEV_MAJOR(n);
@@ -302,6 +315,8 @@ void fwk_unregister_chrdev(kuint32_t devNum, kuint32_t count)
         if (isValid(sprt_chrdev))
             kfree(sprt_chrdev);
     }
+
+    mutex_unlock(&sgrt_fwk_chrdev_lock);
 }
 
 /*!< end of file */

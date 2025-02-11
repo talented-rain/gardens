@@ -23,6 +23,8 @@
 #include <platform/of/fwk_of.h>
 
 /*!< The defines */
+struct mutex_lock;
+
 enum __ERT_FWK_CLK_FLAG
 {
 	NR_FWK_CLK_IS_DYNAMIC = mrt_bit(0),
@@ -60,6 +62,7 @@ typedef struct fwk_clk_core
 	kuint32_t prepare_count;
 
 	struct list_head sgrt_clks;
+	struct mutex_lock sgrt_mutex;
 
 } srt_fwk_clk_core_t;
 

@@ -70,7 +70,7 @@ extern "C" {
 #define MAX_FRAME_SIZE_JUMBO (XEMACPS_MTU_JUMBO + XEMACPS_HDR_SIZE + XEMACPS_TRL_SIZE)
 
 struct xemac_s {
-    int  topology_index;
+    kint32_t  topology_index;
     void *state;
 };
 
@@ -78,11 +78,11 @@ struct xemac_s {
  * using a particular temac instance
  */
 typedef struct {
-	XEmacPs emacps;
+	XEmacPs sgrt_emacps;
 
 	/* queue to store overflow packets */
-	srt_pq_t *recv_q;
-	srt_pq_t *send_q;
+	srt_pq_t *sprt_rxq;
+	srt_pq_t *sprt_txq;
 
 	/* pointers to memory holding buffer descriptors (used only with SDMA) */
 	void *rx_bdspace;
@@ -92,24 +92,22 @@ typedef struct {
 
 } xemacpsif_s;
 
-extern xemacpsif_s xemacpsif;
-
-extern void XEmacPsIf_SentBds(xemacpsif_s *xemacpsif, XEmacPs_BdRing *txring);
-extern kint32_t XEmacPsIf_SgSend(xemacpsif_s *xemacpsif, struct pbuf *p);
-extern void XEmacPsIf_ResetRx_WithNoRxData(xemacpsif_s *xemacpsif);
-extern void XEmacPsIf_SetupRxBds(xemacpsif_s *xemacpsif, XEmacPs_BdRing *rxring);
-extern void XEmacPsIf_TxRxBuffer_Free(xemacpsif_s *xemacpsif);
-extern void XEmacPsIf_TxBuffer_Free(xemacpsif_s *xemacpsif);
-extern void XEmacPsIf_Init_OnError(xemacpsif_s *xemacps);
-extern void XEmacPsIf_HandleError(void *args);
-extern void XEmacPsIf_HandleTxErrors(void *args);
-extern void XEmacPsIf_SendHandler(void *arg);
-extern void XEmacPsIf_RecvHandler(void *arg);
-extern void XEmacPsIf_ErrorHandler(void *arg, u8 Direction, u32 ErrorWord);
-extern void XEmacPsIf_SetupIsr(void *args);
-extern void XEmacPs_IntrHandler(void *XEmacPsPtr);
-
-extern void XEmacPsIf_Start(xemacpsif_s *xemacps);
+// extern void XEmacPsIf_SentBds(xemacpsif_s *xemacpsif, XEmacPs_BdRing *txring);
+// extern kint32_t XEmacPsIf_SgSend(xemacpsif_s *xemacpsif, struct pbuf *p);
+// extern void XEmacPsIf_ResetRx_WithNoRxData(xemacpsif_s *xemacpsif);
+// extern void XEmacPsIf_SetupRxBds(xemacpsif_s *xemacpsif, XEmacPs_BdRing *rxring);
+// extern void XEmacPsIf_TxRxBuffer_Free(xemacpsif_s *xemacpsif);
+// extern void XEmacPsIf_TxBuffer_Free(xemacpsif_s *xemacpsif);
+// extern void XEmacPsIf_Init_OnError(xemacpsif_s *xemacps);
+// extern void XEmacPsIf_HandleError(void *args);
+// extern void XEmacPsIf_HandleTxErrors(void *args);
+// extern void XEmacPsIf_SendHandler(void *arg);
+// extern void XEmacPsIf_RecvHandler(void *arg);
+// extern void XEmacPsIf_ErrorHandler(void *arg, kuint8_t Direction, kuint32_t ErrorWord);
+// extern void XEmacPsIf_SetupIsr(void *args);
+// extern void XEmacPs_IntrHandler(void *XEmacPsPtr);
+// 
+// extern void XEmacPsIf_Start(xemacpsif_s *xemacps);
 
 #ifdef __cplusplus
 }

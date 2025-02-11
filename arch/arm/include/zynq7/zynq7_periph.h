@@ -26,30 +26,9 @@
 #include "xaxivdma_hw.h"
 
 /*!< The defines */
-typedef kuaddr_t UINTPTR;
-typedef kint32_t LONG;
-
-#define XIL_COMPONENT_IS_READY              0x11111111U     /**< In device drivers, This macro will be
-                                                                assigend to "IsReady" member of driver
-												                instance to indicate that driver
-												                instance is initialized and ready to use. */
-#define XIL_COMPONENT_IS_STARTED            0x22222222U     /**< In device drivers, This macro will be assigend to
-                                                                "IsStarted" member of driver instance
-												                to indicate that driver instance is
-												                started and it can be enabled. */
-
 #define xil_printf                          print_debug
 #define ULONG64_HI_MASK	                    0xFFFFFFFF00000000U
 #define ULONG64_LO_MASK	                    (~ULONG64_HI_MASK)
-
-#define XSdPs_WriteReg8(addr, offset, data) \
-                                            mrt_writeb(data, (addr) + (offset))
-#define XSdPs_WriteReg16(addr, offset, data)    \
-                                            mrt_writew(data, (addr) + (offset))
-#define XSdPs_WriteReg(addr, offset, data)  mrt_writel(data, (addr) + (offset))
-#define XSdPs_ReadReg8(addr, offset)        mrt_readb((addr) + (offset))
-#define XSdPs_ReadReg16(addr, offset)       mrt_readw((addr) + (offset))
-#define XSdPs_ReadReg(addr, offset)         mrt_readl((addr) + (offset))
 
 #define OPCODE_EXIT                         0U
 #define OPCODE_CLEAR                        1U
@@ -468,6 +447,15 @@ typedef struct
 /*!< ---------------------------------------------------------------------
                                 SdPs                                   
  ---------------------------------------------------------------------- */
+#define XSdPs_WriteReg8(addr, offset, data) \
+                                            mrt_writeb(data, (addr) + (offset))
+#define XSdPs_WriteReg16(addr, offset, data)    \
+                                            mrt_writew(data, (addr) + (offset))
+#define XSdPs_WriteReg(addr, offset, data)  mrt_writel(data, (addr) + (offset))
+#define XSdPs_ReadReg8(addr, offset)        mrt_readb((addr) + (offset))
+#define XSdPs_ReadReg16(addr, offset)       mrt_readw((addr) + (offset))
+#define XSdPs_ReadReg(addr, offset)         mrt_readl((addr) + (offset))
+
 /*!< @name Register Map
  *
  * Register offsets from the base address of an SD device.

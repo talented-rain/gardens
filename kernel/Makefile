@@ -17,6 +17,7 @@ obj-y	+=	thread.o
 obj-y	+=	spinlock.o
 obj-y	+=	mutex.o
 obj-y	+=	semaphore.o
+obj-y	+=	rw_lock.o
 obj-y	+=	mailbox.o
 obj-y	+=	workqueue.o
 obj-y	+=	wait.o

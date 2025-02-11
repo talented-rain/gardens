@@ -312,7 +312,7 @@ struct mail *mail_recv(struct mailbox *sprt_mb, kutime_t timeout)
         if (!timeout)
             return ERR_PTR(-ER_EMPTY);
 
-        schedule_delay_ms(timeout);
+        msleep(timeout);
     }
 
     /*!< get each mail */

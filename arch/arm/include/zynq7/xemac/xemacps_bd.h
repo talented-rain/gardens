@@ -77,7 +77,7 @@
 #define XEMACPS_BD_H		/* by using protection macros */
 
 #ifdef __cplusplus
-extern "C" {
+    extern "C" {
 #endif
 
 /***************************** Include Files *********************************/
@@ -101,7 +101,7 @@ extern "C" {
 /**
  * The XEmacPs_Bd is the type for buffer descriptors (BDs).
  */
-typedef u32 XEmacPs_Bd[XEMACPS_BD_NUM_WORDS];
+typedef kuint32_t XEmacPs_Bd[XEMACPS_BD_NUM_WORDS];
 
 
 /***************** Macros (Inline Functions) Definitions *********************/
@@ -134,11 +134,11 @@ typedef u32 XEmacPs_Bd[XEMACPS_BD_NUM_WORDS];
 *
 * @note
 * C-style signature:
-*    u32 XEmacPs_BdRead(kuint32_t BaseAddress, kuint32_t Offset)
+*    kuint32_t XEmacPs_BdRead(kuint32_t BaseAddress, kuint32_t Offset)
 *
 *****************************************************************************/
 #define XEmacPs_BdRead(BaseAddress, Offset)             \
-	(*(u32 *)((kuint32_t)((void*)(BaseAddress)) + (u32)(Offset)))
+	(*(kuint32_t *)((kuint32_t)((void*)(BaseAddress)) + (kuint32_t)(Offset)))
 
 /****************************************************************************/
 /**
@@ -157,7 +157,7 @@ typedef u32 XEmacPs_Bd[XEMACPS_BD_NUM_WORDS];
 *
 *****************************************************************************/
 #define XEmacPs_BdWrite(BaseAddress, Offset, Data)              \
-    (*(u32 *)((kuint32_t)(void*)(BaseAddress) + (u32)(Offset)) = (u32)(Data))
+    (*(kuint32_t *)((kuint32_t)(void*)(BaseAddress) + (kuint32_t)(Offset)) = (kuint32_t)(Data))
 
 /*****************************************************************************/
 /**
@@ -175,12 +175,12 @@ typedef u32 XEmacPs_Bd[XEMACPS_BD_NUM_WORDS];
 #if defined(__aarch64__) || defined(__arch64__)
 #define XEmacPs_BdSetAddressTx(BdPtr, Addr)                        \
     XEmacPs_BdWrite((BdPtr), XEMACPS_BD_ADDR_OFFSET,		\
-			(u32)((Addr) & ULONG64_LO_MASK));		\
+			(kuint32_t)((Addr) & ULONG64_LO_MASK));		\
     XEmacPs_BdWrite((BdPtr), XEMACPS_BD_ADDR_HI_OFFSET,		\
-	(u32)(((Addr) & ULONG64_HI_MASK) >> 32U));
+	(kuint32_t)(((Addr) & ULONG64_HI_MASK) >> 32U));
 #else
 #define XEmacPs_BdSetAddressTx(BdPtr, Addr)                        \
-    XEmacPs_BdWrite((BdPtr), XEMACPS_BD_ADDR_OFFSET, (u32)(Addr))
+    XEmacPs_BdWrite((BdPtr), XEMACPS_BD_ADDR_OFFSET, (kuint32_t)(Addr))
 #endif
 
 /*****************************************************************************/
@@ -201,9 +201,9 @@ typedef u32 XEmacPs_Bd[XEMACPS_BD_NUM_WORDS];
 #define XEmacPs_BdSetAddressRx(BdPtr, Addr)                        \
     XEmacPs_BdWrite((BdPtr), XEMACPS_BD_ADDR_OFFSET,              \
     ((XEmacPs_BdRead((BdPtr), XEMACPS_BD_ADDR_OFFSET) &           \
-	~XEMACPS_RXBUF_ADD_MASK) | ((u32)((Addr) & ULONG64_LO_MASK))));  \
+	~XEMACPS_RXBUF_ADD_MASK) | ((kuint32_t)((Addr) & ULONG64_LO_MASK))));  \
     XEmacPs_BdWrite((BdPtr), XEMACPS_BD_ADDR_HI_OFFSET, 	\
-	(u32)(((Addr) & ULONG64_HI_MASK) >> 32U));
+	(kuint32_t)(((Addr) & ULONG64_HI_MASK) >> 32U));
 #else
 #define XEmacPs_BdSetAddressRx(BdPtr, Addr)                        \
     XEmacPs_BdWrite((BdPtr), XEMACPS_BD_ADDR_OFFSET,              \
@@ -238,7 +238,7 @@ typedef u32 XEmacPs_Bd[XEMACPS_BD_NUM_WORDS];
  *
  * @note
  * C-style signature:
- *    u32 XEmacPs_BdGetStatus(XEmacPs_Bd* BdPtr)
+ *    kuint32_t XEmacPs_BdGetStatus(XEmacPs_Bd* BdPtr)
  *
  * Due to the BD bit layout differences in transmit and receive. User's
  * caution is required.
@@ -277,7 +277,7 @@ typedef u32 XEmacPs_Bd[XEMACPS_BD_NUM_WORDS];
  *
  * @note
  * C-style signature:
- *    void XEmacPs_BdSetLength(XEmacPs_Bd* BdPtr, u32 LenBytes)
+ *    void XEmacPs_BdSetLength(XEmacPs_Bd* BdPtr, kuint32_t LenBytes)
  *
  *****************************************************************************/
 #define XEmacPs_BdSetLength(BdPtr, LenBytes)                       \
@@ -415,7 +415,7 @@ typedef u32 XEmacPs_Bd[XEMACPS_BD_NUM_WORDS];
  *
  * @note
  * C-style signature:
- *    u8 XEmacPs_BdIsRxWrap(XEmacPs_Bd* BdPtr)
+ *    kuint8_t XEmacPs_BdIsRxWrap(XEmacPs_Bd* BdPtr)
  *
  *****************************************************************************/
 #define XEmacPs_BdIsRxWrap(BdPtr)                                  \
@@ -450,7 +450,7 @@ typedef u32 XEmacPs_Bd[XEMACPS_BD_NUM_WORDS];
  *
  * @note
  * C-style signature:
- *    u8 XEmacPs_BdGetTxWrap(XEmacPs_Bd* BdPtr)
+ *    kuint8_t XEmacPs_BdGetTxWrap(XEmacPs_Bd* BdPtr)
  *
  *****************************************************************************/
 #define XEmacPs_BdIsTxWrap(BdPtr)                                  \

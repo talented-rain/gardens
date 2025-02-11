@@ -16,11 +16,6 @@
 #include <common/generic.h>
 #include <common/io_stream.h>
 #include <platform/fwk_fcntl.h>
-#include <platform/video/fwk_fbmem.h>
-#include <platform/video/fwk_font.h>
-#include <platform/video/fwk_disp.h>
-#include <platform/video/fwk_rgbmap.h>
-#include <platform/video/fwk_bitmap.h>
 #include <kernel/kernel.h>
 #include <kernel/sched.h>
 #include <kernel/thread.h>
@@ -50,13 +45,17 @@ static crt_lwip_data_t sgrt_lwip_task_data;
  */
 static void *lwip_task_entry(void *args)
 {
-    crt_lwip_data_t &sgrt_data = sgrt_lwip_task_data;
-    lwip_task_startup(sgrt_data);
+    crt_lwip_data_t &cgrt_data = sgrt_lwip_task_data;
+
+    cgrt_data.args = args;
+    cgrt_data.echo_cnt = 0;
+
+    cgrt_data.startup();
 
     for (;;)
     {
-        lwip_task(sgrt_data);
-        schedule_delay_ms(200);
+        cgrt_data.excute();
+        msleep(200);
     }
 
     return args;

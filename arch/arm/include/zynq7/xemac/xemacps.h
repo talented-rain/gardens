@@ -432,15 +432,15 @@ extern "C" {
 #define XEMACPS_SGMII_ENABLE_OPTION	0x00008000U
 
 #define XEMACPS_DEFAULT_OPTIONS                     \
-    ((u32)XEMACPS_FLOW_CONTROL_OPTION |                  \
-     (u32)XEMACPS_FCS_INSERT_OPTION |                    \
-     (u32)XEMACPS_FCS_STRIP_OPTION |                     \
-     (u32)XEMACPS_BROADCAST_OPTION |                     \
-     (u32)XEMACPS_LENTYPE_ERR_OPTION |                   \
-     (u32)XEMACPS_TRANSMITTER_ENABLE_OPTION |            \
-     (u32)XEMACPS_RECEIVER_ENABLE_OPTION |               \
-     (u32)XEMACPS_RX_CHKSUM_ENABLE_OPTION |              \
-     (u32)XEMACPS_TX_CHKSUM_ENABLE_OPTION)
+    ((kuint32_t)XEMACPS_FLOW_CONTROL_OPTION |                  \
+     (kuint32_t)XEMACPS_FCS_INSERT_OPTION |                    \
+     (kuint32_t)XEMACPS_FCS_STRIP_OPTION |                     \
+     (kuint32_t)XEMACPS_BROADCAST_OPTION |                     \
+     (kuint32_t)XEMACPS_LENTYPE_ERR_OPTION |                   \
+     (kuint32_t)XEMACPS_TRANSMITTER_ENABLE_OPTION |            \
+     (kuint32_t)XEMACPS_RECEIVER_ENABLE_OPTION |               \
+     (kuint32_t)XEMACPS_RX_CHKSUM_ENABLE_OPTION |              \
+     (kuint32_t)XEMACPS_TX_CHKSUM_ENABLE_OPTION)
 
 /**< Default options set when device is initialized or reset */
 /*@}*/
@@ -514,8 +514,8 @@ typedef void (*XEmacPs_Handler) (void *CallBackRef);
  * @param ErrorWord definition varies with Direction
  *
  */
-typedef void (*XEmacPs_ErrHandler) (void *CallBackRef, u8 Direction,
-				     u32 ErrorWord);
+typedef void (*XEmacPs_ErrHandler) (void *CallBackRef, kuint8_t Direction,
+				     kuint32_t ErrorWord);
 
 /*@}*/
 
@@ -523,9 +523,9 @@ typedef void (*XEmacPs_ErrHandler) (void *CallBackRef, u8 Direction,
  * This typedef contains configuration information for a device.
  */
 typedef struct {
-	u16 DeviceId;	/**< Unique ID  of device */
+	kuint16_t DeviceId;	/**< Unique ID  of device */
 	kuint32_t BaseAddress;/**< Physical base address of IPIF registers */
-	u8 IsCacheCoherent; /**< Applicable only to A53 in EL1 mode;
+	kuint8_t IsCacheCoherent; /**< Applicable only to A53 in EL1 mode;
 				* describes whether Cache Coherent or not */
 } XEmacPs_Config;
 
@@ -539,7 +539,7 @@ typedef struct XEmacPs_Instance {
 	XEmacPs_Config Config;	/* Hardware configuration */
 	kbool_t IsStarted;		/* Device is currently started */
 	kbool_t IsReady;		/* Device is initialized and ready */
-	u32 Options;		/* Current options word */
+	kuint32_t Options;		/* Current options word */
 
 	XEmacPs_BdRing TxBdRing;	/* Transmit BD ring */
 	XEmacPs_BdRing RxBdRing;	/* Receive BD ring */
@@ -551,11 +551,11 @@ typedef struct XEmacPs_Instance {
 
 	XEmacPs_ErrHandler ErrorHandler;
 	void *ErrorRef;
-	u32 Version;
-	u32 RxBufMask;
-	u32 MaxMtuSize;
-	u32 MaxFrameSize;
-	u32 MaxVlanFrameSize;
+	kuint32_t Version;
+	kuint32_t RxBufMask;
+	kuint32_t MaxMtuSize;
+	kuint32_t MaxFrameSize;
+	kuint32_t MaxVlanFrameSize;
 
 } XEmacPs;
 
@@ -607,7 +607,7 @@ typedef struct XEmacPs_Instance {
 * @note
 * The state of the transmitter and receiver are not modified by this function.
 * C-style signature
-*     void XEmacPs_IntEnable(XEmacPs *InstancePtr, u32 Mask)
+*     void XEmacPs_IntEnable(XEmacPs *InstancePtr, kuint32_t Mask)
 *
 *****************************************************************************/
 #define XEmacPs_IntEnable(InstancePtr, Mask)                            \
@@ -628,7 +628,7 @@ typedef struct XEmacPs_Instance {
 * @note
 * The state of the transmitter and receiver are not modified by this function.
 * C-style signature
-*     void XEmacPs_IntDisable(XEmacPs *InstancePtr, u32 Mask)
+*     void XEmacPs_IntDisable(XEmacPs *InstancePtr, kuint32_t Mask)
 *
 *****************************************************************************/
 #define XEmacPs_IntDisable(InstancePtr, Mask)                           \
@@ -649,7 +649,7 @@ typedef struct XEmacPs_Instance {
 * @note
 * The state of the transmitter and receiver are not modified by this function.
 * C-style signature
-*     void XEmacPs_IntQ1Enable(XEmacPs *InstancePtr, u32 Mask)
+*     void XEmacPs_IntQ1Enable(XEmacPs *InstancePtr, kuint32_t Mask)
 *
 *****************************************************************************/
 #define XEmacPs_IntQ1Enable(InstancePtr, Mask)                            \
@@ -670,7 +670,7 @@ typedef struct XEmacPs_Instance {
 * @note
 * The state of the transmitter and receiver are not modified by this function.
 * C-style signature
-*     void XEmacPs_IntDisable(XEmacPs *InstancePtr, u32 Mask)
+*     void XEmacPs_IntDisable(XEmacPs *InstancePtr, kuint32_t Mask)
 *
 *****************************************************************************/
 #define XEmacPs_IntQ1Disable(InstancePtr, Mask)                           \
@@ -708,18 +708,18 @@ typedef struct XEmacPs_Instance {
 *
 * @return
 *
-* Boolean TRUE if the device is configured with checksum offloading, or
-* FALSE otherwise.
+* Boolean true if the device is configured with checksum offloading, or
+* false otherwise.
 *
 * @note
 *
-* Signature: u32 XEmacPs_IsRxCsum(XEmacPs *InstancePtr)
+* Signature: kuint32_t XEmacPs_IsRxCsum(XEmacPs *InstancePtr)
 *
 *****************************************************************************/
 #define XEmacPs_IsRxCsum(InstancePtr)                                     \
         ((XEmacPs_ReadReg((InstancePtr)->Config.BaseAddress,             \
           XEMACPS_NWCFG_OFFSET) & XEMACPS_NWCFG_RXCHKSUMEN_MASK) != 0U     \
-          ? TRUE : FALSE)
+          ? true : false)
 
 /****************************************************************************/
 /**
@@ -731,41 +731,63 @@ typedef struct XEmacPs_Instance {
 *
 * @return
 *
-* Boolean TRUE if the device is configured with checksum offloading, or
-* FALSE otherwise.
+* Boolean true if the device is configured with checksum offloading, or
+* false otherwise.
 *
 * @note
 *
-* Signature: u32 XEmacPs_IsTxCsum(XEmacPs *InstancePtr)
+* Signature: kuint32_t XEmacPs_IsTxCsum(XEmacPs *InstancePtr)
 *
 *****************************************************************************/
 #define XEmacPs_IsTxCsum(InstancePtr)                                     \
         ((XEmacPs_ReadReg((InstancePtr)->Config.BaseAddress,              \
           XEMACPS_DMACR_OFFSET) & XEMACPS_DMACR_TCPCKSUM_MASK) != 0U       \
-          ? TRUE : FALSE)
+          ? true : false)
 
 /************************** Function Prototypes *****************************/
-extern void XEmacPs_Start(XEmacPs *sprt_emacps);
-extern void XEmacPs_Stop(XEmacPs *sprt_emacps);
-extern void XEmacPs_SetQueuePtr(XEmacPs *sprt_emacps, kuint32_t QPtr, u8 QueueNum, u16 Direction);
-extern void XEmacPs_ClearHash(XEmacPs *sprt_emacps);
-extern kint32_t XEmacPs_SetMacAddress(XEmacPs *sprt_emacps, void *AddressPtr, u8 Index);
-extern kint32_t XEmacPs_SetTypeIdCheck(XEmacPs *sprt_emacps, u32 Id_Check, u8 Index);
-extern kint32_t XEmacPs_SetOptions(XEmacPs *sprt_emacps, u32 Options);
-extern kint32_t XEmacPs_ClearOptions(XEmacPs *sprt_emacps, u32 Options);
-extern void XEmacPs_Reset(XEmacPs *sprt_emacps);
-extern void XEmacPs_SetMdioDivisor(XEmacPs *sprt_emacps, XEmacPs_MdcDiv Divisor);
+// extern void XEmacPs_Start(XEmacPs *sprt_emacps);
+// extern void XEmacPs_Stop(XEmacPs *sprt_emacps);
+// extern void XEmacPs_SetQueuePtr(XEmacPs *sprt_emacps, kuint32_t QPtr, kuint8_t QueueNum, kuint16_t Direction);
+// extern void XEmacPs_ClearHash(XEmacPs *sprt_emacps);
+// extern kint32_t XEmacPs_SetMacAddress(XEmacPs *sprt_emacps, void *AddressPtr, kuint8_t Index);
+// extern kint32_t XEmacPs_SetTypeIdCheck(XEmacPs *sprt_emacps, kuint32_t Id_Check, kuint8_t Index);
+// extern kint32_t XEmacPs_SetOptions(XEmacPs *sprt_emacps, kuint32_t Options);
+// extern kint32_t XEmacPs_ClearOptions(XEmacPs *sprt_emacps, kuint32_t Options);
+// extern void XEmacPs_Reset(XEmacPs *sprt_emacps);
+// extern void XEmacPs_SetMdioDivisor(XEmacPs *sprt_emacps, XEmacPs_MdcDiv Divisor);
+// 
+// extern XEmacPs_Config *XEmacPs_LookupConfig(kuint16_t DeviceId);
+// extern kint32_t XEmacPs_CfgInitialize(XEmacPs *sprt_emacps, XEmacPs_Config * CfgPtr, kuint32_t EffectiveAddress);
+// 
+// extern kint32_t XEmacPs_PhyRead(XEmacPs *sprt_emacps, kuint32_t PhyAddress, kuint32_t RegisterNum, kuint16_t *PhyDataPtr);
+// extern kint32_t XEmacPs_PhyWrite(XEmacPs *sprt_emacps, kuint32_t PhyAddress, kuint32_t RegisterNum, kuint16_t PhyData);
+// extern void XEmacPs_PhyDetect(XEmacPs *sprt_xemac);
+// extern void XEmacPs_SetOperatingSpeed(XEmacPs *sprt_emacps, kuint16_t Speed);
+// extern kint32_t XEmacPs_PhySetup(XEmacPs *xemacpsp, kuint32_t phy_addr);
+// 
+// extern void XEmacPs_Init(XEmacPs *xemacpsp, void *hwaddr);
 
-extern XEmacPs_Config *XEmacPs_LookupConfig(u16 DeviceId);
-extern kint32_t XEmacPs_CfgInitialize(XEmacPs *sprt_emacps, XEmacPs_Config * CfgPtr, kuint32_t EffectiveAddress);
+extern kint32_t XEmacPs_PhyRead(XEmacPs *sprt_emacps, kuint32_t PhyAddress, kuint32_t RegisterNum, kuint16_t *PhyDataPtr);
+extern kint32_t XEmacPs_PhyWrite(XEmacPs *sprt_emacps, kuint32_t PhyAddress, kuint32_t RegisterNum, kuint16_t PhyData);
+extern kbool_t XEmacPs_PhyLinkDetect(XEmacPs *sprt_emacps, kuint32_t phy_addr);
+extern kbool_t XEmacPs_PhyAutoNegStatus(XEmacPs *sprt_emacps, kuint32_t phy_addr);
+extern kint32_t XEmacPs_PhySetup(XEmacPs *xemacpsp, kuint32_t phy_addr, kint32_t link_speed);
 
-extern kint32_t XEmacPs_PhyRead(XEmacPs *sprt_emacps, u32 PhyAddress, u32 RegisterNum, u16 *PhyDataPtr);
-extern kint32_t XEmacPs_PhyWrite(XEmacPs *sprt_emacps, u32 PhyAddress, u32 RegisterNum, u16 PhyData);
-extern void XEmacPs_PhyDetect(XEmacPs *sprt_xemac);
-extern void XEmacPs_SetOperatingSpeed(XEmacPs *sprt_emacps, u16 Speed);
-extern kint32_t XEmacPs_PhySetup(XEmacPs *xemacpsp, kuint32_t phy_addr);
+extern kint32_t XEmacPs_Stop(XEmacPs *sprt_emacps);
+extern kint32_t XEmacPs_SetQueuePtr(XEmacPs *sprt_emacps, kuint32_t QPtr, kuint8_t QueueNum, kuint16_t Direction);
+extern kint32_t XEmacPs_SetMacAddress(XEmacPs *sprt_emacps, void *AddressPtr, kuint8_t Index);
+extern kint32_t XEmacPs_SetTypeIdCheck(XEmacPs *sprt_emacps, kuint32_t Id_Check, kuint8_t Index);
+extern kint32_t XEmacPs_SetMdioDivisor(XEmacPs *sprt_emacps, XEmacPs_MdcDiv Divisor);
+extern kint32_t XEmacPs_SetOperatingSpeed(XEmacPs *sprt_emacps, kuint16_t Speed);
+extern void XEmacPs_SetUpSLCRDivisors(kuint32_t mac_baseaddr, kint32_t speed);
+extern kint32_t XEmacPs_SetOptions(XEmacPs *sprt_emacps, kuint32_t Options);
+extern kint32_t XEmacPs_ClearOptions(XEmacPs *sprt_emacps, kuint32_t Options);
+extern kint32_t XEmacPs_ClearHash(XEmacPs *sprt_emacps);
+extern kint32_t XEmacPs_Reset(XEmacPs *sprt_emacps);
+extern kint32_t XEmacPs_Start(XEmacPs *sprt_emacps);
 
-extern void XEmacPs_Init(XEmacPs *xemacpsp, void *hwaddr);
+extern XEmacPs_Config *XEmacPs_LookupConfig(kuint16_t DeviceId);
+extern kint32_t XEmacPs_CfgInitialize(XEmacPs *sprt_emacps, XEmacPs_Config *sprt_config, kuint32_t EffectiveAddress);
 
 #ifdef __cplusplus
 }

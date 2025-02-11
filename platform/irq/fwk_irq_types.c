@@ -28,7 +28,7 @@
  */
 static irq_return_t fwk_default_irq_isr(void *ptrDev)
 {
-	return ER_NORMAL;
+    return ER_NORMAL;
 }
 
 /*!
@@ -39,24 +39,30 @@ static irq_return_t fwk_default_irq_isr(void *ptrDev)
  */
 void *fwk_find_irq_action(kint32_t irq, const kchar_t *name, void *ptrDev)
 {
-	struct fwk_irq_desc *sprt_desc;
-	struct fwk_irq_action *sprt_action;
-	kint32_t retval = 0;
+    struct fwk_irq_desc *sprt_desc;
+    struct fwk_irq_action *sprt_action;
+    kint32_t retval = 0;
 
-	sprt_desc = fwk_irq_to_desc(irq);
-	if (!isValid(sprt_desc))
-		return mrt_nullptr;
+    sprt_desc = fwk_irq_to_desc(irq);
+    if (!isValid(sprt_desc))
+        return mrt_nullptr;
 
-	foreach_list_next_entry(sprt_action, &sprt_desc->sgrt_action, sgrt_link)
-	{
-		if (name)
-			retval = strncmp(sprt_action->name, name, FWK_IRQ_DESC_NAME_LENTH);
+    spin_lock_irqsave(&sprt_desc->sgrt_lock);
 
-		if (!retval && (sprt_action->ptrArgs == ptrDev))
-			return sprt_action;
-	}
+    foreach_list_next_entry(sprt_action, &sprt_desc->sgrt_action, sgrt_link)
+    {
+        if (name)
+            retval = strncmp(sprt_action->name, name, FWK_IRQ_DESC_NAME_LENTH);
 
-	return mrt_nullptr;
+        if (!retval && (sprt_action->ptrArgs == ptrDev))
+        {
+            spin_unlock_irqrestore(&sprt_desc->sgrt_lock);
+            return sprt_action;
+        }
+    }
+
+    spin_unlock_irqrestore(&sprt_desc->sgrt_lock);
+    return mrt_nullptr;
 }
 
 /*!
@@ -67,43 +73,46 @@ void *fwk_find_irq_action(kint32_t irq, const kchar_t *name, void *ptrDev)
  */
 kint32_t fwk_request_irq(kint32_t irq, irq_handler_t handler, kuint32_t flags, const kchar_t *name, void *ptrDev)
 {
-	struct fwk_irq_desc *sprt_desc;
-	struct fwk_irq_action *sprt_action;
-	kuint32_t len = kstrlen(name);
+    struct fwk_irq_desc *sprt_desc;
+    struct fwk_irq_action *sprt_action;
+    kuint32_t len = kstrlen(name);
 
-	if ((!name) || (!ptrDev))
-		return -ER_FAULT;
+    if ((!name) || (!ptrDev))
+        return -ER_FAULT;
 
-	if (fwk_find_irq_action(irq, name, ptrDev))
-		return -ER_EXISTED;
+    if (fwk_find_irq_action(irq, name, ptrDev))
+        return -ER_EXISTED;
 
-	sprt_desc = fwk_irq_to_desc(irq);
-	if (!isValid(sprt_desc))
-		return -ER_NOMEM;
+    sprt_desc = fwk_irq_to_desc(irq);
+    if (!isValid(sprt_desc))
+        return -ER_NOMEM;
 
-	sprt_action = (struct fwk_irq_action *)kzalloc(sizeof(*sprt_action), GFP_KERNEL);
-	if (!isValid(sprt_action))
-		return -ER_NOMEM;
+    sprt_action = (struct fwk_irq_action *)kzalloc(sizeof(*sprt_action), GFP_KERNEL);
+    if (!isValid(sprt_action))
+        return -ER_NOMEM;
 
-	sprt_action->handler = handler ? handler : fwk_default_irq_isr;
-	sprt_action->flags = flags;
-	sprt_action->ptrArgs = ptrDev;
+    sprt_action->handler = handler ? handler : fwk_default_irq_isr;
+    sprt_action->flags = flags;
+    sprt_action->ptrArgs = ptrDev;
 
-	if (len >= sizeof(sprt_action->name))
-		goto fail;
-	
-	kstrcpy(sprt_action->name, name);
-	
-	fwk_irq_set_type(irq, flags);
-	list_head_add_tail(&sprt_desc->sgrt_action, &sprt_action->sgrt_link);
+    if (len >= sizeof(sprt_action->name))
+        goto fail;
+    
+    kstrcpy(sprt_action->name, name);
+    
+    fwk_irq_set_type(irq, flags);
 
-	fwk_enable_irq(irq);
+    spin_lock_irqsave(&sprt_desc->sgrt_lock);
+    list_head_add_tail(&sprt_desc->sgrt_action, &sprt_action->sgrt_link);
+    spin_unlock_irqrestore(&sprt_desc->sgrt_lock);
 
-	return ER_NORMAL;
+    fwk_enable_irq(irq);
+
+    return ER_NORMAL;
 
 fail:
-	kfree(sprt_action);
-	return -ER_CHECKERR;
+    kfree(sprt_action);
+    return -ER_CHECKERR;
 }
 
 /*!
@@ -114,19 +123,27 @@ fail:
  */
 void fwk_free_irq(kint32_t irq, void *ptrDev)
 {
-	struct fwk_irq_action *sprt_action;
+    struct fwk_irq_desc *sprt_desc;
+    struct fwk_irq_action *sprt_action;
 
-	if ((irq < 0) || (!ptrDev))
-		return;
+    if ((irq < 0) || (!ptrDev))
+        return;
 
-	fwk_disable_irq(irq);
+    sprt_desc = fwk_irq_to_desc(irq);
+    if (!isValid(sprt_desc))
+        return;
 
-	sprt_action = fwk_find_irq_action(irq, mrt_nullptr, ptrDev);
-	if (isValid(sprt_action))
-	{
-		list_head_del(&sprt_action->sgrt_link);
-		kfree(sprt_action);
-	}
+    fwk_disable_irq(irq);
+
+    sprt_action = fwk_find_irq_action(irq, mrt_nullptr, ptrDev);
+    if (isValid(sprt_action))
+    {
+        spin_lock_irqsave(&sprt_desc->sgrt_lock);
+        list_head_del(&sprt_action->sgrt_link);
+        spin_unlock_irqrestore(&sprt_desc->sgrt_lock);
+
+        kfree(sprt_action);
+    }
 }
 
 /*!
@@ -137,18 +154,22 @@ void fwk_free_irq(kint32_t irq, void *ptrDev)
  */
 void fwk_destroy_irq_action(kint32_t irq)
 {
-	struct fwk_irq_desc *sprt_desc;
-	struct fwk_irq_action *sprt_action, *sprt_temp;
+    struct fwk_irq_desc *sprt_desc;
+    struct fwk_irq_action *sprt_action, *sprt_temp;
 
-	sprt_desc = fwk_irq_to_desc(irq);
-	if (!isValid(sprt_desc))
-		return;
+    sprt_desc = fwk_irq_to_desc(irq);
+    if (!isValid(sprt_desc))
+        return;
 
-	foreach_list_next_entry_safe(sprt_action, sprt_temp, &sprt_desc->sgrt_action, sgrt_link)
-	{
-		list_head_del(&sprt_action->sgrt_link);
-		kfree(sprt_action);
-	}
+    spin_lock_irqsave(&sprt_desc->sgrt_lock);
+
+    foreach_list_next_entry_safe(sprt_action, sprt_temp, &sprt_desc->sgrt_action, sgrt_link)
+    {
+        list_head_del(&sprt_action->sgrt_link);
+        kfree(sprt_action);
+    }
+
+    spin_unlock_irqrestore(&sprt_desc->sgrt_lock);
 }
 
 /*!
@@ -159,32 +180,32 @@ void fwk_destroy_irq_action(kint32_t irq)
  */
 void fwk_do_irq_handler(kint32_t softIrq)
 {
-	struct fwk_irq_desc *sprt_desc;
-	struct fwk_irq_action *sprt_action;
-	kint32_t retval;
+    struct fwk_irq_desc *sprt_desc;
+    struct fwk_irq_action *sprt_action;
+    kint32_t retval;
 
-	if (softIrq < 0)
-		return;
+    if (softIrq < 0)
+        return;
 
-	sprt_desc = fwk_irq_to_desc(softIrq);
-	if (!isValid(sprt_desc))
-		return;
-		
-	foreach_list_next_entry(sprt_action, &sprt_desc->sgrt_action, sgrt_link)
-	{
-		retval = sprt_action->handler ? sprt_action->handler(sprt_action->ptrArgs) : -1;
-		switch (retval)
-		{
-			case 0:
-				break;
+    sprt_desc = fwk_irq_to_desc(softIrq);
+    if (!isValid(sprt_desc))
+        return;
+        
+    foreach_list_next_entry(sprt_action, &sprt_desc->sgrt_action, sgrt_link)
+    {
+        retval = sprt_action->handler ? sprt_action->handler(sprt_action->ptrArgs) : -1;
+        switch (retval)
+        {
+            case 0:
+                break;
 
-			case 1:
-				break;
+            case 1:
+                break;
 
-			default:
-				break;
-		}
-	}
+            default:
+                break;
+        }
+    }
 }
 
 /*!
@@ -195,18 +216,18 @@ void fwk_do_irq_handler(kint32_t softIrq)
  */
 void fwk_handle_softirq(kint32_t softIrq, kuint32_t event)
 {
-	switch (event)
-	{
-		case SWI_EVENT_SCHEDULED:
-			print_info("trigger NR_EVENT_SCHEDULED \n");
-			break;
-		
-		case SWI_EVENT_SYSCALL:
-			print_info("trigger NR_EVENT_SYSCALL \n");
-			break;
+    switch (event)
+    {
+        case SWI_EVENT_SCHEDULED:
+            print_info("trigger NR_EVENT_SCHEDULED \n");
+            break;
+        
+        case SWI_EVENT_SYSCALL:
+            print_info("trigger NR_EVENT_SYSCALL \n");
+            break;
 
-		default: break;
-	}
+        default: break;
+    }
 }
 
 /* end of file */

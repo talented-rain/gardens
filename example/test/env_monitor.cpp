@@ -28,7 +28,7 @@
 #include "test_task.h"
 
 using namespace tsk;
-using namespace stream;
+using namespace bsc;
 
 /*!< The defines */
 #define ENV_TASK_STACK_SIZE                         THREAD_STACK_HALF(1)    /*!< 1/2 page (2kbytes) */
@@ -53,7 +53,7 @@ static void *env_monitor_entry(void *args)
     {
         fd = virt_open("/dev/ap3216c", O_RDWR);
         if (fd < 0)
-            schedule_delay_ms(200);
+            msleep(200);
 
     } while (fd < 0);
 
@@ -96,7 +96,7 @@ static void *env_monitor_entry(void *args)
         virt_close(eep_fd);
         
 END:
-        schedule_delay_ms(200);
+        msleep(200);
     }
 
     virt_close(fd);

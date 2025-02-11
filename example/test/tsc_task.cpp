@@ -28,7 +28,7 @@
 #include "test_task.h"
 
 using namespace tsk;
-using namespace stream;
+using namespace bsc;
 
 /*!< The defines */
 #define TSC_TASK_STACK_SIZE                     THREAD_STACK_HALF(1)    /*!< 1/2 page (2kbytes) */
@@ -52,7 +52,7 @@ static void *tsc_task_entry(void *args)
     {
         fd = virt_open("/dev/input/event1", O_RDONLY);
         if (fd < 0)
-            schedule_delay_ms(200);
+            msleep(200);
 
     } while (fd < 0);
 
@@ -71,7 +71,7 @@ static void *tsc_task_entry(void *args)
              << endl;
         
 END:
-        schedule_delay_ms(200);
+        msleep(200);
     }
 
     virt_close(fd);

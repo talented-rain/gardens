@@ -13,6 +13,7 @@
 /*!< The includes */
 #include <platform/fwk_platform.h>
 #include <platform/fwk_platdev.h>
+#include <kernel/rw_lock.h>
 
 /*!< The defines */
 struct fwk_platdev_object
@@ -28,6 +29,7 @@ static struct fwk_device_type sgrt_fwk_platform_dev_type =
 };
 
 static DECLARE_LIST_HEAD(sgrt_fwk_devices);
+static struct rw_lock sgrt_fwk_devices_lock = RW_LOCK_INIT();
 
 /*!< The functions */
 static kint32_t fwk_device_attach(struct fwk_device *sprt_dev, struct fwk_bus_type *sprt_bus_type);
@@ -151,16 +153,23 @@ static kint32_t fwk_device_find(struct fwk_device *sprt_dev)
 {
     struct fwk_device *sprt_leaf;
 
+    rd_lock(&sgrt_fwk_devices_lock);
+
     foreach_list_next_entry(sprt_leaf, &sgrt_fwk_devices, sgrt_leaf)
     {
         if (sprt_leaf == sprt_dev)
-            return ER_NORMAL;
+            goto succ;
 
         if (!strcmp(mrt_dev_get_name(sprt_leaf), mrt_dev_get_name(sprt_dev)))
-            return ER_NORMAL;
+            goto succ;
     }
 
+    rd_unlock(&sgrt_fwk_devices_lock);
     return -ER_NOTFOUND;
+
+succ:
+    rd_unlock(&sgrt_fwk_devices_lock);
+    return ER_NORMAL;
 }
 
 /*!
@@ -186,6 +195,7 @@ static kint32_t fwk_device_attach(struct fwk_device *sprt_dev, struct fwk_bus_ty
         return -ER_NSUPPORT;
 
     FWK_INIT_BUS_DRIVER_LIST(sprt_parent, sprt_list, sprt_bus_type);
+    __BUS_DRIVER_RD_LOCK(sprt_bus_type);
 
     /*!< get driver from bus one after another */
     while ((sprt_driver = FWK_NEXT_DRIVER(sprt_parent, sprt_list)))
@@ -193,9 +203,13 @@ static kint32_t fwk_device_attach(struct fwk_device *sprt_dev, struct fwk_bus_ty
         /*!< try to attach this driver */
         retval = fwk_device_driver_match(sprt_dev, sprt_bus_type, sprt_driver);
         if (!retval || (retval == -ER_PERMIT))
+        {
+            __BUS_DRIVER_RD_UNLOCK(sprt_bus_type);
             return ER_NORMAL;
+        }
     }
 
+    __BUS_DRIVER_RD_UNLOCK(sprt_bus_type);
     return -ER_PERMIT;
 }
 
@@ -236,7 +250,9 @@ static kint32_t fwk_device_to_bus(struct fwk_device *sprt_dev, struct fwk_bus_ty
     kint32_t retval;
 
     /*!< add to list tail */
+    __BUS_DEVICE_WR_LOCK(sprt_bus_type);
     list_head_add_tail(FWK_GET_BUS_DEVICE(sprt_bus_type), &sprt_dev->sgrt_link);
+    __BUS_DEVICE_WR_UNLOCK(sprt_bus_type);
 
     /*!< do device-driver matching */
     retval = fwk_device_attach(sprt_dev, sprt_bus_type);
@@ -255,7 +271,9 @@ static kint32_t fwk_bus_del_device(struct fwk_device *sprt_dev, struct fwk_bus_t
     fwk_device_detach(sprt_dev);
 
     /*!< delete device */
+    __BUS_DEVICE_WR_LOCK(sprt_bus_type);
     list_head_del_safe(FWK_GET_BUS_DEVICE(sprt_bus_type), &sprt_dev->sgrt_link);
+    __BUS_DEVICE_WR_UNLOCK(sprt_bus_type);
 
     return ER_NORMAL;
 }
@@ -292,7 +310,10 @@ kint32_t fwk_device_add(struct fwk_device *sprt_dev)
             return retval;
     }
 
+    wr_lock(&sgrt_fwk_devices_lock);
     list_head_add_tail(&sgrt_fwk_devices, &sprt_dev->sgrt_leaf);
+    wr_unlock(&sgrt_fwk_devices_lock);
+
     return ER_NORMAL;
 
 fail:
@@ -329,7 +350,11 @@ kint32_t fwk_device_del(struct fwk_device *sprt_dev)
     }
 
     mrt_dev_del_name(sprt_dev);
+
+    wr_lock(&sgrt_fwk_devices_lock);
     list_head_del(&sprt_dev->sgrt_leaf);
+    wr_unlock(&sgrt_fwk_devices_lock);
+
     return ER_NORMAL;
 
 fail:

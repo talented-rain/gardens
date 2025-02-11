@@ -33,6 +33,7 @@ typedef struct mutex_lock
 /*!< The functions */
 extern void mutex_init(struct mutex_lock *sprt_lock);
 extern void mutex_lock(struct mutex_lock *sprt_lock);
+extern void mutex_wait(struct mutex_lock *sprt_lock);
 extern kint32_t mutex_try_lock(struct mutex_lock *sprt_lock);
 extern void mutex_unlock(struct mutex_lock *sprt_lock);
 

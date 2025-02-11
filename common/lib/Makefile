@@ -9,6 +9,6 @@
 # Copyright (c) 2024   Yang Yujun <yujiantianhu@163.com>
 #
 
-obj-y	+=	stdload.o
+obj-y	+=	libcxplus.o
 
 # end of file

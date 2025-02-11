@@ -72,6 +72,7 @@ static kint32_t fwk_driver_attach(struct fwk_driver *sprt_driver, struct fwk_bus
 
 	matches	= 0;
 	FWK_INIT_BUS_DEVICE_LIST(sprt_parent, sprt_list, sprt_bus_type);
+	__BUS_DEVICE_RD_LOCK(sprt_bus_type);
 
 	/*!< Take out the devices on the bus in turn */
 	while ((sprt_dev = FWK_NEXT_DEVICE(sprt_parent, sprt_list)))
@@ -91,6 +92,7 @@ static kint32_t fwk_driver_attach(struct fwk_driver *sprt_driver, struct fwk_bus
 		}
 	}
 
+	__BUS_DEVICE_RD_UNLOCK(sprt_bus_type);
 	sprt_driver->matches += matches;
 
 	/*!<
@@ -116,6 +118,7 @@ static kint32_t fwk_driver_detach(struct fwk_driver *sprt_driver, struct fwk_bus
 	DECLARE_LIST_HEAD_PTR(sprt_parent);
 
 	FWK_INIT_BUS_DEVICE_LIST(sprt_parent, sprt_list, sprt_bus_type);
+	__BUS_DEVICE_RD_LOCK(sprt_bus_type);
 
 	/*!< Take out the devices on the bus in turn */
 	while ((sprt_dev = FWK_NEXT_DEVICE(sprt_parent, sprt_list)))
@@ -132,6 +135,7 @@ static kint32_t fwk_driver_detach(struct fwk_driver *sprt_driver, struct fwk_bus
 		sprt_driver->matches--;
 	}
 
+	__BUS_DEVICE_RD_UNLOCK(sprt_bus_type);
 	return ER_NORMAL;
 }
 
@@ -145,12 +149,18 @@ static kint32_t fwk_driver_find(struct fwk_driver *sprt_driver, struct fwk_bus_t
 {
 	struct fwk_driver *sprt_drv;
 
+	__BUS_DRIVER_RD_LOCK(sprt_bus_type);
+
 	foreach_list_next_entry(sprt_drv, FWK_GET_BUS_DRIVER(sprt_bus_type), sgrt_link)
 	{
 		if (!strcmp((char *)sprt_drv->name, (char *)sprt_driver->name))
+		{
+			__BUS_DRIVER_RD_UNLOCK(sprt_bus_type);
 			return ER_NORMAL;
+		}
 	}
 
+	__BUS_DRIVER_RD_UNLOCK(sprt_bus_type);
 	return -ER_ERROR;
 }
 
@@ -163,7 +173,9 @@ static kint32_t fwk_driver_find(struct fwk_driver *sprt_driver, struct fwk_bus_t
 static kint32_t fwk_driver_to_bus(struct fwk_driver *sprt_driver, struct fwk_bus_type *sprt_bus_type)
 {
 	/*!< Insert from the tail of the bus */
+	__BUS_DRIVER_WR_LOCK(sprt_bus_type);
 	list_head_add_tail(FWK_GET_BUS_DRIVER(sprt_bus_type), &sprt_driver->sgrt_link);
+	__BUS_DRIVER_WR_UNLOCK(sprt_bus_type);
 
 	/*!< Execute the device driver matching logic */
 	return fwk_driver_attach(sprt_driver, sprt_bus_type, fwk_device_driver_match);
@@ -183,7 +195,9 @@ static kint32_t fwk_bus_del_driver(struct fwk_driver *sprt_driver, struct fwk_bu
 	retval = fwk_driver_detach(sprt_driver, sprt_bus_type);
 
 	/*!< Remove the driver from the bus */
+	__BUS_DRIVER_WR_LOCK(sprt_bus_type);
 	list_head_del_safe(FWK_GET_BUS_DRIVER(sprt_bus_type), &sprt_driver->sgrt_link);
+	__BUS_DRIVER_WR_UNLOCK(sprt_bus_type);
 
 	return retval;
 }

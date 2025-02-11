@@ -27,7 +27,7 @@
 #include "test_task.h"
 
 using namespace tsk;
-using namespace stream;
+using namespace bsc;
 
 /*!< The defines */
 #define CONSOLE_TASK_STACK_SIZE                       THREAD_STACK_HALF(1)    /*!< 1/2 page (1kbytes) */

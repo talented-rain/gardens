@@ -19,7 +19,7 @@
 #include <common/basic_types.h>
 #include <common/error_types.h>
 #include <common/generic.h>
-#include <common/stdload.h>
+#include <common/libcxplus.h>
 #include <common/list_types.h>
 #include <kernel/instance.h>
 #include <lvgl/lvgl.h>

@@ -15,11 +15,14 @@
 #include <platform/net/fwk_netdev.h>
 #include <platform/fwk_platform.h>
 #include <platform/fwk_platdev.h>
+#include <kernel/mutex.h>
 
 /*!< The defines */
 #define NETDEV_IF_INS_MAX                   ((kuint32_t)256U)
 
 /*!< The globals */
+static struct mutex_lock sgrt_netdev_ins_mutex = MUTEX_LOCK_INIT();
+static struct mutex_lock sgrt_fwk_netdev_mutex = MUTEX_LOCK_INIT();
 static DECLARE_LIST_HEAD(sgrt_fwk_net_device_list);
 static kuint32_t g_fwk_allocated_ins[mrt_num_align(NETDEV_IF_INS_MAX, RET_BITS_PER_INT) / RET_BITS_PER_INT] = { 0 };
 
@@ -47,11 +50,17 @@ static kint32_t fwk_net_validate_name(struct fwk_net_device *sprt_ndev)
 
     if (index < 0)
     {
+        mutex_lock(&sgrt_netdev_ins_mutex);
         index = bitmap_find_first_zero_bit(g_fwk_allocated_ins, 0, NETDEV_IF_INS_MAX);
-        if (index < 0)
+        if (index < 0) 
+        {
+            mutex_unlock(&sgrt_netdev_ins_mutex);
             goto END;
+        }
 
         bitmap_set_nr_bit_valid(g_fwk_allocated_ins, index, NETDEV_IF_INS_MAX, 1);
+        mutex_unlock(&sgrt_netdev_ins_mutex);
+
         sprt_ndev->ifindex = index;
         sprt_ndev->priv_flags |= NR_NETDEV_PRIV_AINDEX;
     }
@@ -85,7 +94,10 @@ static void fwk_net_invalidate_name(struct fwk_net_device *sprt_ndev)
         *p = '%';
         *(p + 1) = '\0';
 
+        mutex_lock(&sgrt_netdev_ins_mutex);
         bitmap_set_nr_bit_zero(g_fwk_allocated_ins, index, NETDEV_IF_INS_MAX, 1);
+        mutex_unlock(&sgrt_netdev_ins_mutex);
+
         sprt_ndev->ifindex = -1;
         sprt_ndev->priv_flags &= (~NR_NETDEV_PRIV_AINDEX);
     }
@@ -165,12 +177,17 @@ struct fwk_net_device *fwk_ifname_to_ndev(const kchar_t *name)
 {
     struct fwk_net_device *sprt_ndev;
 
+    mutex_lock(&sgrt_fwk_netdev_mutex);
     foreach_list_next_entry(sprt_ndev, &sgrt_fwk_net_device_list, sgrt_link)
     {
         if (!strcmp(sprt_ndev->name, name))
+        {
+            mutex_unlock(&sgrt_fwk_netdev_mutex);
             return sprt_ndev;
+        }
     }
 
+    mutex_unlock(&sgrt_fwk_netdev_mutex);
     return mrt_nullptr;
 }
 
@@ -210,7 +227,10 @@ kint32_t fwk_register_netdevice(struct fwk_net_device *sprt_ndev)
     if (fwk_device_add(sprt_dev))
         goto fail2;
 
+    mutex_lock(&sgrt_fwk_netdev_mutex);
     list_head_add_tail(&sgrt_fwk_net_device_list, &sprt_ndev->sgrt_link);
+    mutex_unlock(&sgrt_fwk_netdev_mutex);
+
     return ER_NORMAL;
 
 fail2:
@@ -248,7 +268,10 @@ kint32_t fwk_unregister_netdevice(struct fwk_net_device *sprt_ndev)
         sprt_ndev->sprt_netdev_oprts->ndo_uninit(sprt_ndev);
 
     fwk_net_invalidate_name(sprt_ndev);
+
+    mutex_lock(&sgrt_fwk_netdev_mutex);
     list_head_del(&sprt_ndev->sgrt_link);
+    mutex_unlock(&sgrt_fwk_netdev_mutex);
 
     return ER_NORMAL;
 }

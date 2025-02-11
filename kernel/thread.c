@@ -27,7 +27,8 @@ static kint32_t __thread_create(tid_t *ptr_id, kint32_t base, struct thread_attr
     tid_t tid;
     struct thread *sprt_thread;
     struct thread_attr *sprt_it_attr;
-    kuint32_t i_start, count;
+    kuint32_t i_start = THREAD_TID_DYNC;
+    kuint32_t count = THREAD_TID_USER - THREAD_TID_DYNC;
     kint32_t retval;
 
     mrt_preempt_disable();
@@ -35,17 +36,12 @@ static kint32_t __thread_create(tid_t *ptr_id, kint32_t base, struct thread_attr
     /*!< check if is user thread */
     if ((THREAD_USER & flags) == THREAD_USER)
     {
-        i_start = THREAD_TID_START;
-        count	= THREAD_MAX_NUM - THREAD_TID_START;
+        i_start = THREAD_TID_USER;
+        count	= THREAD_MAX_NUM - THREAD_TID_USER;
     }
-    /*!< kernel thread */
-    else
-    {
-        i_start = 0;
-        count	= THREAD_TID_START;
-    }
-    
-    if ((base >= i_start) && (base < (i_start + count)))
+
+    /*!< fixed tid */
+    if ((base >= 0) && (base < THREAD_TID_DYNC))
     {
         i_start = base;
         count   = 1;

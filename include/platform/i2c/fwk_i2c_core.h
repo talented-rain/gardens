@@ -20,6 +20,7 @@
 /*!< The includes */
 #include <platform/fwk_basic.h>
 #include <platform/fwk_platform.h>
+#include <kernel/rw_lock.h>
 
 #include "fwk_i2c_algo.h"
 
@@ -40,6 +41,7 @@ typedef struct fwk_i2c_adapter
 	kchar_t name[48];
 
 	struct list_head sgrt_clients;
+	struct rw_lock sgrt_lock;
 
 } srt_fwk_i2c_adapter_t;
 

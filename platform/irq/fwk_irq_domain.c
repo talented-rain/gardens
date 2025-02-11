@@ -14,9 +14,11 @@
 #include <platform/irq/fwk_irq_domain.h>
 #include <platform/irq/fwk_irq_types.h>
 #include <platform/of/fwk_of.h>
+#include <kernel/rw_lock.h>
 
 /*!< The globals */
 static DECLARE_LIST_HEAD(sgrt_fwk_irq_domain);
+static struct rw_lock sgrt_irq_domain_lock = RW_LOCK_INIT();
 
 /*!< API function */
 /*!
@@ -29,6 +31,8 @@ struct fwk_irq_domain *fwk_of_irq_host(struct fwk_device_node *sprt_node)
 {
 	struct fwk_irq_domain *sprt_domain, *found = mrt_nullptr;
 
+	rd_lock(&sgrt_irq_domain_lock);
+
 	foreach_list_next_entry(sprt_domain, &sgrt_fwk_irq_domain, sgrt_link)
 	{
 		if (sprt_node == sprt_domain->sprt_node)
@@ -38,6 +42,7 @@ struct fwk_irq_domain *fwk_of_irq_host(struct fwk_device_node *sprt_node)
 		}
 	}
 
+	rd_unlock(&sgrt_irq_domain_lock);
 	return found;
 }
 
@@ -182,7 +187,9 @@ struct fwk_irq_domain *fwk_irq_domain_add_linear(struct fwk_device_node *sprt_no
 	for (kuint32_t i = 0; i < size; i++)
 		sprt_domain->revmap[i] = -1;
 
+	wr_lock(&sgrt_irq_domain_lock);
 	list_head_add_tail(&sgrt_fwk_irq_domain, &sprt_domain->sgrt_link);
+	wr_unlock(&sgrt_irq_domain_lock);
 
 	return sprt_domain;
 }
@@ -220,7 +227,10 @@ void fwk_irq_domain_del_hierarchy(struct fwk_irq_domain *sprt_domain)
 		return;
 
 	fwk_irq_domain_free_irqs(sprt_domain);
-	list_head_del_tail(&sprt_domain->sgrt_link);
+
+	wr_lock(&sgrt_irq_domain_lock);
+	list_head_del(&sprt_domain->sgrt_link);
+	wr_unlock(&sgrt_irq_domain_lock);
 }
 
 /*!
@@ -234,13 +244,19 @@ struct fwk_irq_domain *fwk_irq_get_domain_by_name(kchar_t *name, kint32_t hwirq)
 	struct fwk_irq_domain *sprt_domain;
 	kint32_t retval;
 
+	rd_lock(&sgrt_irq_domain_lock);
+
 	foreach_list_next_entry(sprt_domain, &sgrt_fwk_irq_domain, sgrt_link)
 	{
 		retval = sprt_domain->name && (!strcmp(sprt_domain->name, name));
 		if (retval && (hwirq < sprt_domain->hwirq_max))
+		{
+			rd_unlock(&sgrt_irq_domain_lock);
 			return sprt_domain;
+		}
 	}
 
+	rd_unlock(&sgrt_irq_domain_lock);
 	return mrt_nullptr;
 }
 

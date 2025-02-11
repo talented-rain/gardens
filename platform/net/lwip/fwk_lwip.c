@@ -226,7 +226,7 @@ static void *fwk_lwip_tx_entry(void *args)
         while ((sprt_skb = fwk_skb_dequeue(&sprt_data->sgrt_txq)))
             fwk_dev_queue_xmit(sprt_skb);
 
-        schedule_delay_ms(1);
+        msleep(1);
     }
 
     return args;

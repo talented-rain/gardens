@@ -12,6 +12,7 @@
 
 /*!< The includes */
 #include <platform/fwk_kobj.h>
+#include <kernel/mutex.h>
 
 /*!< The globals */
 struct fwk_kobj_map *sprt_fwk_chrdev_map;
@@ -26,23 +27,21 @@ struct fwk_kobj_map *sprt_fwk_blkdev_map;
  */
 kint32_t __plat_init fwk_kobjmap_init(void)
 {
-    kuint32_t i;
-
-    sprt_fwk_chrdev_map = (struct fwk_kobj_map *)kzalloc(sizeof(struct fwk_kobj_map), GFP_KERNEL);
+    sprt_fwk_chrdev_map = (struct fwk_kobj_map *)kmalloc(sizeof(struct fwk_kobj_map), GFP_KERNEL);
     if (!isValid(sprt_fwk_chrdev_map))
         goto fail1;
 
-    sprt_fwk_blkdev_map = (struct fwk_kobj_map *)kzalloc(sizeof(struct fwk_kobj_map), GFP_KERNEL);
+    sprt_fwk_blkdev_map = (struct fwk_kobj_map *)kmalloc(sizeof(struct fwk_kobj_map), GFP_KERNEL);
     if (!isValid(sprt_fwk_blkdev_map))
         goto fail2;
 
     /*!< Initialize the character device matching table */
-    for (i = 0; i < ARRAY_SIZE(sprt_fwk_chrdev_map->sprt_probes); i++)
-        sprt_fwk_chrdev_map->sprt_probes[i] = mrt_nullptr;
+    mutex_init(&sprt_fwk_chrdev_map->sgrt_mutex);
+    memset(sprt_fwk_chrdev_map->sprt_probes, 0, sizeof(sprt_fwk_chrdev_map->sprt_probes));
 
     /*!< Initialize the block device matching table */
-    for (i = 0; i < ARRAY_SIZE(sprt_fwk_blkdev_map->sprt_probes); i++)
-        sprt_fwk_blkdev_map->sprt_probes[i] = mrt_nullptr;
+    mutex_init(&sprt_fwk_blkdev_map->sgrt_mutex);
+    memset(sprt_fwk_blkdev_map->sprt_probes, 0, sizeof(sprt_fwk_blkdev_map->sprt_probes));
 
     return ER_NORMAL;
 
@@ -67,7 +66,7 @@ void __plat_exit fwk_kobjmap_del(void)
     kuint32_t i;
 
     /*!< Destroy the character device matching table */
-    mapsize	= isValid(sprt_fwk_chrdev_map) ? ARRAY_SIZE(sprt_fwk_chrdev_map->sprt_probes) : 0;
+    mapsize	= sprt_fwk_chrdev_map ? ARRAY_SIZE(sprt_fwk_chrdev_map->sprt_probes) : 0;
     for (i = 0; i < mapsize; i++)
     {
         mrt_list_delete_all(sprt_fwk_chrdev_map->sprt_probes[i],
@@ -78,7 +77,7 @@ void __plat_exit fwk_kobjmap_del(void)
     sprt_fwk_chrdev_map = mrt_nullptr;
 
     /*!< Destroy the block device matching table */
-    mapsize	= isValid(sprt_fwk_blkdev_map) ? ARRAY_SIZE(sprt_fwk_blkdev_map->sprt_probes) : 0;
+    mapsize	= sprt_fwk_blkdev_map ? ARRAY_SIZE(sprt_fwk_blkdev_map->sprt_probes) : 0;
     for (i = 0; i < mapsize; i++)
     {
         mrt_list_delete_all(sprt_fwk_blkdev_map->sprt_probes[i],
@@ -95,7 +94,7 @@ void __plat_exit fwk_kobjmap_del(void)
  * @retval  none
  * @note    none
  */
-kint32_t fwk_kobj_map(struct fwk_kobj_map *domain, kuint32_t devNum, kuint32_t range, void *data)
+kint32_t fwk_kobj_map(struct fwk_kobj_map *sprt_domain, kuint32_t devNum, kuint32_t range, void *data)
 {
     struct fwk_probes *sprt_probe;
     kuint32_t major;
@@ -103,11 +102,11 @@ kint32_t fwk_kobj_map(struct fwk_kobj_map *domain, kuint32_t devNum, kuint32_t r
     kuint32_t i;
     kusize_t probeMax;
 
-    if (!isValid(domain) || (!isValid(data)))
+    if (!isValid(sprt_domain) || (!isValid(data)))
         return -ER_FAULT;
 
     /*!< The maximum number of primary devices that can be supported */
-    probeMax = ARRAY_SIZE(domain->sprt_probes);
+    probeMax = ARRAY_SIZE(sprt_domain->sprt_probes);
 
     /*!< The number of master devices, that is, the number of array members occupied by probes */
     major = GET_DEV_MAJOR(devNum);
@@ -119,6 +118,8 @@ kint32_t fwk_kobj_map(struct fwk_kobj_map *domain, kuint32_t devNum, kuint32_t r
     if (!isValid(sprt_probe))
         return -ER_NOMEM;
 
+    mutex_lock(&sprt_domain->sgrt_mutex);
+
     for (i = 0; i < majorCnt; i++)
     {
         struct fwk_probes *sprt_Temp;
@@ -126,7 +127,7 @@ kint32_t fwk_kobj_map(struct fwk_kobj_map *domain, kuint32_t devNum, kuint32_t r
         kuint32_t index;
 
         index = (major + i) % probeMax;
-        sprt_Dst = &domain->sprt_probes[index];
+        sprt_Dst = &sprt_domain->sprt_probes[index];
         sprt_Temp = &sprt_probe[i];
 
         /*!<
@@ -152,6 +153,7 @@ kint32_t fwk_kobj_map(struct fwk_kobj_map *domain, kuint32_t devNum, kuint32_t r
         *sprt_Dst = sprt_Temp;
     }
 
+    mutex_unlock(&sprt_domain->sgrt_mutex);
     return ER_NORMAL;
 }
 
@@ -161,7 +163,7 @@ kint32_t fwk_kobj_map(struct fwk_kobj_map *domain, kuint32_t devNum, kuint32_t r
  * @retval  none
  * @note    none
  */
-kint32_t fwk_kobj_unmap(struct fwk_kobj_map *domain, kuint32_t devNum, kuint32_t range)
+kint32_t fwk_kobj_unmap(struct fwk_kobj_map *sprt_domain, kuint32_t devNum, kuint32_t range)
 {
     struct fwk_probes *sprt_Rlt;
     kuint32_t major;
@@ -169,17 +171,19 @@ kint32_t fwk_kobj_unmap(struct fwk_kobj_map *domain, kuint32_t devNum, kuint32_t
     kuint32_t i;
     kusize_t probeMax;
 
-    if (!isValid(domain))
+    if (!isValid(sprt_domain))
         return -ER_FAULT;
 
     /*!< The maximum number of primary devices that can be supported */
-    probeMax = ARRAY_SIZE(domain->sprt_probes);
+    probeMax = ARRAY_SIZE(sprt_domain->sprt_probes);
 
     /*!< The number of master devices, that is, the number of array members occupied by probes */
     major = GET_DEV_MAJOR(devNum);
     major = mrt_ret_min2(probeMax, major);
     majorCnt = GET_DEV_MAJOR(devNum + range) - major + 1;
-    majorCnt = CMP_GT2(major + majorCnt, probeMax, probeMax - major, majorCnt);;
+    majorCnt = CMP_GT2(major + majorCnt, probeMax, probeMax - major, majorCnt);
+
+    mutex_lock(&sprt_domain->sgrt_mutex);
 
     for (i = 0, sprt_Rlt = mrt_nullptr; i < majorCnt; i++)
     {
@@ -188,7 +192,7 @@ kint32_t fwk_kobj_unmap(struct fwk_kobj_map *domain, kuint32_t devNum, kuint32_t
         kuint32_t index;
 
         index = (major + i) % probeMax;
-        sprt_Dst = &domain->sprt_probes[index];
+        sprt_Dst = &sprt_domain->sprt_probes[index];
 
         while (*sprt_Dst)
         {
@@ -206,6 +210,8 @@ kint32_t fwk_kobj_unmap(struct fwk_kobj_map *domain, kuint32_t devNum, kuint32_t
         }
     }
 
+    mutex_unlock(&sprt_domain->sgrt_mutex);
+
     if (sprt_Rlt)
         kfree(sprt_Rlt);
 
@@ -218,21 +224,25 @@ kint32_t fwk_kobj_unmap(struct fwk_kobj_map *domain, kuint32_t devNum, kuint32_t
  * @retval  none
  * @note    none
  */
-void *fwk_kobjmap_lookup(struct fwk_kobj_map *domain, kuint32_t devNum)
+void *fwk_kobjmap_lookup(struct fwk_kobj_map *sprt_domain, kuint32_t devNum)
 {
     struct fwk_probes *sprt_Temp;
     kuint32_t index;
     void *data;
     kusize_t probeMax;
 
-    if (!isValid(domain))
+    if (!isValid(sprt_domain))
         return mrt_nullptr;
 
     /*!< The maximum number of primary devices that can be supported */
-    probeMax = ARRAY_SIZE(domain->sprt_probes);
+    probeMax = ARRAY_SIZE(sprt_domain->sprt_probes);
     index = GET_DEV_MAJOR(devNum);
 
-    for (sprt_Temp = domain->sprt_probes[index % probeMax]; sprt_Temp; sprt_Temp = sprt_Temp->sprt_next)
+    mutex_lock(&sprt_domain->sgrt_mutex);
+
+    for (sprt_Temp = sprt_domain->sprt_probes[index % probeMax]; 
+         sprt_Temp; 
+         sprt_Temp = sprt_Temp->sprt_next)
     {
         /*!< Already found? */
         /*!< It is determined by the range of device numbers */
@@ -240,10 +250,10 @@ void *fwk_kobjmap_lookup(struct fwk_kobj_map *domain, kuint32_t devNum)
             break;
     }
 
+    mutex_unlock(&sprt_domain->sgrt_mutex);
     data = sprt_Temp ? sprt_Temp->data : mrt_nullptr;
 
-    return (data);
+    return data;
 }
-
 
 /*!< end of file */

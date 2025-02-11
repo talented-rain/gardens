@@ -33,7 +33,7 @@
 #include "test_task.h"
 
 using namespace tsk;
-using namespace stream;
+using namespace bsc;
 
 /*!< The defines */
 #define DISPLAY_TASK_STACK_SIZE                      THREAD_STACK_PAGE(1)    /*!< 1 page (4kbytes) */
@@ -380,7 +380,7 @@ static kssize_t display_task_text(crt_disp_task_t &cgrt_dtsk, crt_disp_text_t &c
         sprt_mail = mail_recv(&sgrt_mb, 0);
         if (!isValid(sprt_mail))
         {
-            schedule_delay_ms(200);
+            msleep(200);
             continue;
         }
 
@@ -459,12 +459,12 @@ static void *display_task_entry(void *args)
     mrt_preempt_disable();
     cgrt_logo.show();
     mrt_preempt_enable();
-    schedule_delay(5);
+    sleep(5);
 
     for (;;)
     {
         cgrt_txt.show(cgrt_dtsk);
-        schedule_delay_ms(200);
+        msleep(200);
     }
 
 fail:

@@ -20,7 +20,7 @@
 #include <common/error_types.h>
 #include <common/generic.h>
 #include <common/list_types.h>
-#include <common/stdload.h>
+#include <common/libcxplus.h>
 #include <kernel/instance.h>
 #include <kernel/kernel.h>
 #include <kernel/sched.h>

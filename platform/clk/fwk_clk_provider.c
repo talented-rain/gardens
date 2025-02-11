@@ -14,6 +14,7 @@
 #include <platform/of/fwk_of.h>
 #include <platform/clk/fwk_clk.h>
 #include <platform/clk/fwk_clk_provider.h>
+#include <kernel/rw_lock.h>
 
 /*!< The defines */
 typedef struct fwk_of_clk_provider
@@ -28,6 +29,7 @@ typedef struct fwk_of_clk_provider
 
 /*!< The globals */
 static DECLARE_LIST_HEAD(sgrt_fwk_clk_providers);
+static struct rw_lock sgrt_clk_providers_lock = RW_LOCK_INIT();
 
 /*!< API function */
 /*!
@@ -72,7 +74,9 @@ kint32_t fwk_clk_add_provider(struct fwk_device_node *sprt_node,
     sprt_provider->get = get;
     sprt_provider->data = data;
 
+    wr_lock(&sgrt_clk_providers_lock);
     list_head_add_tail(&sgrt_fwk_clk_providers, &sprt_provider->sgrt_link);
+    wr_unlock(&sgrt_clk_providers_lock);
 
     return ER_NORMAL;
 }
@@ -90,6 +94,8 @@ void fwk_clk_del_provider(struct fwk_device_node *sprt_node)
     if (!sprt_node)
         return;
 
+    wr_lock(&sgrt_clk_providers_lock);
+
     foreach_list_next_entry(sprt_provider, &sgrt_fwk_clk_providers, sgrt_link)
     {
         if (sprt_provider->sprt_node == sprt_node)
@@ -98,6 +104,8 @@ void fwk_clk_del_provider(struct fwk_device_node *sprt_node)
             kfree(sprt_provider);
         }
     }
+
+    wr_unlock(&sgrt_clk_providers_lock);
 }
 
 /*!
@@ -113,12 +121,18 @@ struct fwk_clk *fwk_clk_provider_look_up(struct fwk_of_phandle_args *sprt_args)
     if (!sprt_args)
         return mrt_nullptr;
 
+    rd_lock(&sgrt_clk_providers_lock);
+
     foreach_list_next_entry(sprt_provider, &sgrt_fwk_clk_providers, sgrt_link)
     {
         if (sprt_provider->sprt_node == sprt_args->sprt_node)
+        {
+            rd_unlock(&sgrt_clk_providers_lock);
             return sprt_provider->get(sprt_args, sprt_provider->data);
+        }
     }
 
+    rd_unlock(&sgrt_clk_providers_lock);
     return mrt_nullptr;
 }
 

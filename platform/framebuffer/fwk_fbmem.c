@@ -16,6 +16,7 @@
 #include <platform/fwk_chrdev.h>
 #include <platform/fwk_inode.h>
 #include <platform/video/fwk_fbmem.h>
+#include <kernel/mutex.h>
 
 /*!< The defines */
 /*!< Maximum number of fb devices (total number of secondary devices) */
@@ -24,7 +25,8 @@
 #define FWK_FB_DEVICE_MAJOR								(NR_FBDEV_MAJOR)
 
 /*!< The globals */
-static struct fwk_fb_info *sgrt_fwk_registered_fb[FWK_FB_DEVICE_MAX] = {mrt_nullptr};
+static struct fwk_fb_info *sgrt_fwk_registered_fb[FWK_FB_DEVICE_MAX];
+static struct mutex_lock sgrt_fwk_fbmem_mutex = MUTEX_LOCK_INIT();
 
 /*!< The functions */
 
@@ -99,6 +101,7 @@ kint32_t fwk_register_framebuffer(struct fwk_fb_info *sprt_fb_info)
         return -ER_UNVALID;
 
     sprt_exsited = &sgrt_fwk_registered_fb[0];
+    mutex_lock(&sgrt_fwk_fbmem_mutex);
 
     /*!< Search, find an empty location */
     for (i = 0; i < FWK_FB_DEVICE_MAX; i++)
@@ -109,7 +112,10 @@ kint32_t fwk_register_framebuffer(struct fwk_fb_info *sprt_fb_info)
 
     /*!< The retrieval failed, and the number of fb devices has reached the upper limit */
     if (i == FWK_FB_DEVICE_MAX)
+    {
+        mutex_unlock(&sgrt_fwk_fbmem_mutex);
         return -ER_MORE;
+    }
 
     /*!< Save the secondary device number */
     sprt_fb_info->node = i;
@@ -117,12 +123,16 @@ kint32_t fwk_register_framebuffer(struct fwk_fb_info *sprt_fb_info)
     /*!< Create a character device node */
     sprt_idev = fwk_device_create(NR_TYPE_CHRDEV, MKE_DEV_NUM(FWK_FB_DEVICE_MAJOR, i), "fb%d", i);
     if (!isValid(sprt_idev))
+    {
+        mutex_unlock(&sgrt_fwk_fbmem_mutex);
         return -ER_UNVALID;
+    }
 
     sprt_fb_info->sprt_idev = sprt_idev;
     /*!< Register to the global array */
     sprt_exsited[i] = sprt_fb_info;
 
+    mutex_unlock(&sgrt_fwk_fbmem_mutex);
     return ER_NORMAL;
 }
 
@@ -141,7 +151,10 @@ void fwk_unregister_framebuffer(struct fwk_fb_info *sprt_fb_info)
     sprt_exsited = &sgrt_fwk_registered_fb[0];
 
     fwk_device_destroy(sprt_exsited[i]->sprt_idev);
+
+    mutex_lock(&sgrt_fwk_fbmem_mutex);
     sprt_exsited[i] = mrt_nullptr;
+    mutex_unlock(&sgrt_fwk_fbmem_mutex);
 }
 
 /*!

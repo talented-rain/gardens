@@ -132,7 +132,10 @@ static struct fwk_SysPrivate sgrt_fwk_platform_SysPriv =
     .sprt_bus = &sgrt_fwk_platform_bus_type,
 
     .sgrt_list_devices	= LIST_HEAD_INIT(&sgrt_fwk_platform_SysPriv.sgrt_list_devices),
+    .sgrt_device_lock   = RW_LOCK_INIT(),
+
     .sgrt_list_drivers	= LIST_HEAD_INIT(&sgrt_fwk_platform_SysPriv.sgrt_list_drivers),
+    .sgrt_driver_lock   = RW_LOCK_INIT(),
 };
 
 struct fwk_bus_type sgrt_fwk_platform_bus_type =

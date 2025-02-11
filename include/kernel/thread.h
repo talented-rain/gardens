@@ -35,7 +35,7 @@
 typedef kint32_t tid_t;
 
 /*!< maximum number of threads that can be created */
-#define THREAD_MAX_NUM						(128)
+#define THREAD_MAX_NUM						(1024)
 
 /*!< minimum space for thread stack (unit: byte) */
 #define THREAD_STACK8(byte)				    (mrt_align4(byte) >> 0)
@@ -52,16 +52,19 @@ typedef kint32_t tid_t;
 
 /*!<
  * tid base 
- * 0 ~ 31: kernel thread; 31 ~ THREAD_MAX_NUM: user thread
+ * 0 ~ 31: fixed tid for kernel thread;
+ * 32 ~ 127: dynamic tid for kernel thread;
+ * 128 ~ THREAD_MAX_NUM: user thread
  */
-#define THREAD_TID_START					(32)
-
 #define THREAD_TID_IDLE                     (0)                 /*!< idle thread */
 #define THREAD_TID_BASE                     (1)                 /*!< kernel thread (parent) */
 #define THREAD_TID_INIT                     (2)                 /*!< init thread */
 
 #define THREAD_TID_SOCKRX                   (19)
 #define THREAD_TID_SOCKTX                   (20)
+
+#define THREAD_TID_DYNC                     (32)                /*!< dynamic kernel thread */
+#define THREAD_TID_USER					    (128)               /*!< user/application thread */
 
 /*!<
  * priority

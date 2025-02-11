@@ -19,7 +19,7 @@
 #include <kernel/spinlock.h>
 
 /*!< The defines */
-#define KERL_THREAD_STACK_SIZE                          THREAD_STACK_HALF(1)   /*!< 1/2 page (2 kbytes) */
+#define KERL_THREAD_STACK_SIZE                          THREAD_STACK_PAGE(1)   /*!< 1 page (4 kbytes) */
 
 /*!< The globals */
 extern kuint32_t g_asm_sched_flag;
@@ -104,29 +104,28 @@ static void *kthread_entry(void *args)
 
 #if CONFIG_PREEMPT
     setup_timer(sprt_tim, kthread_schedule_timeout, (kuint32_t)sprt_tim);
+    sprt_tim->expires = jiffies + msecs_to_jiffies(THREAD_PREEMPT_PERIOD);
+    add_timer(sprt_tim);
 #endif
 
-    /*!< 1. fixed tid thread */
-    init_proc_init();                       /*!< create init task */
-
-    /*!< 2. random tid thread */
-    term_init();                            /*!< create term task */
     kworker_init();                         /*!< create kworker task */
 
     print_info("%s is enter, which tid is: %d\n", __FUNCTION__, tid);
     mrt_preempt_enable();
 
+    /* platform initcall */
+    run_platform_initcall();
+    print_info("platform initialization finished\n");
+
+    term_init();                            /*!< create term task */
+
+    /*!< build application */
+    init_proc_init();                       /*!< create init task */
+
     for (;;)
     {        
         kthread_systime_record();
-
-#if CONFIG_PREEMPT
-        /*!< start timer */
-        if (!sprt_tim->expires)
-            mod_timer(sprt_tim, jiffies + msecs_to_jiffies(THREAD_PREEMPT_PERIOD));
-#endif
-
-        schedule_delay_ms(200);
+        msleep(200);
     }
 
     return args;

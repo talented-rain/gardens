@@ -74,19 +74,29 @@ void schedule_timeout(kutime_t count)
  * @retval  none
  * @note    delay and schedule (current thread may convert to suspend status)
  */
-void schedule_delay(kuint32_t seconds)
+kuint32_t sleep(kuint32_t seconds)
 {
     kutime_t count = jiffies + secs_to_jiffies(seconds);
-    
-#if CONFIG_ROLL_POLL
-    while (mrt_time_after(count, jiffies))
-        schedule_thread();
 
-#else
-    if (mrt_time_after(count, jiffies))
-        schedule_timeout(count);
-    
-#endif
+    if (mrt_likely(mrt_current))
+    {
+    #if CONFIG_ROLL_POLL
+        while (mrt_time_after(count, jiffies))
+            schedule_thread();
+
+    #else
+        if (mrt_time_after(count, jiffies))
+            schedule_timeout(count);
+        
+    #endif
+    }
+    else
+    {
+        /*!< wait_secs(seconds); */
+        while (mrt_time_after(count, jiffies));
+    }
+
+    return (kuint32_t)count;
 }
 
 /*!
@@ -95,40 +105,60 @@ void schedule_delay(kuint32_t seconds)
  * @retval  none
  * @note    delay and schedule (current thread may convert to suspend status)
  */
-void schedule_delay_ms(kuint32_t milseconds)
+kuint32_t msleep(kuint32_t milseconds)
 {
     kutime_t count = jiffies + msecs_to_jiffies(milseconds);
     
-#if CONFIG_ROLL_POLL
-    while (mrt_time_after(count, jiffies))
-        schedule_thread();
+    if (mrt_likely(mrt_current))
+    {
+    #if CONFIG_ROLL_POLL
+        while (mrt_time_after(count, jiffies))
+            schedule_thread();
 
-#else
-    if (mrt_time_after(count, jiffies))
-        schedule_timeout(count);
-    
-#endif
+    #else
+        if (mrt_time_after(count, jiffies))
+            schedule_timeout(count);
+        
+    #endif
+    }
+    else
+    {
+        /*!< wait_msecs(milseconds); */
+        while (mrt_time_after(count, jiffies));
+    }
+
+    return (kuint32_t)count;
 }
 
 /*!
- * @brief   sleep (unit: us)
+ * @brief   usleep (unit: us)
  * @param   useconds
  * @retval  none
  * @note    delay and schedule (current thread may convert to suspend status)
  */
-void schedule_delay_us(kuint32_t useconds)
+kint32_t usleep(kuint32_t useconds)
 {
     kutime_t count = jiffies + usecs_to_jiffies(useconds);
     
-#if CONFIG_ROLL_POLL
-    while (mrt_time_after(count, jiffies))
-        schedule_thread();
+    if (mrt_likely(mrt_current))
+    {
+    #if CONFIG_ROLL_POLL
+        while (mrt_time_after(count, jiffies))
+            schedule_thread();
 
-#else
-    if (mrt_time_after(count, jiffies))
-        schedule_timeout(count);
-    
-#endif
+    #else
+        if (mrt_time_after(count, jiffies))
+            schedule_timeout(count);
+        
+    #endif
+    }
+    else
+    {
+        /*!< wait_usecs(useconds); */
+        while (mrt_time_after(count, jiffies));
+    }
+
+    return (kint32_t)count;
 }
 
 /*!< end of file */

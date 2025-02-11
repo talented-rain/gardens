@@ -19,10 +19,11 @@
 
 /*!< The includes */
 #include <platform/fwk_basic.h>
+#include <kernel/mutex.h>
+#include <kernel/spinlock.h>
 
 /*!< The defines */
 struct fwk_inode;
-struct spin_lock;
 
 struct fwk_kobject
 {
@@ -60,6 +61,7 @@ struct fwk_probes
 
 struct fwk_kobj_map
 {
+	struct mutex_lock sgrt_mutex;
 	struct fwk_probes *sprt_probes[DEVICE_MAX_NUM];
 };
 
@@ -69,15 +71,15 @@ extern struct fwk_kobj_map *sprt_fwk_blkdev_map;
 
 /*!< The functions */
 /*!< -------------------------------------------------------------- */
-extern kint32_t fwk_kobject_root_init(void);
 extern kint32_t fwk_kobjmap_init(void);
 extern void fwk_kobjmap_del(void);
 
+extern kint32_t fwk_kobj_map(struct fwk_kobj_map *sprt_domain, kuint32_t devNum, kuint32_t range, void *data);
+extern kint32_t fwk_kobj_unmap(struct fwk_kobj_map *sprt_domain, kuint32_t devNum, kuint32_t range);
+extern void *fwk_kobjmap_lookup(struct fwk_kobj_map *sprt_domain, kuint32_t devNum);
+
 /*!< -------------------------------------------------------------- */
-extern void fwk_kobjmap_del(void);
-extern kint32_t fwk_kobj_map(struct fwk_kobj_map *domain, kuint32_t devNum, kuint32_t range, void *data);
-extern kint32_t fwk_kobj_unmap(struct fwk_kobj_map *domain, kuint32_t devNum, kuint32_t range);
-extern void *fwk_kobjmap_lookup(struct fwk_kobj_map *domain, kuint32_t devNum);
+extern kint32_t fwk_kobject_root_init(void);
 
 extern void fwk_kobject_init(struct fwk_kobject *sprt_kobj);
 extern struct fwk_kobject *fwk_kobject_create(void);

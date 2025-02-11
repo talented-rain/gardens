@@ -430,12 +430,12 @@ typedef enum { MDC_DIV_8 = 0U, MDC_DIV_16, MDC_DIV_32, MDC_DIV_48,
 #define XEMACPS_TXSR_FRAMERX_MASK     0x00000002U /**< Collision tx frame */
 #define XEMACPS_TXSR_USEDREAD_MASK    0x00000001U /**< TX buffer used bit set */
 
-#define XEMACPS_TXSR_ERROR_MASK      ((u32)XEMACPS_TXSR_HRESPNOK_MASK | \
-                                       (u32)XEMACPS_TXSR_URUN_MASK | \
-                                       (u32)XEMACPS_TXSR_BUFEXH_MASK | \
-                                       (u32)XEMACPS_TXSR_RXOVR_MASK | \
-                                       (u32)XEMACPS_TXSR_FRAMERX_MASK | \
-                                       (u32)XEMACPS_TXSR_USEDREAD_MASK)
+#define XEMACPS_TXSR_ERROR_MASK      ((kuint32_t)XEMACPS_TXSR_HRESPNOK_MASK | \
+                                       (kuint32_t)XEMACPS_TXSR_URUN_MASK | \
+                                       (kuint32_t)XEMACPS_TXSR_BUFEXH_MASK | \
+                                       (kuint32_t)XEMACPS_TXSR_RXOVR_MASK | \
+                                       (kuint32_t)XEMACPS_TXSR_FRAMERX_MASK | \
+                                       (kuint32_t)XEMACPS_TXSR_USEDREAD_MASK)
 /*@}*/
 
 /**
@@ -447,9 +447,9 @@ typedef enum { MDC_DIV_8 = 0U, MDC_DIV_16, MDC_DIV_32, MDC_DIV_48,
 #define XEMACPS_RXSR_FRAMERX_MASK     0x00000002U /**< Frame received OK */
 #define XEMACPS_RXSR_BUFFNA_MASK      0x00000001U /**< RX buffer used bit set */
 
-#define XEMACPS_RXSR_ERROR_MASK      ((u32)XEMACPS_RXSR_HRESPNOK_MASK | \
-                                       (u32)XEMACPS_RXSR_RXOVR_MASK | \
-                                       (u32)XEMACPS_RXSR_BUFFNA_MASK)
+#define XEMACPS_RXSR_ERROR_MASK      ((kuint32_t)XEMACPS_RXSR_HRESPNOK_MASK | \
+                                       (kuint32_t)XEMACPS_RXSR_RXOVR_MASK | \
+                                       (kuint32_t)XEMACPS_RXSR_BUFFNA_MASK)
 /*@}*/
 
 /**
@@ -459,8 +459,8 @@ typedef enum { MDC_DIV_8 = 0U, MDC_DIV_16, MDC_DIV_32, MDC_DIV_48,
 #define XEMACPS_INTQ1SR_TXCOMPL_MASK	0x00000080U /**< Transmit completed OK */
 #define XEMACPS_INTQ1SR_TXERR_MASK	0x00000040U /**< Transmit AMBA Error */
 
-#define XEMACPS_INTQ1_IXR_ALL_MASK	((u32)XEMACPS_INTQ1SR_TXCOMPL_MASK | \
-					 (u32)XEMACPS_INTQ1SR_TXERR_MASK)
+#define XEMACPS_INTQ1_IXR_ALL_MASK	((kuint32_t)XEMACPS_INTQ1SR_TXCOMPL_MASK | \
+					 (kuint32_t)XEMACPS_INTQ1SR_TXERR_MASK)
 
 /*@}*/
 
@@ -497,14 +497,14 @@ typedef enum { MDC_DIV_8 = 0U, MDC_DIV_16, MDC_DIV_32, MDC_DIV_48,
 #define XEMACPS_IXR_MGMNT_MASK      0x00000001U	/**< PHY management complete */
 #define XEMACPS_IXR_ALL_MASK        0x00007FFFU	/**< Everything! */
 
-#define XEMACPS_IXR_TX_ERR_MASK    ((u32)XEMACPS_IXR_TXEXH_MASK |         \
-                                     (u32)XEMACPS_IXR_RETRY_MASK |         \
-                                     (u32)XEMACPS_IXR_URUN_MASK)
+#define XEMACPS_IXR_TX_ERR_MASK    ((kuint32_t)XEMACPS_IXR_TXEXH_MASK |         \
+                                     (kuint32_t)XEMACPS_IXR_RETRY_MASK |         \
+                                     (kuint32_t)XEMACPS_IXR_URUN_MASK)
 
 
-#define XEMACPS_IXR_RX_ERR_MASK    ((u32)XEMACPS_IXR_HRESPNOK_MASK |      \
-                                     (u32)XEMACPS_IXR_RXUSED_MASK |        \
-                                     (u32)XEMACPS_IXR_RXOVR_MASK)
+#define XEMACPS_IXR_RX_ERR_MASK    ((kuint32_t)XEMACPS_IXR_HRESPNOK_MASK |      \
+                                     (kuint32_t)XEMACPS_IXR_RXUSED_MASK |        \
+                                     (kuint32_t)XEMACPS_IXR_RXOVR_MASK)
 
 /*@}*/
 
@@ -601,7 +601,7 @@ typedef enum { MDC_DIV_8 = 0U, MDC_DIV_16, MDC_DIV_32, MDC_DIV_48,
 *
 * @note
 * C-style signature:
-*    u32 XEmacPs_ReadReg(u32 BaseAddress, u32 RegOffset)
+*    kuint32_t XEmacPs_ReadReg(kuint32_t BaseAddress, kuint32_t RegOffset)
 *
 *****************************************************************************/
 #define XEmacPs_ReadReg(BaseAddress, RegOffset) \
@@ -621,8 +621,8 @@ typedef enum { MDC_DIV_8 = 0U, MDC_DIV_16, MDC_DIV_32, MDC_DIV_48,
 *
 * @note
 * C-style signature:
-*    void XEmacPs_WriteReg(u32 BaseAddress, u32 RegOffset,
-*         u32 Data)
+*    void XEmacPs_WriteReg(kuint32_t BaseAddress, kuint32_t RegOffset,
+*         kuint32_t Data)
 *
 *****************************************************************************/
 #define XEmacPs_WriteReg(BaseAddress, RegOffset, Data) \

@@ -16,6 +16,7 @@
 #include <platform/irq/fwk_irq_domain.h>
 #include <platform/irq/fwk_irq_types.h>
 #include <platform/irq/fwk_irq_chip.h>
+#include <kernel/rw_lock.h>
 
 /*!< The defines */
 #define FWK_IRQ_DESC_RADIXTREE				(1)
@@ -24,6 +25,7 @@
 /*!< The globals */
 static DECLARE_RADIX_TREE(sgrt_fwk_irq_radix_tree, default_malloc, kfree);
 static kuint32_t g_fwk_allocated_irqs[mrt_num_align(FWK_IRQ_DESC_MAX, RET_BITS_PER_INT) / RET_BITS_PER_INT] = { 0 };
+static struct rw_lock sgrt_fwk_irqs_lock = RW_LOCK_INIT();
 
 /*!< API functions */
 /*!
@@ -41,6 +43,7 @@ static struct fwk_irq_desc *fwk_allocate_irq_desc(nrt_gfp_t gfp)
 		return mrt_nullptr;
 
 	init_list_head(&sprt_desc->sgrt_action);
+	spin_lock_init(&sprt_desc->sgrt_lock);
 		
 	return sprt_desc;
 }
@@ -119,22 +122,31 @@ static kint32_t fwk_irq_domain_alloc_descs(kint32_t irq_base, kuint32_t nr_irqs)
 	struct fwk_irq_desc *sprt_desc;
 	kuint32_t virq;
 
+	wr_lock(&sgrt_fwk_irqs_lock);
+
 	virq = fwk_irq_bitmap_find_areas(g_fwk_allocated_irqs, irq_base, FWK_IRQ_DESC_MAX, nr_irqs);
 	if (virq < 0)
+	{
+		wr_unlock(&sgrt_fwk_irqs_lock);
 		return virq;
+	}
 
 	/*!< create desc for every irq */
 	for (kuint32_t i = 0; i < nr_irqs; i++)
 	{
 		sprt_desc = fwk_allocate_irq_desc(GFP_KERNEL);
 		if (!isValid(sprt_desc))
+		{
+			wr_unlock(&sgrt_fwk_irqs_lock);
 			return -ER_NOMEM;
+		}
 
 		sprt_desc->irq = virq + i;
 		radix_tree_add(&sgrt_fwk_irq_radix_tree, virq + i, &sprt_desc->sgrt_radix);
 	}
 
 	bitmap_set_nr_bit_valid(g_fwk_allocated_irqs, virq, FWK_IRQ_DESC_MAX, nr_irqs);
+	wr_unlock(&sgrt_fwk_irqs_lock);
 
 	return virq;
 }
@@ -148,10 +160,16 @@ static kint32_t fwk_irq_domain_alloc_descs(kint32_t irq_base, kuint32_t nr_irqs)
  */
 struct fwk_irq_desc *fwk_irq_to_desc(kuint32_t virq)
 {
+	struct fwk_irq_desc *sprt_desc;
+
 	if (virq < 0)
 		return mrt_nullptr;
 	
-	return radix_tree_next_entry(&sgrt_fwk_irq_radix_tree, struct fwk_irq_desc, sgrt_radix, virq);
+	rd_lock(&sgrt_fwk_irqs_lock);
+	sprt_desc = radix_tree_next_entry(&sgrt_fwk_irq_radix_tree, struct fwk_irq_desc, sgrt_radix, virq);
+	rd_unlock(&sgrt_fwk_irqs_lock);
+
+	return sprt_desc;
 }
 
 /*!
@@ -278,10 +296,13 @@ void fwk_irq_desc_free(kint32_t irq)
 	sprt_desc = fwk_irq_to_desc(irq);
 	sprt_data = &sprt_desc->sgrt_data;
 
+	wr_lock(&sgrt_fwk_irqs_lock);
+
 	bitmap_set_nr_bit_zero(g_fwk_allocated_irqs, sprt_data->irq, FWK_IRQ_DESC_MAX, 1);
 	fwk_destroy_irq_action(sprt_data->irq);
 	radix_tree_del(&sgrt_fwk_irq_radix_tree, sprt_data->irq);
 
+	wr_unlock(&sgrt_fwk_irqs_lock);
 	kfree(sprt_desc);
 }
 
