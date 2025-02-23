@@ -1700,8 +1700,12 @@ kint32_t XEmacPs_BdRingCreate(XEmacPs_BdRing * RingPtr, kuint32_t PhysAddr,
      */
     memset((void *)VirtAddrLoc, 0, (RingPtr->Separation * BdCount));
 
+    /*!< 虚拟地址 = 传入的虚拟地址 */
     BdVirtAddr = VirtAddrLoc;
+    /*!< 物理地址 = 传入的物理地址 + 1个BD的大小 = 第2个BD的首地址 */
     BdPhyAddr = PhysAddr + RingPtr->Separation;
+
+    /*!< 累加后: BdVirtAddr = 最后一个BD的首地址; BdPhyAddr = 最后一个BD的末地址 */
     for (i = 1U; i < BdCount; i++) 
     {
         BdVirtAddr += RingPtr->Separation;
@@ -1710,18 +1714,18 @@ kint32_t XEmacPs_BdRingCreate(XEmacPs_BdRing * RingPtr, kuint32_t PhysAddr,
 
     /*!< Setup and initialize pointers and counters */
     RingPtr->IsRunning = false;
-    RingPtr->BaseBdAddr = VirtAddrLoc;
-    RingPtr->PhysBaseAddr = PhysAddr;
-    RingPtr->HighBdAddr = BdVirtAddr;
-    RingPtr->Length = ((RingPtr->HighBdAddr - RingPtr->BaseBdAddr) + RingPtr->Separation);
-    RingPtr->AllCnt = (kuint32_t)BdCount;
-    RingPtr->FreeCnt = (kuint32_t)BdCount;
-    RingPtr->FreeHead = (XEmacPs_Bd *)(void *)VirtAddrLoc;
-    RingPtr->PreHead = (XEmacPs_Bd *)VirtAddrLoc;
-    RingPtr->HwHead = (XEmacPs_Bd *)VirtAddrLoc;
-    RingPtr->HwTail = (XEmacPs_Bd *)VirtAddrLoc;
+    RingPtr->BaseBdAddr = VirtAddrLoc;              /*!< 虚拟地址: 第1个BD的首地址 */
+    RingPtr->PhysBaseAddr = PhysAddr;               /*!< 物理地址: 第1个BD的首地址 */
+    RingPtr->HighBdAddr = BdVirtAddr;               /*!< 虚拟地址: 最后1个BD的首地址 */
+    RingPtr->Length = ((RingPtr->HighBdAddr - RingPtr->BaseBdAddr) + RingPtr->Separation);  /*!< 所有BD占用的总字节数 */
+    RingPtr->AllCnt = (kuint32_t)BdCount;           /*!< BD的总个数 */
+    RingPtr->FreeCnt = (kuint32_t)BdCount;          /*!< 当前空闲的BD个数 */
+    RingPtr->FreeHead = (XEmacPs_Bd *)(void *)VirtAddrLoc;  /*!< 空闲BD列表的第1个BD */
+    RingPtr->PreHead = (XEmacPs_Bd *)VirtAddrLoc;   /*!< 曾经在用BD列表的第1个BD */
+    RingPtr->HwHead = (XEmacPs_Bd *)VirtAddrLoc;    /*!< 使用中BD列表的... */
+    RingPtr->HwTail = (XEmacPs_Bd *)VirtAddrLoc;    /*!< 使用中BD列表的... */
     RingPtr->PostHead = (XEmacPs_Bd *)VirtAddrLoc;
-    RingPtr->BdaRestart = (XEmacPs_Bd *)(void *)PhysAddr;
+    RingPtr->BdaRestart = (XEmacPs_Bd *)(void *)PhysAddr;   /*!< 物理地址 */
 
     return ER_NORMAL;
 }
@@ -1884,6 +1888,7 @@ kuint32_t XEmacPs_BdRingFromHwTx(XEmacPs_BdRing * RingPtr, kuint32_t BdLimit, XE
         if (CurBdPtr != mrt_nullptr)
             BdStr = XEmacPs_BdRead(CurBdPtr, XEMACPS_BD_STAT_OFFSET);
 
+        /*!< BdStr构建时会被置上XEMACPS_TXBUF_USED_MASK, 此处条件成立 */
         if ((Sop == 0x00000000U) && ((BdStr & XEMACPS_TXBUF_USED_MASK)!=0x00000000U))
             Sop = 1U;
 
@@ -2256,9 +2261,9 @@ void XEmacPsIf_SentBds(xemacpsif_s *xemacpsif, XEmacPs_BdRing *txring)
 
     while (1) 
     {
-        /*!< obtain processed BD's */
-        n_bds = XEmacPs_BdRingFromHwTx(txring,
-                                XNET_CONFIG_N_TX_DESC, &txbdset);
+        /*!< 64个BD, 每个BD占8个字节, 共512字节, 故最大可分配BD数量为512; 视在用区的BD总数, 一次性分配 */
+        /*!< 如无意外, 将取出所有的在用区BD */
+        n_bds = XEmacPs_BdRingFromHwTx(txring, XNET_CONFIG_N_TX_DESC, &txbdset);
         if (n_bds == 0)
             return;
 
@@ -2384,6 +2389,7 @@ kint32_t XEmacPsIf_SgSend(xemacpsif_s *xemacpsif, struct pbuf *p)
     XEmacPs_BdClearTxUsed(temp_txbd);
     mrt_dsb();
 
+    /* 从预用区提取到使用区(使用区的地址已被写入到DMA寄存器) */
     status = XEmacPs_BdRingToHw(txring, n_pbufs, txbdset);
     if (status) 
     {
@@ -3041,10 +3047,11 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
 
     SYS_ARCH_PROTECT(lev);
 
-    /*!< check if space is available to send */
+    /*!< 获取空闲BD列表的BD数量 */
     freecnt = is_tx_space_available(xemacpsif);
     if (freecnt <= 5) 
     {
+        /* 空闲的BD严重不足, 将在用区的BD全部取出, 清0, 且释放pbuf */
         txring = &(XEmacPs_GetTxRing(&xemacpsif->sgrt_emacps));
         XEmacPsIf_SentBds(xemacpsif, txring);
     }

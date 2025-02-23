@@ -76,7 +76,7 @@ static kssize_t loopback_driver_recv(struct fwk_net_device *sprt_ndev, void *buf
     return sprt_skb->len;
 
 fail:
-    kfree_skb(sprt_skb);
+    fwk_free_skb(sprt_skb);
     return -ER_FAILD;
 }
 
@@ -251,7 +251,7 @@ static netdev_tx_t loopback_start_xmit(struct fwk_sk_buff *sprt_skb, struct fwk_
     sprt_ndev->sgrt_stats.tx_bytes += sprt_skb->len;
 
     size = loopback_driver_send(sprt_ndev, sprt_skb->data, sprt_skb->len);
-    kfree_skb(sprt_skb);
+    fwk_free_skb(sprt_skb);
 
     fwk_netif_wake_queue(sprt_ndev);
     return size;

@@ -10,6 +10,6 @@
 #
 
 obj-y	+=	loopback.o
-#obj-y	+=	zynq7sdk_gem.o
+obj-y	+=	zynq7sdk_gem.o
 
 # end of file

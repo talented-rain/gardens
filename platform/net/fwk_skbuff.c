@@ -64,7 +64,7 @@ struct fwk_sk_buff *fwk_alloc_skb(kuint32_t data_size, nrt_gfp_t flags)
  * @retval  none
  * @note    none
  */
-void kfree_skb(struct fwk_sk_buff *sprt_skb)
+void fwk_free_skb(struct fwk_sk_buff *sprt_skb)
 {
     if (!sprt_skb)
         return;

@@ -84,7 +84,7 @@ struct fwk_sk_buff_head
 
 /*!< The functions */
 extern struct fwk_sk_buff *fwk_alloc_skb(kuint32_t data_size, nrt_gfp_t flags);
-extern void kfree_skb(struct fwk_sk_buff *sprt_skb);
+extern void fwk_free_skb(struct fwk_sk_buff *sprt_skb);
 extern kint32_t fwk_skb_enqueue(struct fwk_sk_buff_head *sprt_head, struct fwk_sk_buff *sprt_skb);
 extern struct fwk_sk_buff *fwk_skb_dequeue(struct fwk_sk_buff_head *sprt_head);
 

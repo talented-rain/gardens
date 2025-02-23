@@ -525,7 +525,7 @@ typedef void (*XEmacPs_ErrHandler) (void *CallBackRef, kuint8_t Direction,
 typedef struct {
 	kuint16_t DeviceId;	/**< Unique ID  of device */
 	kuint32_t BaseAddress;/**< Physical base address of IPIF registers */
-	kuint8_t IsCacheCoherent; /**< Applicable only to A53 in EL1 mode;
+	kbool_t IsCacheCoherent; /**< Applicable only to A53 in EL1 mode;
 				* describes whether Cache Coherent or not */
 } XEmacPs_Config;
 

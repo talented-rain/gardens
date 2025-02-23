@@ -140,7 +140,7 @@ static err_t lwip_lowlevel_output(struct netif *sprt_netif, struct pbuf *sprt_bu
         goto END;
         
     fail:
-        kfree_skb(sprt_skb);
+        fwk_free_skb(sprt_skb);
     END:
         sprt_cur = sprt_per;
         sprt_per = sprt_cur->next;
@@ -503,7 +503,7 @@ static void fwk_lwip_input(void *rxq, void *args)
             sys_check_timeouts();
         }
 
-        kfree_skb(sprt_skb);
+        fwk_free_skb(sprt_skb);
     }
 }
 

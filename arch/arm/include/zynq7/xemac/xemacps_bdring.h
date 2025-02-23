@@ -221,6 +221,8 @@ typedef struct {
 
 extern kint32_t XEmacPs_BdRingCreate(XEmacPs_BdRing *sprt_bdring, kuint32_t PhysAddr,
                             kuint32_t VirtAddr, kuint32_t Alignment, kuint32_t BdCount);
+extern void XEmacPs_BdRingInitial(XEmacPs_BdRing *sprt_bdring, kuint32_t PhysAddr,
+                            kuint32_t VirtAddr, kuint32_t Alignment, kuint32_t BdCount);
 extern kint32_t XEmacPs_BdRingClone(XEmacPs_BdRing *sprt_bdring, XEmacPs_Bd *sprt_bd, kuint8_t Direction);
 extern kint32_t XEmacPs_BdRingAlloc(XEmacPs_BdRing *sprt_bdring, kuint32_t NumBd, XEmacPs_Bd **sprt_bd);
 extern kint32_t XEmacPs_BdRingUnAlloc(XEmacPs_BdRing *sprt_bdring, kuint32_t NumBd, XEmacPs_Bd *sprt_bd);

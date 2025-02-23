@@ -229,6 +229,18 @@ kint32_t XEmacPs_BdRingCreate(XEmacPs_BdRing *sprt_bdring, kuint32_t PhysAddr,
 }
 
 /*!
+ * @brief   Initial Bd Ring
+ * @param   sprt_bdring: BdRing structure pointer
+ * @param   PhysAddr: phy address
+ * @retval  none
+ */
+void XEmacPs_BdRingInitial(XEmacPs_BdRing *sprt_bdring, kuint32_t PhysAddr,
+                            kuint32_t VirtAddr, kuint32_t Alignment, kuint32_t BdCount)
+{
+    (void)XEmacPs_BdRingCreate(sprt_bdring, PhysAddr, VirtAddr, Alignment, BdCount);
+}
+
+/*!
  * @brief   copy Bd Ring
  * @param   sprt_bdring: BdRing structure pointer
  * @param   sprt_bd: Bd base address
@@ -458,7 +470,7 @@ kuint32_t XEmacPs_BdRingFromHwRx(XEmacPs_BdRing *sprt_bdring, kuint32_t BdLimit,
      *  - sprt_bdring->HwTail is reached and sprt_bdring->HwCnt is reached.
      *  - The number of requested BDs has been processed
      */
-    while (BdCount < BdLimit) 
+    while (BdCount < BdLimit)
     {
         /*!< Read the status */
         if (CurBdPtr != mrt_nullptr)
